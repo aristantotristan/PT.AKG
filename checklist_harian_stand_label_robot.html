@@ -1,239 +1,404 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Checklist Harian Stand Label & Robot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-    }
-    fieldset {
-      background: #ffffff;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    legend {
-      font-weight: bold;
-      padding: 0 10px;
-    }
-    .item {
-      margin-bottom: 12px;
-    }
-    label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-    select {
-      width: 100%;
-      padding: 6px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #003366;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Checklist Harian Stand Label & Robot</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
+}
+h2 {
+  text-align: center;
+}
+fieldset {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+}
+legend {
+  font-weight: bold;
+}
+label {
+  display: block;
+  margin-top: 10px;
+}
+select, textarea {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+}
+textarea {
+  display: none;
+}
+.step {
+  display: none;
+}
+.step.active {
+  display: block;
+}
+.nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #003366;
+  color: #fff;
+  font-size: 14px;
+}
+.progress {
+  width: 100%;
+  height: 10px;
+  background: #ddd;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+#progressBar {
+  height: 10px;
+  width: 0%;
+  background: #003366;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+</style>
 </head>
+
 <body>
 
-<h2>CHECKLIST HARIAN<br>STAND LABEL & ROBOT</h2>
+<h2>Checklist Harian Stand Label & Robot</h2>
 
-<!-- DATA UMUM -->
+<div class="progress">
+  <div id="progressBar"></div>
+</div>
+
+<!-- STEP 1 FRAME -->
+<div class="step active" id="step-1">
 <fieldset>
-  <legend>Data Umum</legend>
+<legend>FRAME / RANGKA STAND LABEL</legend>
 
-  <div class="item">
-    <label>Tanggal</label>
-    <input type="text" id="tanggal" readonly>
-  </div>
+<label>Cek kondisi baut frame rangka</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
 
-  <div class="item">
-    <label>Pelaksana (P1)</label>
-    <input type="text" placeholder="Nama Mekanik">
-  </div>
+<label>Cek bubble leveller</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
 </fieldset>
 
-<!-- FRAME / RANGKA -->
+<div class="nav">
+<button disabled>Back</button>
+<button onclick="next()">Next</button>
+</div>
+</div>
+
+<!-- STEP 2 MAGAZINE -->
+<div class="step" id="step-2">
 <fieldset>
-  <legend>FRAME / RANGKA STAND LABEL</legend>
+<legend>MAGAZINE LABEL</legend>
 
-  <div class="item">
-    <label>Cek kondisi baut frame rangka (tidak kendor/lepas)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>As Adjuster plate magazine label</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
 
-  <div class="item">
-    <label>Cek bubble leveller (terpasang & berfungsi)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Baut frame / rangka magazine label</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
 </fieldset>
 
-<!-- MAGAZINE LABEL -->
+<div class="nav">
+<button onclick="back()">Back</button>
+<button onclick="next()">Next</button>
+</div>
+</div>
+
+<!-- STEP 3 PLATE -->
+<div class="step" id="step-3">
 <fieldset>
-  <legend>MAGAZINE LABEL</legend>
+<legend>PLATE STAND LABEL</legend>
 
-  <div class="item">
-    <label>As Adjuster plate magazine label (berfungsi baik)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>V-Belt kondisi baik</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Baut frame/rangka magazine label (lengkap & bersih)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Gear / Bushing / Bearing</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+
+<label>Vacuum pad (baut & skun)</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+
+<label>Pergerakan spring / as vacuum pads</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+
+<label>Linier bearing SL</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+
+<label>Tutup Rail</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 </fieldset>
 
-<!-- PLATE STAND LABEL -->
+<div class="nav">
+<button onclick="back()">Back</button>
+<button onclick="next()">Next</button>
+</div>
+</div>
+
+<!-- STEP 4 PANEL -->
+<div class="step" id="step-4">
 <fieldset>
-  <legend>PLATE STAND LABEL</legend>
+<legend>PANEL KONTROL STAND LABEL</legend>
 
-  <div class="item">
-    <label>V-Belt kondisi baik (tidak kendor / terlalu kencang)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Kondisi panel & komponen</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Gear / Bushing / Bearing (tidak goyang)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Komponen electrical</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Vacuum pad (baut & skun kencang)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Instalasi kabel</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Pergerakan spring / as vacuum pads (smooth / halus)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Solenoid valve</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Linier bearing SL (berfungsi baik / tidak kendor)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Kondisi fan</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Tutup rail (terpasang dengan benar)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Sambungan kabel power/control</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 </fieldset>
 
-<!-- PANEL KONTROL -->
+<div class="nav">
+<button onclick="back()">Back</button>
+<button onclick="next()">Next</button>
+</div>
+</div>
+
+<!-- STEP 5 PNEUMATIC -->
+<div class="step" id="step-5">
 <fieldset>
-  <legend>PANEL KONTROL STAND LABEL</legend>
+<legend>SISTEM PNEUMATIC STAND LABEL</legend>
 
-  <div class="item">
-    <label>Kondisi panel & komponen (tidak berdebu / lengket)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Instalasi pneumatic / cylinder / tubing</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Komponen electrical (tidak kendor)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Instalasi tubing</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Instalasi kabel (rapi / tidak kendor)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Solenoid valve + silencer</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Instalasi solenoid valve (tidak kendor)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Vacuum generator + silencer</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Kondisi fan (bersih / tidak berdebu)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Fungsi vacuum generator (0.4–0.5 kPa)</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Sambungan kabel power/control (permanen)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Tekanan supply angin (4–8 bar)</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 </fieldset>
 
-<!-- SISTEM PNEUMATIC -->
+<div class="nav">
+<button onclick="back()">Back</button>
+<button onclick="next()">Next</button>
+</div>
+</div>
+
+<!-- STEP 6 ROBOT -->
+<div class="step" id="step-6">
 <fieldset>
-  <legend>SISTEM PNEUMATIC STAND LABEL</legend>
+<legend>SISTEM ROBOT</legend>
 
-  <div class="item">
-    <label>Instalasi pneumatic, cylinder, tubing (rapi & tidak bocor)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Dummy Robot (cleaning 15 menit)</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 
-  <div class="item">
-    <label>Instalasi tubing (permanen & rapi)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Solenoid valve (dilengkapi silencer)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Vacuum generator (dilengkapi silencer)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Fungsi vacuum generator (0.4–0.5 kPa)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Sensor pneumatic (stabil & berfungsi)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Sensor vacuum (pembacaan stabil)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Tekanan supply angin compressor (4–8 bar)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
+<label>Sistem static (9–13 Kv)</label>
+<select onchange="ngCheck(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
 </fieldset>
 
-<!-- SISTEM ROBOT -->
-<fieldset>
-  <legend>SISTEM ROBOT</legend>
-
-  <div class="item">
-    <label>Dummy robot (cleaning 15 menit)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-
-  <div class="item">
-    <label>Sistem static (9–13 Kv)</label>
-    <select><option>OK</option><option>NG</option></select>
-  </div>
-</fieldset>
-
-<button onclick="submitChecklist()">Submit & Lanjut Paraf</button>
+<div class="nav">
+<button onclick="back()">Back</button>
+<button onclick="submitChecklist()">Submit</button>
+</div>
+</div>
 
 <script>
-  document.getElementById("tanggal").value =
-    new Date().toLocaleDateString("id-ID");
+let step = 1;
+const total = 6;
 
-  function submitChecklist() {
-    window.location.href = "paraf_CHSLR.html";
+function show() {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+  document.getElementById('progressBar').style.width =
+    ((step - 1) / (total - 1)) * 100 + '%';
+}
+
+function next() {
+  if (!validate()) return;
+  step++;
+  show();
+}
+
+function back() {
+  step--;
+  show();
+}
+
+function ngCheck(el) {
+  const note = el.nextElementSibling;
+  if (el.value === 'NG') {
+    note.style.display = 'block';
+    note.required = true;
+  } else {
+    note.style.display = 'none';
+    note.required = false;
+    note.value = '';
   }
+}
+
+function validate() {
+  const current = document.getElementById('step-' + step);
+  const selects = current.querySelectorAll('select');
+  for (let s of selects) {
+    if (s.value === '') {
+      alert('Semua item harus diisi');
+      return false;
+    }
+    if (s.value === 'NG') {
+      const note = s.nextElementSibling;
+      if (!note.value.trim()) {
+        alert('Item NG wajib isi keterangan');
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function submitChecklist() {
+  if (!validate()) return;
+  window.location.href = "paraf_CHSLR.html";
+}
 </script>
 
 </body>
