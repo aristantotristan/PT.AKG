@@ -21,29 +21,24 @@
     }
     legend {
       font-weight: bold;
-      padding: 0 10px;
-    }
-    .item {
-      margin-bottom: 10px;
     }
     label {
       display: block;
-      font-size: 14px;
+      margin-top: 8px;
     }
-    select, input, textarea {
+    select, input {
       width: 100%;
       padding: 6px;
       margin-top: 4px;
     }
     button {
-      padding: 12px;
+      padding: 14px;
       width: 100%;
       background: #003366;
       color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -51,177 +46,65 @@
 
 <h2>Checklist Harian Stand Label & Robot</h2>
 
-<!-- ================= DATA UMUM ================= -->
+<form onsubmit="goToParaf(); return false;">
+
+<!-- DATA UMUM -->
 <fieldset>
   <legend>Data Umum</legend>
+  <label>Tanggal</label>
+  <input type="text" id="tanggal" readonly>
 
-  <div class="item">
-    <label>Tanggal</label>
-    <input type="text" id="tanggal" readonly>
-  </div>
+  <label>Mesin</label>
+  <input type="text" value="Stand Label & Robot" readonly>
 
-  <div class="item">
-    <label>Mesin</label>
-    <input type="text" value="Stand Label & Robot" readonly>
-  </div>
-
-  <div class="item">
-    <label>Pelaksana (P1)</label>
-    <input type="text" id="pelaksana" placeholder="Nama Mekanik">
-  </div>
+  <label>Pelaksana (P1)</label>
+  <input type="text" required placeholder="Nama Mekanik">
 </fieldset>
 
-<!-- ================= FRAME / RANGKA ================= -->
+<!-- FRAME -->
 <fieldset>
   <legend>FRAME / RANGKA STAND LABEL</legend>
+  <label>Cek kondisi baut frame rangka</label>
+  <select required>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
 
-  <div class="item">
-    <label>Cek kondisi baut frame rangka</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Cek bubble leveller</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
+  <label>Cek bubble leveller</label>
+  <select required>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
 </fieldset>
 
-<!-- ================= MAGAZINE LABEL ================= -->
-<fieldset>
-  <legend>MAGAZINE LABEL</legend>
-
-  <div class="item">
-    <label>Adjuster plate magazine label</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Baut frame/rangka magazine label</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-</fieldset>
-
-<!-- ================= PLATE STAND LABEL ================= -->
-<fieldset>
-  <legend>PLATE STAND LABEL</legend>
-
-  <div class="item">
-    <label>V-Belt kondisi baik</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Gear / Bushing / Bearing</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Vacuum pad (baut & skun)</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-</fieldset>
-
-<!-- ================= PANEL KONTROL ================= -->
-<fieldset>
-  <legend>PANEL KONTROL STAND LABEL</legend>
-
-  <div class="item">
-    <label>Kondisi panel & komponen</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Instalasi kabel</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-</fieldset>
-
-<!-- ================= SISTEM ROBOT ================= -->
+<!-- SISTEM ROBOT -->
 <fieldset>
   <legend>SISTEM ROBOT</legend>
+  <label>Dummy Robot (cleaning 15 menit)</label>
+  <select required>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
 
-  <div class="item">
-    <label>Dummy Robot (cleaning 15 menit)</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
-
-  <div class="item">
-    <label>Nilai Static (9–13 Kv)</label>
-    <select class="wajib">
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-  </div>
+  <label>Nilai Static (9–13 Kv)</label>
+  <select required>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
 </fieldset>
 
-<button onclick="submitForm()">Submit Checklist</button>
+<button type="submit">Submit & Paraf</button>
+</form>
 
 <script>
-  // isi tanggal otomatis
   document.getElementById("tanggal").value =
     new Date().toLocaleDateString("id-ID");
 
-  function submitForm() {
-    // validasi pelaksana
-    const pelaksana = document.getElementById("pelaksana").value.trim();
-    if (pelaksana === "") {
-      alert("Nama pelaksana wajib diisi");
-      return;
-    }
-
-    // validasi semua checklist
-    const selects = document.querySelectorAll(".wajib");
-    for (let s of selects) {
-      if (s.value === "") {
-        alert("Masih ada checklist yang belum diisi");
-        return;
-      }
-    }
-
-    // simulasi simpan data (nanti ke Supabase)
-    alert("Checklist tersimpan");
-
+  function goToParaf() {
     // redirect ke halaman paraf
     window.location.href = "paraf_CHSLR.html";
   }
