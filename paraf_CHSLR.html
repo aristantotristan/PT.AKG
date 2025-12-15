@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Paraf Checklist Harian Stand Label & Robot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    fieldset {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    legend {
+      font-weight: bold;
+      padding: 0 10px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+    }
+    .paraf-box {
+      height: 80px;
+      border: 1px dashed #999;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 13px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Paraf Checklist Harian<br>Stand Label & Robot</h2>
+
+<!-- PARAF PELAKSANA -->
+<fieldset>
+  <legend>Paraf Pelaksana / User (P1)</legend>
+
+  <label>Nama Pelaksana</label>
+  <input type="text" placeholder="Nama Mekanik">
+
+  <label>Tanggal</label>
+  <input type="text" id="tglP1" readonly>
+
+  <div class="paraf-box">
+    Area Paraf / Tanda Tangan
+  </div>
+</fieldset>
+
+<!-- PARAF PENGECEK -->
+<fieldset>
+  <legend>Paraf Pengecek / Koordinator (P2)</legend>
+
+  <label>Nama Koordinator / Supervisor</label>
+  <input type="text" placeholder="Nama Supervisor">
+
+  <label>Tanggal</label>
+  <input type="text" id="tglP2" readonly>
+
+  <div class="paraf-box">
+    Area Paraf / Tanda Tangan
+  </div>
+</fieldset>
+
+<!-- DIKETAHUI -->
+<fieldset>
+  <legend>Diketahui - Mechanic Superintendent (P3)</legend>
+
+  <label>Nama Mechanic Superintendent</label>
+  <input type="text" placeholder="Nama Superintendent">
+
+  <label>Tanggal</label>
+  <input type="text" id="tglP3" readonly>
+
+  <div class="paraf-box">
+    Area Paraf / Tanda Tangan
+  </div>
+</fieldset>
+
+<button onclick="submitParaf()">Simpan Paraf</button>
+
+<script>
+  const today = new Date().toLocaleDateString("id-ID");
+  document.getElementById("tglP1").value = today;
+  document.getElementById("tglP2").value = today;
+  document.getElementById("tglP3").value = today;
+
+  function submitParaf() {
+    alert("Paraf tersimpan (dummy)");
+  }
+</script>
+
+</body>
+</html>
