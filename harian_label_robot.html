@@ -3,41 +3,202 @@
 <head>
   <meta charset="UTF-8">
   <title>Checklist Harian Stand Label & Robot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    fieldset {
+      background: #fff;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
+    legend {
+      font-weight: bold;
+      padding: 0 10px;
+    }
+    .item {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+    }
+    select, input, textarea {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+    }
+    button {
+      padding: 12px;
+      width: 100%;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
 
 <h2>Checklist Harian Stand Label & Robot</h2>
 
-<p>Mesin: Stand Label & Robot</p>
-<p>Tanggal: <span id="tgl"></span></p>
+<!-- HEADER -->
+<fieldset>
+  <legend>Data Umum</legend>
+  <div class="item">
+    <label>Tanggal</label>
+    <input type="text" id="tanggal" readonly>
+  </div>
+  <div class="item">
+    <label>Mesin</label>
+    <input type="text" value="Stand Label & Robot" readonly>
+  </div>
+  <div class="item">
+    <label>Pelaksana (P1)</label>
+    <input type="text" placeholder="Nama Mekanik">
+  </div>
+</fieldset>
 
-<form>
-  <label>1. Kondisi sensor</label><br>
-  <select>
-    <option value="">-- Pilih --</option>
-    <option>OK</option>
-    <option>NG</option>
-  </select><br><br>
+<!-- FRAME / RANGKA -->
+<fieldset>
+  <legend>FRAME / RANGKA STAND LABEL</legend>
 
-  <label>2. Kebersihan area</label><br>
-  <select>
-    <option value="">-- Pilih --</option>
-    <option>OK</option>
-    <option>NG</option>
-  </select><br><br>
+  <div class="item">
+    <label>Cek kondisi baut frame rangka</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
 
-  <label>Catatan (jika NG)</label><br>
-  <textarea rows="3"></textarea><br><br>
+  <div class="item">
+    <label>Cek bubble leveller</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+</fieldset>
 
-  <button type="button" onclick="submitForm()">Submit</button>
-</form>
+<!-- MAGAZINE LABEL -->
+<fieldset>
+  <legend>MAGAZINE LABEL</legend>
+
+  <div class="item">
+    <label>Adjuster plate magazine label</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+
+  <div class="item">
+    <label>Baut frame/rangka magazine label</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+</fieldset>
+
+<!-- PLATE STAND LABEL -->
+<fieldset>
+  <legend>PLATE STAND LABEL</legend>
+
+  <div class="item">
+    <label>V-Belt kondisi baik</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+
+  <div class="item">
+    <label>Gear / Bushing / Bearing</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+
+  <div class="item">
+    <label>Vacuum pad (baut & skun)</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+</fieldset>
+
+<!-- PANEL KONTROL -->
+<fieldset>
+  <legend>PANEL KONTROL STAND LABEL</legend>
+
+  <div class="item">
+    <label>Kondisi panel & komponen</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+
+  <div class="item">
+    <label>Instalasi kabel</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+</fieldset>
+
+<!-- SISTEM ROBOT -->
+<fieldset>
+  <legend>SISTEM ROBOT</legend>
+
+  <div class="item">
+    <label>Dummy Robot (cleaning 15 menit)</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+
+  <div class="item">
+    <label>Nilai Static (9–13 Kv)</label>
+    <select>
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+  </div>
+</fieldset>
+
+<button onclick="submitForm()">Submit Checklist</button>
 
 <script>
-  document.getElementById("tgl").innerText =
+  document.getElementById("tanggal").value =
     new Date().toLocaleDateString("id-ID");
 
   function submitForm() {
-    alert("Checklist harian label & robot (dummy)");
+    alert("Checklist tersimpan (dummy)");
   }
 </script>
 
