@@ -1,186 +1,146 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Paraf Checklist Harian Stand Label & Robot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-    }
-    fieldset {
-      background: #ffffff;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    legend {
-      font-weight: bold;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-    }
-    canvas {
-      border: 1px dashed #999;
-      margin-top: 10px;
-      touch-action: none;
-      background: #fff;
-    }
-    .clear-btn {
-      margin-top: 6px;
-      background: #999;
-      border: none;
-      padding: 6px 10px;
-      color: #fff;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #003366;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Paraf Checklist</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 20px;
+}
+h2 { text-align: center; }
+
+.progress {
+  background: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.progress-bar {
+  height: 12px;
+  background: #003366;
+  width: 0%;
+}
+
+.step {
+  display: none;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+input {
+  width: 100%;
+  padding: 8px;
+}
+
+.signature {
+  margin-top: 15px;
+  height: 80px;
+  border: 1px dashed #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+}
+
+.nav {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+}
+.next { background: #003366; color: white; }
+.back { background: #999; color: white; }
+</style>
 </head>
+
 <body>
 
 <h2>Paraf Checklist Harian<br>Stand Label & Robot</h2>
 
-<!-- P1 -->
-<fieldset>
-  <legend>Paraf Pelaksana / User (P1)</legend>
+<div class="progress">
+  <div class="progress-bar" id="progress"></div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step" id="step1">
+  <h3>STEP 1 – Paraf Pelaksana (P1)</h3>
 
   <label>Nama Pelaksana</label>
-  <input type="text" id="namaP1" placeholder="Nama Mekanik">
+  <input placeholder="Nama Mekanik">
 
   <label>Tanggal</label>
-  <input type="text" id="tglP1" readonly>
+  <input value="05-12-2025" readonly>
 
-  <canvas id="ttdP1" width="300" height="120"></canvas>
-  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP1')">Clear</button>
-</fieldset>
+  <div class="signature">Area Tanda Tangan</div>
+</div>
 
-<!-- P2 -->
-<fieldset>
-  <legend>Paraf Pengecek / Koordinator (P2)</legend>
+<!-- STEP 2 -->
+<div class="step" id="step2">
+  <h3>STEP 2 – Paraf Pengecek / Koordinator (P2)</h3>
 
-  <label>Nama Koordinator / Supervisor</label>
-  <input type="text" id="namaP2" placeholder="Nama Supervisor">
+  <label>Nama Koordinator</label>
+  <input placeholder="Nama Supervisor">
 
-  <label>Tanggal</label>
-  <input type="text" id="tglP2" readonly>
+  <label>Ringkasan Checklist</label>
+  <input value="OK: 31 | NG: 1" readonly>
 
-  <canvas id="ttdP2" width="300" height="120"></canvas>
-  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP2')">Clear</button>
-</fieldset>
+  <div class="signature">Area Tanda Tangan</div>
+</div>
 
-<!-- P3 -->
-<fieldset>
-  <legend>Diketahui - Mechanic Superintendent (P3)</legend>
+<!-- STEP 3 -->
+<div class="step" id="step3">
+  <h3>STEP 3 – Diketahui<br>Mechanic Superintendent (P3)</h3>
 
-  <label>Nama Mechanic Superintendent</label>
-  <input type="text" id="namaP3" placeholder="Nama Superintendent">
+  <label>Nama Superintendent</label>
+  <input placeholder="Nama Superintendent">
 
-  <label>Tanggal</label>
-  <input type="text" id="tglP3" readonly>
+  <label>Status Checklist</label>
+  <input value="APPROVE WITH NOTE" readonly>
 
-  <canvas id="ttdP3" width="300" height="120"></canvas>
-  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP3')">Clear</button>
-</fieldset>
+  <div class="signature">Area Tanda Tangan</div>
+</div>
 
-<button onclick="submitParaf()">Simpan Paraf</button>
+<div class="nav">
+  <button class="back" onclick="prevStep()">Back</button>
+  <button class="next" onclick="nextStep()">Next</button>
+</div>
 
 <script>
-  // tanggal
-  const today = new Date().toLocaleDateString("id-ID");
-  tglP1.value = today;
-  tglP2.value = today;
-  tglP3.value = today;
+let step = 1;
+const total = 3;
 
-  // setup canvas
-  function setupCanvas(id) {
-    const canvas = document.getElementById(id);
-    const ctx = canvas.getContext("2d");
-    let drawing = false;
+function showStep() {
+  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+  document.getElementById('step' + step).style.display = 'block';
+  document.getElementById('progress').style.width =
+    ((step / total) * 100) + '%';
+}
 
-    function pos(e) {
-      const r = canvas.getBoundingClientRect();
-      if (e.touches) {
-        return {
-          x: e.touches[0].clientX - r.left,
-          y: e.touches[0].clientY - r.top
-        };
-      }
-      return {
-        x: e.clientX - r.left,
-        y: e.clientY - r.top
-      };
-    }
+function nextStep() {
+  if (step < total) step++;
+  else alert("Semua paraf selesai ✔");
+  showStep();
+}
 
-    function start(e) {
-      drawing = true;
-      const p = pos(e);
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-    }
+function prevStep() {
+  if (step > 1) step--;
+  showStep();
+}
 
-    function draw(e) {
-      if (!drawing) return;
-      e.preventDefault();
-      const p = pos(e);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-    }
-
-    function stop() {
-      drawing = false;
-    }
-
-    canvas.addEventListener("mousedown", start);
-    canvas.addEventListener("mousemove", draw);
-    canvas.addEventListener("mouseup", stop);
-    canvas.addEventListener("mouseleave", stop);
-
-    canvas.addEventListener("touchstart", start);
-    canvas.addEventListener("touchmove", draw);
-    canvas.addEventListener("touchend", stop);
-  }
-
-  function clearCanvas(id) {
-    const c = document.getElementById(id);
-    c.getContext("2d").clearRect(0, 0, c.width, c.height);
-  }
-
-  setupCanvas("ttdP1");
-  setupCanvas("ttdP2");
-  setupCanvas("ttdP3");
-
-  function submitParaf() {
-    const data = {
-      P1: ttdP1.toDataURL(),
-      P2: ttdP2.toDataURL(),
-      P3: ttdP3.toDataURL()
-    };
-
-    console.log(data);
-    alert("Paraf tersimpan (dummy)");
-  }
+showStep();
 </script>
 
 </body>
