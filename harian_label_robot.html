@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Checklist Harian Stand Label & Robot</title>
+</head>
+<body>
+
+<h2>Checklist Harian Stand Label & Robot</h2>
+
+<p>Mesin: Stand Label & Robot</p>
+<p>Tanggal: <span id="tgl"></span></p>
+
+<form>
+  <label>1. Kondisi sensor</label><br>
+  <select>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select><br><br>
+
+  <label>2. Kebersihan area</label><br>
+  <select>
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select><br><br>
+
+  <label>Catatan (jika NG)</label><br>
+  <textarea rows="3"></textarea><br><br>
+
+  <button type="button" onclick="submitForm()">Submit</button>
+</form>
+
+<script>
+  document.getElementById("tgl").innerText =
+    new Date().toLocaleDateString("id-ID");
+
+  function submitForm() {
+    alert("Checklist harian label & robot (dummy)");
+  }
+</script>
+
+</body>
+</html>
