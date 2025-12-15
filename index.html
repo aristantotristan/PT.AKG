@@ -1,40 +1,34 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Preventive Maintenance</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 16px;
-      background: #f5f5f5;
+      background: #f2f2f2;
+      padding: 20px;
     }
     h1 {
       text-align: center;
     }
-    .card {
-      background: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
+    .menu {
+      max-width: 400px;
+      margin: auto;
     }
-    label {
+    a {
       display: block;
-      margin-top: 12px;
-      font-weight: bold;
-    }
-    select, textarea, button {
-      width: 100%;
-      margin-top: 6px;
-      padding: 8px;
-    }
-    button {
-      margin-top: 16px;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
+      text-decoration: none;
+      background: #003366;
+      color: white;
+      padding: 16px;
+      margin: 12px 0;
+      text-align: center;
+      border-radius: 8px;
       font-size: 16px;
+    }
+    a:hover {
+      background: #0055aa;
     }
   </style>
 </head>
@@ -42,40 +36,19 @@
 
   <h1>Preventive Maintenance</h1>
 
-  <div class="card">
-    <p><b>Mesin:</b> Compressor A</p>
-    <p><b>Tanggal:</b> <span id="tanggal"></span></p>
+  <div class="menu">
+    <a href="harian_label_robot.html">
+      Checklist Harian Stand Label & Robot
+    </a>
+
+    <a href="bulanan_label_robot.html">
+      Preventif Bulanan Robot & Stand Label
+    </a>
+
+    <a href="harian_mesin_injection.html">
+      Checklist Harian Mesin Injection
+    </a>
   </div>
-
-  <div class="card">
-    <label>1. Cek suara mesin</label>
-    <select>
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-
-    <label>2. Cek kebocoran</label>
-    <select>
-      <option value="">-- Pilih --</option>
-      <option>OK</option>
-      <option>NG</option>
-    </select>
-
-    <label>3. Catatan (jika NG)</label>
-    <textarea rows="3" placeholder="Isi keterangan..."></textarea>
-
-    <button onclick="submitChecklist()">Submit Checklist</button>
-  </div>
-
-  <script>
-    document.getElementById("tanggal").innerText =
-      new Date().toLocaleDateString("id-ID");
-
-    function submitChecklist() {
-      alert("Checklist tersimpan (dummy)");
-    }
-  </script>
 
 </body>
 </html>
