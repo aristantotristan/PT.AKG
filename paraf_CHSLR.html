@@ -2,138 +2,128 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Paraf Checklist - Stand Label & Robot</title>
-
+<title>Paraf Checklist Harian</title>
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #f2f2f2;
   padding: 20px;
 }
-
-h2 { text-align: center; }
-
-.progress {
-  background: #ddd;
-  height: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
+h2 {
+  text-align: center;
 }
-.progress-bar {
-  height: 10px;
-  background: #003366;
-  width: 33%;
-  border-radius: 5px;
-}
-
 fieldset {
   background: #fff;
   border-radius: 8px;
-  padding: 20px;
   border: 1px solid #ccc;
+  padding: 16px;
+  margin-bottom: 20px;
 }
-
+legend {
+  font-weight: bold;
+}
 canvas {
-  border: 1px dashed #999;
   width: 100%;
-  height: 120px;
+  height: 150px;
+  border: 2px dashed #999;
+  border-radius: 6px;
   touch-action: none;
 }
-
-button {
-  padding: 12px;
-  margin-top: 10px;
-  width: 48%;
-}
-
-.nav {
+.tools {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+button {
+  flex: 1;
+  padding: 10px;
+  background: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}
+button.clear {
+  background: #999;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Paraf Checklist</h2>
+<h2>Paraf Checklist Harian<br>Stand Label & Robot</h2>
 
-<div class="progress">
-  <div class="progress-bar" id="progressBar"></div>
+<fieldset>
+<legend>Paraf Pelaksana / User</legend>
+
+<label>Nama</label>
+<input type="text" id="p1_name">
+
+<label>Tanggal</label>
+<input type="text" id="p1_date" readonly>
+
+<canvas id="sigCanvas"></canvas>
+
+<div class="tools">
+  <button class="clear" onclick="clearCanvas()">Hapus</button>
+  <button onclick="saveSignature()">Setujui</button>
 </div>
-
-<!-- STEP 1 -->
-<fieldset id="step1">
-  <legend>Paraf Pelaksana (P1)</legend>
-  <input placeholder="Nama Pelaksana"><br><br>
-  <canvas id="sig1"></canvas>
 </fieldset>
-
-<!-- STEP 2 -->
-<fieldset id="step2" style="display:none">
-  <legend>Paraf Supervisor (P2)</legend>
-  <input placeholder="Nama Supervisor"><br><br>
-  <canvas id="sig2"></canvas>
-</fieldset>
-
-<!-- STEP 3 -->
-<fieldset id="step3" style="display:none">
-  <legend>Paraf Superintendent (P3)</legend>
-  <input placeholder="Nama Superintendent"><br><br>
-  <canvas id="sig3"></canvas>
-</fieldset>
-
-<div class="nav">
-  <button onclick="prev()">⬅ Back</button>
-  <button onclick="next()">Next ➡</button>
-</div>
 
 <script>
-let step = 1;
-const total = 3;
+const canvas = document.getElementById("sigCanvas");
+const ctx = canvas.getContext("2d");
 
-function showStep() {
-  for (let i=1;i<=3;i++)
-    document.getElementById("step"+i).style.display = "none";
-  document.getElementById("step"+step).style.display = "block";
-  document.getElementById("progressBar").style.width = (step/total*100)+"%";
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
+
+let drawing = false;
+
+function getPos(e) {
+  if (e.touches) {
+    return {
+      x: e.touches[0].clientX - canvas.getBoundingClientRect().left,
+      y: e.touches[0].clientY - canvas.getBoundingClientRect().top
+    };
+  }
+  return {
+    x: e.offsetX,
+    y: e.offsetY
+  };
 }
 
-function next() {
-  if (step < total) step++;
-  showStep();
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("mouseleave", () => drawing = false);
+canvas.addEventListener("mousemove", draw);
+
+canvas.addEventListener("touchstart", () => drawing = true);
+canvas.addEventListener("touchend", () => drawing = false);
+canvas.addEventListener("touchmove", draw);
+
+function draw(e) {
+  if (!drawing) return;
+  const pos = getPos(e);
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
 }
 
-function prev() {
-  if (step > 1) step--;
-  showStep();
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-showStep();
-
-/* === SIGNATURE === */
-function setupCanvas(id) {
-  const canvas = document.getElementById(id);
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-
-  canvas.addEventListener("pointerdown", e => {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  });
-
-  canvas.addEventListener("pointermove", e => {
-    if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  });
-
-  canvas.addEventListener("pointerup", () => drawing = false);
+function saveSignature() {
+  const img = canvas.toDataURL("image/png");
+  console.log("TTD BASE64:", img);
+  alert("TTD siap disimpan (next step upload)");
 }
 
-setupCanvas("sig1");
-setupCanvas("sig2");
-setupCanvas("sig3");
+document.getElementById("p1_date").value =
+  new Date().toLocaleDateString("id-ID");
 </script>
 
 </body>
