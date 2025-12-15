@@ -2,120 +2,89 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Paraf Checklist</title>
+<title>Paraf Checklist - Stand Label & Robot</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #f2f2f2;
   padding: 20px;
 }
+
 h2 { text-align: center; }
 
 .progress {
   background: #ddd;
-  border-radius: 10px;
-  overflow: hidden;
+  height: 10px;
+  border-radius: 5px;
   margin-bottom: 20px;
 }
 .progress-bar {
-  height: 12px;
+  height: 10px;
   background: #003366;
-  width: 0%;
+  width: 33%;
+  border-radius: 5px;
 }
 
-.step {
-  display: none;
+fieldset {
   background: #fff;
-  padding: 20px;
   border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #ccc;
 }
 
-label {
-  display: block;
-  margin-top: 10px;
-}
-input {
-  width: 100%;
-  padding: 8px;
-}
-
-.signature {
-  margin-top: 15px;
-  height: 80px;
+canvas {
   border: 1px dashed #999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #777;
+  width: 100%;
+  height: 120px;
+  touch-action: none;
+}
+
+button {
+  padding: 12px;
+  margin-top: 10px;
+  width: 48%;
 }
 
 .nav {
-  margin-top: 20px;
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
 }
-button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-}
-.next { background: #003366; color: white; }
-.back { background: #999; color: white; }
 </style>
 </head>
 
 <body>
 
-<h2>Paraf Checklist Harian<br>Stand Label & Robot</h2>
+<h2>Paraf Checklist</h2>
 
 <div class="progress">
-  <div class="progress-bar" id="progress"></div>
+  <div class="progress-bar" id="progressBar"></div>
 </div>
 
 <!-- STEP 1 -->
-<div class="step" id="step1">
-  <h3>STEP 1 – Paraf Pelaksana (P1)</h3>
-
-  <label>Nama Pelaksana</label>
-  <input placeholder="Nama Mekanik">
-
-  <label>Tanggal</label>
-  <input value="05-12-2025" readonly>
-
-  <div class="signature">Area Tanda Tangan</div>
-</div>
+<fieldset id="step1">
+  <legend>Paraf Pelaksana (P1)</legend>
+  <input placeholder="Nama Pelaksana"><br><br>
+  <canvas id="sig1"></canvas>
+</fieldset>
 
 <!-- STEP 2 -->
-<div class="step" id="step2">
-  <h3>STEP 2 – Paraf Pengecek / Koordinator (P2)</h3>
-
-  <label>Nama Koordinator</label>
-  <input placeholder="Nama Supervisor">
-
-  <label>Ringkasan Checklist</label>
-  <input value="OK: 31 | NG: 1" readonly>
-
-  <div class="signature">Area Tanda Tangan</div>
-</div>
+<fieldset id="step2" style="display:none">
+  <legend>Paraf Supervisor (P2)</legend>
+  <input placeholder="Nama Supervisor"><br><br>
+  <canvas id="sig2"></canvas>
+</fieldset>
 
 <!-- STEP 3 -->
-<div class="step" id="step3">
-  <h3>STEP 3 – Diketahui<br>Mechanic Superintendent (P3)</h3>
-
-  <label>Nama Superintendent</label>
-  <input placeholder="Nama Superintendent">
-
-  <label>Status Checklist</label>
-  <input value="APPROVE WITH NOTE" readonly>
-
-  <div class="signature">Area Tanda Tangan</div>
-</div>
+<fieldset id="step3" style="display:none">
+  <legend>Paraf Superintendent (P3)</legend>
+  <input placeholder="Nama Superintendent"><br><br>
+  <canvas id="sig3"></canvas>
+</fieldset>
 
 <div class="nav">
-  <button class="back" onclick="prevStep()">Back</button>
-  <button class="next" onclick="nextStep()">Next</button>
+  <button onclick="prev()">⬅ Back</button>
+  <button onclick="next()">Next ➡</button>
 </div>
 
 <script>
@@ -123,24 +92,48 @@ let step = 1;
 const total = 3;
 
 function showStep() {
-  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
-  document.getElementById('step' + step).style.display = 'block';
-  document.getElementById('progress').style.width =
-    ((step / total) * 100) + '%';
+  for (let i=1;i<=3;i++)
+    document.getElementById("step"+i).style.display = "none";
+  document.getElementById("step"+step).style.display = "block";
+  document.getElementById("progressBar").style.width = (step/total*100)+"%";
 }
 
-function nextStep() {
+function next() {
   if (step < total) step++;
-  else alert("Semua paraf selesai ✔");
   showStep();
 }
 
-function prevStep() {
+function prev() {
   if (step > 1) step--;
   showStep();
 }
 
 showStep();
+
+/* === SIGNATURE === */
+function setupCanvas(id) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  canvas.addEventListener("pointerdown", e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener("pointerup", () => drawing = false);
+}
+
+setupCanvas("sig1");
+setupCanvas("sig2");
+setupCanvas("sig3");
 </script>
 
 </body>
