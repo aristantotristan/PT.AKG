@@ -21,7 +21,6 @@
     }
     legend {
       font-weight: bold;
-      padding: 0 10px;
     }
     label {
       display: block;
@@ -33,15 +32,20 @@
       padding: 8px;
       margin-top: 4px;
     }
-    .paraf-box {
-      height: 80px;
+    canvas {
       border: 1px dashed #999;
       margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #777;
-      font-size: 13px;
+      touch-action: none;
+      background: #fff;
+    }
+    .clear-btn {
+      margin-top: 6px;
+      background: #999;
+      border: none;
+      padding: 6px 10px;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
     }
     button {
       width: 100%;
@@ -58,60 +62,123 @@
 
 <h2>Paraf Checklist Harian<br>Stand Label & Robot</h2>
 
-<!-- PARAF PELAKSANA -->
+<!-- P1 -->
 <fieldset>
   <legend>Paraf Pelaksana / User (P1)</legend>
 
   <label>Nama Pelaksana</label>
-  <input type="text" placeholder="Nama Mekanik">
+  <input type="text" id="namaP1" placeholder="Nama Mekanik">
 
   <label>Tanggal</label>
   <input type="text" id="tglP1" readonly>
 
-  <div class="paraf-box">
-    Area Paraf / Tanda Tangan
-  </div>
+  <canvas id="ttdP1" width="300" height="120"></canvas>
+  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP1')">Clear</button>
 </fieldset>
 
-<!-- PARAF PENGECEK -->
+<!-- P2 -->
 <fieldset>
   <legend>Paraf Pengecek / Koordinator (P2)</legend>
 
   <label>Nama Koordinator / Supervisor</label>
-  <input type="text" placeholder="Nama Supervisor">
+  <input type="text" id="namaP2" placeholder="Nama Supervisor">
 
   <label>Tanggal</label>
   <input type="text" id="tglP2" readonly>
 
-  <div class="paraf-box">
-    Area Paraf / Tanda Tangan
-  </div>
+  <canvas id="ttdP2" width="300" height="120"></canvas>
+  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP2')">Clear</button>
 </fieldset>
 
-<!-- DIKETAHUI -->
+<!-- P3 -->
 <fieldset>
   <legend>Diketahui - Mechanic Superintendent (P3)</legend>
 
   <label>Nama Mechanic Superintendent</label>
-  <input type="text" placeholder="Nama Superintendent">
+  <input type="text" id="namaP3" placeholder="Nama Superintendent">
 
   <label>Tanggal</label>
   <input type="text" id="tglP3" readonly>
 
-  <div class="paraf-box">
-    Area Paraf / Tanda Tangan
-  </div>
+  <canvas id="ttdP3" width="300" height="120"></canvas>
+  <button type="button" class="clear-btn" onclick="clearCanvas('ttdP3')">Clear</button>
 </fieldset>
 
 <button onclick="submitParaf()">Simpan Paraf</button>
 
 <script>
+  // tanggal
   const today = new Date().toLocaleDateString("id-ID");
-  document.getElementById("tglP1").value = today;
-  document.getElementById("tglP2").value = today;
-  document.getElementById("tglP3").value = today;
+  tglP1.value = today;
+  tglP2.value = today;
+  tglP3.value = today;
+
+  // setup canvas
+  function setupCanvas(id) {
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      if (e.touches) {
+        return {
+          x: e.touches[0].clientX - r.left,
+          y: e.touches[0].clientY - r.top
+        };
+      }
+      return {
+        x: e.clientX - r.left,
+        y: e.clientY - r.top
+      };
+    }
+
+    function start(e) {
+      drawing = true;
+      const p = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const p = pos(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    function stop() {
+      drawing = false;
+    }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stop);
+    canvas.addEventListener("mouseleave", stop);
+
+    canvas.addEventListener("touchstart", start);
+    canvas.addEventListener("touchmove", draw);
+    canvas.addEventListener("touchend", stop);
+  }
+
+  function clearCanvas(id) {
+    const c = document.getElementById(id);
+    c.getContext("2d").clearRect(0, 0, c.width, c.height);
+  }
+
+  setupCanvas("ttdP1");
+  setupCanvas("ttdP2");
+  setupCanvas("ttdP3");
 
   function submitParaf() {
+    const data = {
+      P1: ttdP1.toDataURL(),
+      P2: ttdP2.toDataURL(),
+      P3: ttdP3.toDataURL()
+    };
+
+    console.log(data);
     alert("Paraf tersimpan (dummy)");
   }
 </script>
