@@ -3,51 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <title>Pelaksana - Checklist Harian Stand Label & Robot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 16px; margin: 0; }
-    h2 { text-align: center; color: #003366; margin-bottom: 20px; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; color: #333; }
+    h2 { text-align: center; color: #003366; margin-bottom: 15px; font-size: 20px; }
     
-    .progress { width: 100%; background: #ddd; border-radius: 10px; height: 10px; margin-bottom: 20px; }
+    .progress-container { width: 100%; background: #e0e0e0; border-radius: 10px; height: 8px; margin-bottom: 20px; }
     .progress-bar { height: 100%; width: 0%; background: #003366; transition: width 0.3s; border-radius: 10px; }
 
-    .step { display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .step { display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .step.active { display: block; }
     
-    h3 { margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    .item { margin-bottom: 15px; }
-    label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 6px; }
+    h3 { margin-top: 0; color: #003366; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; font-size: 18px; }
+    .item { margin-bottom: 15px; border-bottom: 1px solid #f9f9f9; padding-bottom: 10px; }
+    label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 8px; color: #444; }
 
     select, input, textarea { 
-      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;
+      width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none;
     }
-    textarea { margin-top: 8px; display: none; height: 60px; }
+    select:focus { border-color: #003366; }
+    textarea { margin-top: 8px; display: none; height: 70px; background: #fffdf0; border: 1px dashed #ffcc00; }
 
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .back { background: #bbb; color: white; }
+    .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+    button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .back { background: #e0e0e0; color: #555; }
     .next { background: #003366; color: #fff; }
-    .submit { background: #28a745 !important; color: white; }
+    .submit-btn { background: #28a745 !important; color: white; }
+    button:active { transform: scale(0.98); opacity: 0.9; }
 
-    canvas { 
-      width: 100%; height: 200px; border: 2px dashed #999; border-radius: 8px; 
-      background: #fafafa; touch-action: none; cursor: crosshair;
-    }
+    /* SIGNATURE STYLE */
+    .canvas-container { background: #fff; border: 2px dashed #bbb; border-radius: 8px; position: relative; margin-top: 10px; }
+    canvas { width: 100%; height: 220px; display: block; touch-action: none; cursor: crosshair; }
+    .clear-btn { background: #ff4d4d; color: white; padding: 8px 15px; font-size: 12px; margin-top: 10px; width: auto; flex: none; }
   </style>
 </head>
 <body>
 
 <h2>Checklist Harian<br>Stand Label & Robot</h2>
 
-<div class="progress">
+<div class="progress-container">
   <div class="progress-bar" id="progressBar"></div>
 </div>
 
 <form id="checklistForm">
-  <div class="step active" data-title="FRAME">
+  <div class="step active">
     <h3>1. FRAME / RANGKA</h3>
     <div class="item">
       <label>Cek kondisi baut frame rangka</label>
@@ -56,7 +58,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_baut_frame" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_baut_frame" placeholder="Tulis kendala baut di sini..."></textarea>
     </div>
     <div class="item">
       <label>Cek bubble leveller</label>
@@ -65,11 +67,11 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_bubble_leveller" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_bubble_leveller" placeholder="Tulis kendala bubble leveller..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="MAGAZINE">
+  <div class="step">
     <h3>2. MAGAZINE LABEL</h3>
     <div class="item">
       <label>As Adjuster plate magazine label</label>
@@ -78,7 +80,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_as_adjuster" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_as_adjuster" placeholder="Keterangan NG..."></textarea>
     </div>
     <div class="item">
       <label>Baut frame / rangka magazine label</label>
@@ -87,11 +89,11 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_baut_magazine" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_baut_magazine" placeholder="Keterangan NG..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="PLATE">
+  <div class="step">
     <h3>3. PLATE STAND LABEL</h3>
     <div class="item">
       <label>V-Belt kondisi baik</label>
@@ -100,7 +102,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_vbelt" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_vbelt" placeholder="Keterangan..."></textarea>
     </div>
     <div class="item">
       <label>Gear / Bushing / Bearing</label>
@@ -109,12 +111,12 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_gearing" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_gearing" placeholder="Keterangan..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="PANEL">
-    <h3>4. PANEL KONTROL</h3>
+  <div class="step">
+    <h3>4. PANEL & KONTROL</h3>
     <div class="item">
       <label>Kondisi panel & komponen</label>
       <select name="panel_komponen" onchange="toggleNote(this)" required>
@@ -122,7 +124,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_panel" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_panel" placeholder="Keterangan..."></textarea>
     </div>
     <div class="item">
       <label>Instalasi kabel</label>
@@ -131,11 +133,11 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_kabel" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_kabel" placeholder="Keterangan..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="PNEUMATIC">
+  <div class="step">
     <h3>5. SISTEM PNEUMATIC</h3>
     <div class="item">
       <label>Instalasi pneumatic & tubing</label>
@@ -144,7 +146,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_pneumatic" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_pneumatic" placeholder="Keterangan..."></textarea>
     </div>
     <div class="item">
       <label>Tekanan supply angin (4–8 bar)</label>
@@ -153,11 +155,11 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_angin" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_angin" placeholder="Keterangan..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="ROBOT">
+  <div class="step">
     <h3>6. SISTEM ROBOT</h3>
     <div class="item">
       <label>Dummy Robot (cleaning 15 menit)</label>
@@ -166,7 +168,7 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_dummy" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_dummy" placeholder="Keterangan..."></textarea>
     </div>
     <div class="item">
       <label>Static (9–13 Kv)</label>
@@ -175,19 +177,21 @@
         <option value="OK">OK</option>
         <option value="NG">NG</option>
       </select>
-      <textarea name="note_static" placeholder="Keterangan jika NG"></textarea>
+      <textarea name="note_static" placeholder="Keterangan..."></textarea>
     </div>
   </div>
 
-  <div class="step" data-title="SIGNATURE">
-    <h3>7. PENYELESAIAN</h3>
+  <div class="step">
+    <h3>7. KONFIRMASI AKHIR</h3>
     <div class="item">
-      <label>Nama Pelaksana (Mekanik)</label>
-      <input type="text" id="namaPelaksana" name="nama_pelaksana" required placeholder="Masukkan nama lengkap" />
+      <label>Nama Mekanik (Pelaksana)</label>
+      <input type="text" id="namaPelaksana" name="nama_pelaksana" required placeholder="Nama Anda" />
     </div>
-    <label>Tanda Tangan:</label>
-    <canvas id="signaturePad"></canvas>
-    <button type="button" onclick="clearSignature()" style="margin-top:8px; background:#f44336; color:white; padding: 8px; font-size: 12px;">Hapus Paraf</button>
+    <label>Tanda Tangan Pelaksana:</label>
+    <div class="canvas-container">
+      <canvas id="signaturePad"></canvas>
+    </div>
+    <button type="button" class="clear-btn" onclick="clearSignature()">Hapus Tanda Tangan</button>
   </div>
 </form>
 
@@ -197,12 +201,13 @@
 </div>
 
 <script>
-/* ================= KONFIGURASI SUPABASE ================= */
+/* ================= CONFIG SUPABASE ================= */
+// Masukkan URL dan Anon Key kamu di sini
 const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-const _KEY = "PASTE_ANON_KEY_KAMU_DI_SINI"; // <-- GANTI DENGAN ANON KEY ANDA
+const _KEY = "GANTI_DENGAN_ANON_KEY_KAMU"; 
 const sb = supabase.createClient(_URL, _KEY);
 
-/* ================= LOGIK STEP ================= */
+/* ================= STEP NAVIGATION ================= */
 const steps = document.querySelectorAll(".step");
 const progressBar = document.getElementById("progressBar");
 const btnNext = document.getElementById("btnNext");
@@ -214,19 +219,28 @@ function updateStep() {
   progressBar.style.width = ((currentStep + 1) / steps.length) * 100 + "%";
   
   btnBack.style.visibility = currentStep === 0 ? "hidden" : "visible";
-  btnNext.innerText = currentStep === steps.length - 1 ? "Simpan Checklist" : "Lanjut";
-  if(currentStep === steps.length - 1) btnNext.classList.add('submit');
-  else btnNext.classList.remove('submit');
+  
+  if (currentStep === steps.length - 1) {
+    btnNext.innerText = "Kirim Checklist";
+    btnNext.classList.add("submit-btn");
+    // Penting: Inisialisasi canvas ulang saat step dibuka
+    setTimeout(initCanvas, 200);
+  } else {
+    btnNext.innerText = "Lanjut";
+    btnNext.classList.remove("submit-btn");
+  }
 }
 
 function nextStep() {
-  // Validasi sederhana sebelum lanjut
   const currentInputs = steps[currentStep].querySelectorAll("select[required], input[required]");
-  for (let input of currentInputs) {
-    if (!input.value) {
-      alert("Harap isi semua bidang sebelum lanjut.");
-      return;
-    }
+  let valid = true;
+  currentInputs.forEach(input => {
+    if (!input.value) valid = false;
+  });
+
+  if (!valid) {
+    alert("Harap isi bidang yang wajib diisi!");
+    return;
   }
 
   if (currentStep < steps.length - 1) {
@@ -246,28 +260,30 @@ function prevStep() {
 
 function toggleNote(select) {
   const note = select.nextElementSibling;
-  note.style.display = select.value === "NG" ? "block" : "none";
-  if(select.value !== "NG") note.value = "";
+  if (select.value === "NG") {
+    note.style.display = "block";
+    note.setAttribute("required", "true");
+  } else {
+    note.style.display = "none";
+    note.removeAttribute("required");
+    note.value = "";
+  }
 }
 
-/* ================= LOGIK TANDA TANGAN ================= */
+/* ================= SIGNATURE LOGIC (FIXED) ================= */
 const canvas = document.getElementById("signaturePad");
 const ctx = canvas.getContext("2d");
 let drawing = false;
 
-function setupCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+function initCanvas() {
+  const container = canvas.parentElement;
+  canvas.width = container.clientWidth;
+  canvas.height = 220; // Tinggi tetap
   ctx.lineWidth = 3;
   ctx.lineCap = "round";
   ctx.strokeStyle = "#000";
 }
 
-window.onload = setupCanvas;
-window.onresize = setupCanvas;
-
-// Support Mouse & Touch
 function getPos(e) {
   const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -280,7 +296,7 @@ function startDrawing(e) {
   const pos = getPos(e);
   ctx.beginPath();
   ctx.moveTo(pos.x, pos.y);
-  e.preventDefault();
+  if(e.type === "touchstart") e.preventDefault();
 }
 
 function draw(e) {
@@ -288,55 +304,57 @@ function draw(e) {
   const pos = getPos(e);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
-  e.preventDefault();
+  if(e.type === "touchmove") e.preventDefault();
 }
 
 function stopDrawing() { drawing = false; }
 
 canvas.addEventListener("mousedown", startDrawing);
 canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("touchstart", startDrawing);
-canvas.addEventListener("touchmove", draw);
+window.addEventListener("mouseup", stopDrawing);
+
+canvas.addEventListener("touchstart", startDrawing, {passive: false});
+canvas.addEventListener("touchmove", draw, {passive: false});
 canvas.addEventListener("touchend", stopDrawing);
 
 function clearSignature() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-/* ================= KIRIM DATA KE SUPABASE ================= */
+/* ================= SUBMIT DATA ================= */
 async function submitChecklist() {
-  const sigImage = canvas.toDataURL();
+  const sigData = canvas.toDataURL("image/png");
   
-  // Validasi tanda tangan (jika kosong, panjang string pendek)
-  if (sigImage.length < 2000) {
-    alert("Silakan tanda tangan terlebih dahulu.");
+  // Validasi tanda tangan (tidak boleh kosong)
+  if (sigData.length < 2000) {
+    alert("Tanda tangan wajib diisi!");
     return;
   }
 
   btnNext.disabled = true;
-  btnNext.innerText = "Mengirim...";
+  btnNext.innerText = "Sedang Mengirim...";
 
-  // Ambil semua data dari Form secara otomatis
-  const formData = new FormData(document.getElementById("checklistForm"));
-  const dataObject = Object.fromEntries(formData.entries());
+  const form = document.getElementById("checklistForm");
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
   
-  // Tambah metadata
-  dataObject.signature_pelaksana = sigImage;
-  dataObject.tanggal = new Date().toISOString();
+  // Tambah info tambahan
+  data.signature_pelaksana = sigData;
+  data.tanggal = new Date().toLocaleString("id-ID");
 
-  const { error } = await sb.from("pelaksana_A").insert([dataObject]);
+  const { error } = await sb.from("pelaksana_A").insert([data]);
 
   if (error) {
-    alert("Gagal simpan ke database: " + error.message);
+    alert("Error: " + error.message);
     btnNext.disabled = false;
-    btnNext.innerText = "Simpan Checklist";
+    btnNext.innerText = "Kirim Checklist";
   } else {
-    alert("Checklist BERHASIL disimpan!");
-    location.reload(); // Refresh halaman setelah sukses
+    alert("Sukses! Checklist telah tersimpan.");
+    location.reload(); 
   }
 }
 
+// Jalankan progress awal
 updateStep();
 </script>
 
