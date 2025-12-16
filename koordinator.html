@@ -4,63 +4,161 @@
   <meta charset="UTF-8">
   <title>Koordinator - Approval CHSLR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 16px;
+    :root { --navy: #003366; --bg: #f2f2f2; --white: #ffffff; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); padding: 16px; margin: 0; }
+    h2 { text-align: center; color: var(--navy); }
+    
+    fieldset { 
+      background: var(--white); padding: 16px; border-radius: 10px; 
+      border: 1px solid #ccc; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    h2 {
-      text-align: center;
+    legend { font-weight: bold; color: var(--navy); background: #eee; padding: 5px 10px; border-radius: 5px; }
+    
+    .summary-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
+    .status-ok { color: green; font-weight: bold; }
+    .status-ng { color: red; font-weight: bold; }
+
+    label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
+    
+    /* Signature Pad Styling */
+    #signature-wrapper { border: 2px dashed #003366; background: #fff; border-radius: 8px; margin-bottom: 10px; position: relative; }
+    canvas { width: 100%; height: 200px; cursor: crosshair; }
+    .btn-clear { background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+
+    button { 
+      width: 100%; padding: 14px; background: var(--navy); color: #fff; 
+      border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; 
     }
-    fieldset {
-      background: #fff;
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 16px;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #003366;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    .back {
-      background: #aaa;
-      margin-top: 10px;
-    }
+    button:disabled { background: #ccc; }
+    .back { background: #aaa; margin-top: 10px; text-align: center; text-decoration: none; display: block; color: white; border-radius: 8px; padding: 14px; }
   </style>
 </head>
 <body>
 
 <h2>Koordinator / Pengecek</h2>
 
-<fieldset>
-  <legend>Ringkasan Checklist</legend>
-  <p>Total OK: <b>10</b></p>
-  <p>Total NG: <b>2</b></p>
+<fieldset id="summaryArea">
+  <legend>Ringkasan Data Pelaksana Terbaru</legend>
+  <div id="summaryContent">Memuat data terbaru...</div>
 </fieldset>
 
 <fieldset>
-  <legend>Paraf Koordinator</legend>
+  <legend>Validasi Koordinator</legend>
   <label>Nama Koordinator</label>
-  <input type="text" placeholder="Nama Supervisor">
+  <input type="text" id="namaKoor" placeholder="Masukkan Nama Anda">
+  
+  <label>Keterangan / Feedback</label>
+  <textarea id="keterangan" rows="3" placeholder="Contoh: Pekerjaan sudah sesuai standar..."></textarea>
+  
+  <label>Tanda Tangan</label>
+  <div id="signature-wrapper">
+    <canvas id="signature-pad"></canvas>
+  </div>
+  <button type="button" class="btn-clear" onclick="clearSig()">Hapus Tanda Tangan</button>
 </fieldset>
 
-<button onclick="approve()">Approve</button>
-<button class="back" onclick="location.href='index.html'">⬅ Kembali</button>
+<button id="btnSubmit" onclick="submitApproval()">Kirim & Setujui (Approve)</button>
+<a href="index.html" class="back">⬅ Kembali</a>
 
 <script>
-  function approve() {
-    alert('Checklist disetujui Koordinator (dummy)');
+  // Konfigurasi Supabase
+  const _URL = "https://duljhawudstjxibhuenv.supabase.co";
+  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+  const sb = supabase.createClient(_URL, _KEY);
+
+  let lastPelaksanaId = null;
+  let signaturePad;
+
+  // Inisialisasi Signature Pad & Data
+  window.onload = () => {
+    const canvas = document.getElementById("signature-pad");
+    signaturePad = new SignaturePad(canvas);
+
+    function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+      signaturePad.clear();
+    }
+    window.onresize = resizeCanvas;
+    resizeCanvas();
+
+    loadLastData();
+  };
+
+  async function loadLastData() {
+    const content = document.getElementById("summaryContent");
+    try {
+      // Ambil 1 data terbaru dari tabel pelaksana_a
+      const { data, error } = await sb.from('pelaksana_a').select('*').order('id', { ascending: false }).limit(1);
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const item = data[0];
+        lastPelaksanaId = item.id;
+        content.innerHTML = `
+          <div class="summary-item"><span>Pelaksana:</span> <b>${item.nama_pelaksana}</b></div>
+          <div class="summary-item"><span>Tanggal:</span> <b>${item.tanggal}</b></div>
+          <div class="summary-item"><span>Robot:</span> <b class="${item.dummy_robot === 'OK' ? 'status-ok' : 'status-ng'}">${item.dummy_robot}</b></div>
+          <div class="summary-item"><span>Static Kv:</span> <b>${item.static_kv}</b></div>
+        `;
+      } else {
+        content.innerHTML = "Belum ada data pelaksana untuk di-approve.";
+      }
+    } catch (err) {
+      content.innerHTML = "Gagal memuat data: " + err.message;
+    }
+  }
+
+  function clearSig() {
+    signaturePad.clear();
+  }
+
+  async function submitApproval() {
+    const nama = document.getElementById("namaKoor").value;
+    const ket = document.getElementById("keterangan").value;
+    const btn = document.getElementById("btnSubmit");
+
+    if (!nama || signaturePad.isEmpty()) {
+      alert("Nama dan Tanda Tangan wajib diisi!");
+      return;
+    }
+
+    if (!lastPelaksanaId) {
+      alert("Tidak ada data pelaksana yang ditemukan untuk divalidasi.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Mengirim...";
+
+    const parafBase64 = signaturePad.toDataURL();
+
+    try {
+      const { error } = await sb.from('koordinator_a').insert([
+        {
+          nama_koordinator: nama,
+          keterangan: ket,
+          paraf_koordinator: parafBase64,
+          id_pelaksana: lastPelaksanaId
+        }
+      ]);
+
+      if (error) throw error;
+
+      alert("BERHASIL! Checklist telah divalidasi Koordinator.");
+      location.reload(); // Refresh halaman setelah sukses
+    } catch (err) {
+      alert("Error: " + err.message);
+      btn.disabled = false;
+      btn.innerText = "Kirim & Setujui (Approve)";
+    }
   }
 </script>
 
