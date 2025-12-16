@@ -55,11 +55,13 @@
 
     select, textarea {
       width: 100%;
-      padding: 6px;
+      padding: 8px;
+      font-size: 14px;
     }
 
     textarea {
       display: none;
+      margin-top: 6px;
     }
 
     .btn-group {
@@ -262,12 +264,31 @@
       ((currentStep + 1) / steps.length) * 100 + '%';
   }
 
+  function toggleNote(select) {
+    const note = select.nextElementSibling;
+    note.style.display = select.value === 'NG' ? 'block' : 'none';
+    saveDraft();
+  }
+
+  function saveDraft() {
+    const data = [];
+    document.querySelectorAll('.item').forEach(item => {
+      data.push({
+        value: item.querySelector('select').value,
+        note: item.querySelector('textarea').value
+      });
+    });
+    localStorage.setItem('CHSLR_DRAFT', JSON.stringify(data));
+  }
+
   function nextStep() {
+    saveDraft();
     if (currentStep < steps.length - 1) {
       currentStep++;
       updateStep();
     } else {
-      alert('Checklist selesai (belum disimpan)');
+      alert('Checklist selesai, lanjut ke paraf');
+      window.location.href = 'paraf_CHSLR.html';
     }
   }
 
@@ -276,11 +297,6 @@
       currentStep--;
       updateStep();
     }
-  }
-
-  function toggleNote(select) {
-    const note = select.nextElementSibling;
-    note.style.display = select.value === 'NG' ? 'block' : 'none';
   }
 
   updateStep();
