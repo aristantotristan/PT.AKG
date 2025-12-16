@@ -3,100 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CHSLR - Result Monitoring</title>
+  <title>CHSLR - Dashboard Monitoring</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --navy: #003366;
-      --light-bg: #f8fbff;
-      --success: #28a745;
-      --danger: #dc3545;
-      --border: #e1e8f0;
+      --navy: #003366; --bg: #f0f4f8; --success: #28a745; --danger: #dc3545; --border: #cfd9e3;
     }
-    body { font-family: 'Inter', sans-serif; background: #f4f7fa; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 1400px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+    .container { max-width: 1400px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
-    h2 { color: var(--navy); margin: 0; font-size: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--navy); padding-bottom: 15px; margin-bottom: 25px; }
+    h2 { color: var(--navy); margin: 0; font-size: 26px; letter-spacing: 1px; }
     
-    .btn-back { background: #6c757d; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+    .btn-back { background: #555; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+    .btn-back:hover { background: #222; }
 
-    /* Bar filter diperbaiki agar tidak memicu submit */
-    .filter-bar { background: var(--light-bg); padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
-    input[type="date"] { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
-    .btn-action { background: var(--navy); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-    .btn-action:hover { opacity: 0.9; }
-
-    .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); min-height: 200px; }
-    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-    th { background: var(--navy); color: white; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; position: sticky; top: 0; }
-    td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
-    tr:hover { background-color: var(--light-bg); }
-
-    .badge { padding: 5px 8px; border-radius: 4px; font-weight: 700; font-size: 10px; display: inline-block; margin: 2px; }
-    .badge-ok { background: #d4edda; color: var(--success); }
-    .badge-ng { background: #f8d7da; color: var(--danger); }
+    .control-panel { background: #fff; padding: 15px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    input[type="date"] { padding: 10px; border: 2px solid var(--border); border-radius: 8px; outline: none; transition: 0.3s; }
+    input[type="date"]:focus { border-color: var(--navy); }
     
-    .text-name { font-weight: 700; color: var(--navy); display: block; }
-    .text-date { color: #666; font-size: 11px; }
-    .paraf-box { width: 100px; height: 60px; object-fit: contain; border: 1px solid var(--border); background: #fff; border-radius: 4px; }
+    .btn-refresh { background: var(--navy); color: white; border: none; padding: 11px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-refresh:active { transform: scale(0.95); }
+
+    .table-wrapper { overflow-x: auto; border-radius: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; background: white; }
+    th { background: var(--navy); color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    tr:hover { background-color: #f9fbff; }
+
+    .badge { padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; display: inline-block; margin: 2px; border: 1px solid transparent; }
+    .badge-ok { background: #dff0d8; color: var(--success); border-color: #d6e9c6; }
+    .badge-ng { background: #f2dede; color: var(--danger); border-color: #ebccd1; }
     
-    .loading-state { text-align: center; padding: 60px; color: #666; font-weight: 600; }
+    .paraf-img { width: 100px; height: 60px; object-fit: contain; border: 1px solid #ddd; border-radius: 5px; background: #fff; }
+    .loading-msg { text-align: center; padding: 50px; font-size: 18px; color: #888; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2>📊 Result Monitoring PM Stand Label & Robot</h2>
-    <a href="index.html" class="btn-back">⬅ Menu Utama</a>
+    <h2>📊 DASHBOARD MONITORING CHSLR</h2>
+    <a href="index.html" class="btn-back">⬅ KEMBALI</a>
   </div>
 
-  <div class="filter-bar">
-    <label><b>Filter Tanggal:</b></label>
-    <input type="date" id="filterTgl" onchange="loadData()">
-    <button type="button" class="btn-action" onclick="resetFilter()">Lihat Semua Data</button>
+  <div class="control-panel">
+    <label><b>FILTER TANGGAL:</b></label>
+    <input type="date" id="tglPicker">
+    <button type="button" class="btn-refresh" onclick="fetchData()">CARI DATA</button>
+    <button type="button" style="background:#eee; color:#333;" class="btn-refresh" onclick="resetAll()">RESET</button>
   </div>
 
-  <div class="table-responsive">
+  <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>Tanggal & Pelaksana</th>
-          <th>Frame & Magazine</th>
-          <th>Plate Stand Label</th>
-          <th>Electrical & Panel</th>
-          <th>Pneumatic System</th>
-          <th>Robot Dummy</th>
-          <th>Static (Kv)</th>
-          <th>Tanda Tangan</th>
+          <th>TGL & PELAKSANA</th>
+          <th>FRAME & MAGAZINE</th>
+          <th>PLATE STAND</th>
+          <th>ELECTRICAL</th>
+          <th>PNEUMATIC</th>
+          <th>ROBOT</th>
+          <th>STATIC</th>
+          <th>PARAF</th>
         </tr>
       </thead>
-      <tbody id="mainTable">
-        </tbody>
+      <tbody id="resultBody">
+        <tr><td colspan="8" class="loading-msg">Silakan Klik "Cari Data" atau "Reset" untuk Memuat...</td></tr>
+      </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  // Konfigurasi API Supabase
-  const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-  const sb = supabase.createClient(_URL, _KEY);
+  // Konfigurasi API
+  const SUPA_URL = "https://duljhawudstjxibhuenv.supabase.co";
+  const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+  const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-  async function loadData() {
-    const tableBody = document.getElementById("mainTable");
-    const tglValue = document.getElementById("filterTgl").value;
+  // Fungsi ambil data yang stabil
+  async function fetchData() {
+    const table = document.getElementById("resultBody");
+    const tgl = document.getElementById("tglPicker").value;
 
-    // Tampilkan loading tanpa refresh
-    tableBody.innerHTML = `<tr><td colspan="8" class="loading-state">⏳ Sedang memuat data...</td></tr>`;
+    table.innerHTML = `<tr><td colspan="8" class="loading-msg">⏳ Sedang Menarik Data dari Database...</td></tr>`;
 
     try {
-      let query = sb.from('pelaksana_a').select('*');
-
-      // Jika ada tanggal yang dipilih
-      if (tglValue) {
-        query = query.eq('tanggal', tglValue);
+      // Query Builder
+      let query = supabase.from('pelaksana_a').select('*');
+      
+      if (tgl) {
+        query = query.eq('tanggal', tgl);
       }
 
       const { data, error } = await query.order('tanggal', { ascending: false });
@@ -104,61 +101,59 @@
       if (error) throw error;
 
       if (!data || data.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" class="loading-state">📭 Tidak ada data ditemukan.</td></tr>`;
+        table.innerHTML = `<tr><td colspan="8" class="loading-msg">📭 Data Tidak Ditemukan.</td></tr>`;
         return;
       }
 
-      // Render data ke tabel
-      tableBody.innerHTML = "";
-      data.forEach(item => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
+      // Render Table
+      table.innerHTML = "";
+      data.forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><b>${d.tanggal}</b><br><small style="color:var(--navy)">${d.nama_pelaksana}</small></td>
           <td>
-            <span class="text-name">${item.nama_pelaksana || 'N/A'}</span>
-            <span class="text-date">${item.tanggal}</span>
+            <span class="badge ${d.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">Baut Frame: ${d.baut_frame}</span><br>
+            <span class="badge ${d.baut_magazine === 'OK' ? 'badge-ok' : 'badge-ng'}">Baut Mag: ${d.baut_magazine}</span>
           </td>
           <td>
-            <span class="badge ${item.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">Baut: ${item.baut_frame}</span>
-            <span class="badge ${item.as_adjuster === 'OK' ? 'badge-ok' : 'badge-ng'}">As: ${item.as_adjuster}</span>
+            <span class="badge ${d.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">V-Belt: ${d.vbelt}</span><br>
+            <span class="badge ${d.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac Pad: ${d.vacuum_pad}</span>
           </td>
           <td>
-            <span class="badge ${item.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">V-Belt: ${item.vbelt}</span>
-            <span class="badge ${item.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac: ${item.vacuum_pad}</span>
+            <span class="badge ${d.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">Panel: ${d.panel_komponen}</span><br>
+            <span class="badge ${d.fan_kondisi === 'OK' ? 'badge-ok' : 'badge-ng'}">Fan: ${d.fan_kondisi}</span>
           </td>
           <td>
-            <span class="badge ${item.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">Panel: ${item.panel_komponen}</span>
-            <span class="badge ${item.fan_kondisi === 'OK' ? 'badge-ok' : 'badge-ng'}">Fan: ${item.fan_kondisi}</span>
+            <span class="badge ${d.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">Cyl/Tubing: ${d.pneu_cyl_tubing}</span><br>
+            <span class="badge ${d.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac Gen: ${d.fungsi_vac_gen}</span>
           </td>
           <td>
-            <span class="badge ${item.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">Tubing: ${item.pneu_cyl_tubing}</span>
-            <span class="badge ${item.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac: ${item.fungsi_vac_gen}</span>
+            <span class="badge ${d.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${d.dummy_robot}</span>
           </td>
           <td>
-            <span class="badge ${item.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.dummy_robot}</span>
+            <b style="font-size:15px">${d.static_kv || '0'}</b> Kv<br>
+            <small style="color:#888">${d.note_static || ''}</small>
           </td>
           <td>
-            <b style="color:var(--navy); font-size:14px">${item.static_kv || '0'}</b> Kv
-          </td>
-          <td>
-            ${item.paraf_pelaksana ? `<img src="${item.paraf_pelaksana}" class="paraf-box">` : 'No Sign'}
+            <img src="${d.paraf_pelaksana}" class="paraf-img" alt="Paraf">
           </td>
         `;
-        tableBody.appendChild(tr);
+        table.appendChild(row);
       });
 
-    } catch (err) {
-      console.error("Fetch Error:", err);
-      tableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center; padding:20px;">Gagal memuat data: ${err.message}</td></tr>`;
+    } catch (e) {
+      console.error("Database Error:", e);
+      table.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center; padding:20px;">Gagal: ${e.message}</td></tr>`;
     }
   }
 
-  function resetFilter() {
-    document.getElementById("filterTgl").value = "";
-    loadData(); // Panggil ulang data tanpa reload page
+  function resetAll() {
+    document.getElementById("tglPicker").value = "";
+    fetchData();
   }
 
-  // Load otomatis saat pertama kali buka
-  window.onload = loadData;
+  // Jalankan otomatis saat halaman dimuat
+  window.onload = fetchData;
 </script>
 
 </body>
