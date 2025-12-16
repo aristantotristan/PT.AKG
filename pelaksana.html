@@ -1,99 +1,99 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Checklist Harian Stand Label & Robot - Pelaksana</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Checklist Harian Stand Label & Robot - Pelaksana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  padding: 16px;
-}
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 16px;
+    }
 
-h2 {
-  text-align: center;
-}
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
 
-.progress {
-  width: 100%;
-  background: #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
+    .progress {
+      width: 100%;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
 
-.progress-bar {
-  height: 10px;
-  width: 0%;
-  background: #003366;
-  transition: width 0.3s;
-}
+    .progress-bar {
+      height: 10px;
+      width: 0%;
+      background: #003366;
+      transition: width 0.3s;
+    }
 
-.step {
-  display: none;
-  background: #fff;
-  padding: 16px;
-  border-radius: 10px;
-}
+    .step {
+      display: none;
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+    }
 
-.step.active {
-  display: block;
-}
+    .step.active {
+      display: block;
+    }
 
-.item {
-  margin-bottom: 12px;
-}
+    .item {
+      margin-bottom: 14px;
+    }
 
-label {
-  font-size: 14px;
-  display: block;
-  margin-bottom: 4px;
-}
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 4px;
+    }
 
-select, textarea {
-  width: 100%;
-  padding: 6px;
-}
+    select, textarea, input {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+    }
 
-textarea {
-  display: none;
-}
+    textarea {
+      display: none;
+    }
 
-.btn-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-}
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-.back {
-  background: #ccc;
-}
+    .back {
+      background: #ccc;
+    }
 
-.next {
-  background: #003366;
-  color: #fff;
-}
+    .next {
+      background: #003366;
+      color: #fff;
+    }
 
-canvas {
-  border: 1px solid #333;
-  background: #fff;
-  width: 100%;
-  max-width: 320px;
-  height: 160px;
-}
-</style>
+    canvas {
+      border: 1px dashed #999;
+      width: 100%;
+      height: 150px;
+      touch-action: none;
+    }
+  </style>
 </head>
-
 <body>
 
 <h2>Checklist Harian<br>Stand Label & Robot</h2>
@@ -102,12 +102,12 @@ canvas {
   <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<!-- STEP 1 -->
+<!-- ================= STEP 1 ================= -->
 <div class="step active">
-  <h3>FRAME / RANGKA</h3>
+  <h3>FRAME / RANGKA STAND LABEL</h3>
 
   <div class="item">
-    <label>Cek kondisi baut frame rangka</label>
+    <label>Kondisi baut frame rangka (tidak kendor / lepas)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
@@ -117,7 +117,7 @@ canvas {
   </div>
 
   <div class="item">
-    <label>Cek bubble leveller</label>
+    <label>Bubble leveller (terpasang & berfungsi)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
@@ -127,12 +127,12 @@ canvas {
   </div>
 </div>
 
-<!-- STEP 2 -->
+<!-- ================= STEP 2 ================= -->
 <div class="step">
   <h3>MAGAZINE LABEL</h3>
 
   <div class="item">
-    <label>As adjuster plate magazine label</label>
+    <label>As adjuster plate magazine label (berfungsi baik)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
@@ -142,7 +142,7 @@ canvas {
   </div>
 
   <div class="item">
-    <label>Baut frame / rangka magazine label</label>
+    <label>Baut frame / rangka magazine label (lengkap & bersih)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
@@ -152,68 +152,148 @@ canvas {
   </div>
 </div>
 
-<!-- STEP 3 -->
+<!-- ================= STEP 3 ================= -->
 <div class="step">
   <h3>PLATE STAND LABEL</h3>
 
   <div class="item">
-    <label>V-Belt kondisi baik</label>
+    <label>V-Belt (tidak kendor / terlalu kencang)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 
   <div class="item">
-    <label>Gear / Bushing / Bearing</label>
+    <label>Gear / Bushing / Bearing (tidak goyang)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Vacuum pad (baut & skun kencang)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Spring / as vacuum pad (smooth / halus)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Linear bearing SL (baik / tidak kendor)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Tutup rail (terpasang benar)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
   </div>
 </div>
 
-<!-- STEP 4 -->
+<!-- ================= STEP 4 ================= -->
 <div class="step">
-  <h3>PANEL KONTROL</h3>
+  <h3>PANEL KONTROL STAND LABEL</h3>
 
   <div class="item">
-    <label>Kondisi panel & komponen</label>
+    <label>Kondisi panel & komponen (bersih)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 
   <div class="item">
-    <label>Instalasi kabel</label>
+    <label>Komponen electrical (tidak kendor)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Instalasi kabel (rapi)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Solenoid valve (tidak kendor)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Fan (bersih)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
+  </div>
+
+  <div class="item">
+    <label>Sambungan kabel (permanen)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea></textarea>
   </div>
 </div>
 
-<!-- STEP 5 -->
+<!-- ================= STEP 5 ================= -->
 <div class="step">
-  <h3>SISTEM PNEUMATIC</h3>
+  <h3>SISTEM PNEUMATIC STAND LABEL</h3>
 
   <div class="item">
-    <label>Instalasi pneumatic & tubing</label>
+    <label>Pneumatic / tubing (rapi & tidak bocor)</label>
     <select onchange="toggleNote(this)">
       <option value="">-- Pilih --</option>
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 
   <div class="item">
@@ -223,11 +303,11 @@ canvas {
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 </div>
 
-<!-- STEP 6 -->
+<!-- ================= STEP 6 ================= -->
 <div class="step">
   <h3>SISTEM ROBOT</h3>
 
@@ -238,7 +318,7 @@ canvas {
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 
   <div class="item">
@@ -248,21 +328,22 @@ canvas {
       <option>OK</option>
       <option>NG</option>
     </select>
-    <textarea placeholder="Keterangan jika NG"></textarea>
+    <textarea></textarea>
   </div>
 </div>
 
-<!-- STEP 7 -->
+<!-- ================= STEP 7 ================= -->
 <div class="step">
   <h3>PARAF PELAKSANA</h3>
 
-  <label>Nama Pelaksana</label>
-  <input type="text" id="namaPelaksana" placeholder="Nama lengkap">
+  <div class="item">
+    <label>Nama Pelaksana</label>
+    <input type="text" placeholder="Nama Mekanik">
+  </div>
 
-  <p>Paraf / Tanda Tangan</p>
-  <canvas id="signaturePad"></canvas>
-
-  <button type="button" onclick="clearSignature()">Hapus Paraf</button>
+  <label>Tanda Tangan</label>
+  <canvas id="signature"></canvas>
+  <button onclick="clearSign()">Clear TTD</button>
 </div>
 
 <div class="btn-group">
@@ -271,83 +352,60 @@ canvas {
 </div>
 
 <script>
-const steps = document.querySelectorAll('.step');
-const progressBar = document.getElementById('progressBar');
-let currentStep = 0;
+  const steps = document.querySelectorAll('.step');
+  const progressBar = document.getElementById('progressBar');
+  let currentStep = 0;
 
-function updateStep() {
-  steps.forEach((step, i) => {
-    step.classList.toggle('active', i === currentStep);
+  function updateStep() {
+    steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
+    progressBar.style.width = ((currentStep + 1) / steps.length) * 100 + '%';
+  }
+
+  function nextStep() {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      updateStep();
+    } else {
+      alert('Checklist & Paraf Pelaksana selesai (belum disimpan)');
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      updateStep();
+    }
+  }
+
+  function toggleNote(select) {
+    const note = select.nextElementSibling;
+    note.style.display = select.value === 'NG' ? 'block' : 'none';
+  }
+
+  // Signature
+  const canvas = document.getElementById('signature');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  canvas.addEventListener('pointerdown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
   });
-  progressBar.style.width = ((currentStep + 1) / steps.length) * 100 + '%';
-}
 
-function nextStep() {
-  if (currentStep < steps.length - 1) {
-    currentStep++;
-    updateStep();
-  } else {
-    alert('Checklist pelaksana selesai (belum dikirim ke database)');
+  canvas.addEventListener('pointermove', e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener('pointerup', () => drawing = false);
+
+  function clearSign() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-}
 
-function prevStep() {
-  if (currentStep > 0) {
-    currentStep--;
-    updateStep();
-  }
-}
-
-function toggleNote(select) {
-  const note = select.nextElementSibling;
-  note.style.display = select.value === 'NG' ? 'block' : 'none';
-}
-
-/* SIGNATURE */
-const canvas = document.getElementById('signaturePad');
-const ctx = canvas.getContext('2d');
-let drawing = false;
-
-canvas.addEventListener('mousedown', start);
-canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('mouseup', stop);
-canvas.addEventListener('mouseleave', stop);
-
-canvas.addEventListener('touchstart', start);
-canvas.addEventListener('touchmove', draw);
-canvas.addEventListener('touchend', stop);
-
-function start(e) {
-  drawing = true;
-  ctx.beginPath();
-  ctx.moveTo(x(e), y(e));
-}
-
-function draw(e) {
-  if (!drawing) return;
-  ctx.lineTo(x(e), y(e));
-  ctx.stroke();
-}
-
-function stop() {
-  drawing = false;
-}
-
-function x(e) {
-  return (e.touches ? e.touches[0].clientX : e.clientX) -
-         canvas.getBoundingClientRect().left;
-}
-
-function y(e) {
-  return (e.touches ? e.touches[0].clientY : e.clientY) -
-         canvas.getBoundingClientRect().top;
-}
-
-function clearSignature() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-updateStep();
+  updateStep();
 </script>
 
 </body>
