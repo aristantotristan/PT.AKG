@@ -6,227 +6,195 @@
   <title>Checklist Stand Label & Robot</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --primary: #003366; --bg: #f8f9fa; }
-    body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
-    .container { max-width: 800px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-    .header { background: var(--primary); color: white; padding: 15px; text-align: center; }
-    .header h2 { margin: 0; font-size: 18px; text-transform: uppercase; }
+    :root { --primary: #003366; --bg: #f2f5f8; }
+    body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; max-width: 600px; margin: auto; }
+    .header { background: var(--primary); color: #fff; padding: 15px; text-align: center; font-weight: bold; }
+    .progress-bar { height: 6px; background: #e0e0e0; }
+    .progress-fill { height: 100%; background: #ffcc00; width: 0%; transition: 0.3s; }
     
-    .progress-container { height: 5px; background: #eee; width: 100%; }
-    .progress-bar { height: 100%; background: #ffcc00; width: 0%; transition: 0.3s; }
-
     .step { display: none; padding: 15px; }
     .step.active { display: block; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    th { background: #f2f2f2; text-align: left; padding: 10px; border: 1px solid #ddd; }
-    td { padding: 10px; border: 1px solid #ddd; vertical-align: top; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th { background: #f8f9fa; border: 1px solid #ddd; padding: 8px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
     
-    .col-check { width: 45%; }
-    .col-std { width: 35%; color: #666; font-style: italic; }
-    .col-action { width: 20%; text-align: center; }
-
+    .std-text { font-size: 11px; color: #d32f2f; font-weight: bold; display: block; margin-top: 4px; }
     select, input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
     textarea { margin-top: 5px; display: none; height: 50px; background: #fffde7; }
 
-    .footer-btns { display: flex; gap: 10px; padding: 15px; background: #f9f9f9; border-top: 1px solid #eee; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .btn-prev { background: #6c757d; color: white; }
-    .btn-next { background: var(--primary); color: white; }
-
-    /* SIGNATURE */
-    #sig-canvas { width: 100%; height: 200px; border: 2px dashed #999; background: #fff; touch-action: none; cursor: crosshair; }
-    .clear-btn { background: #dc3545; color: white; margin-top: 10px; padding: 5px 10px; font-size: 12px; }
+    canvas { 
+      width: 100%; height: 200px; border: 2px dashed #999; border-radius: 6px; 
+      background: #fafafa; margin-top: 10px; touch-action: none; 
+    }
+    
+    .footer { display: flex; gap: 10px; padding: 15px; background: #f8f9fa; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .btn-prev { background: #ccc; }
+    .btn-next { background: var(--primary); color: #fff; }
+    .btn-clear { background: #f44336; color: #fff; margin-top: 5px; font-size: 12px; padding: 6px; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <h2>Checklist Harian Stand Label & Robot</h2>
-  </div>
-  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+<div class="card">
+  <div class="header">CHECKLIST HARIAN STAND LABEL & ROBOT</div>
+  <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
 
   <form id="checklistForm">
     <div class="step active">
       <h3>1 & 2. FRAME & MAGAZINE</h3>
       <table>
-        <tr>
-          <th>Jenis Pengecekan</th>
-          <th>Standard</th>
-          <th>Hasil</th>
-        </tr>
-        <tr>
-          <td>Cek baut frame rangka</td>
-          <td>Tidak kendor/lepas</td>
-          <td>
-            <select name="baut_frame" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select>
-            <textarea name="note_baut_frame" placeholder="Ket NG..."></textarea>
-          </td>
-        </tr>
-        <tr>
-          <td>Cek bubble leveller</td>
-          <td>Terpasang & berfungsi benar</td>
-          <td>
-            <select name="bubble_leveller" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select>
-            <textarea name="note_bubble_leveller"></textarea>
-          </td>
-        </tr>
-        <tr>
-          <td>As Adjuster plate magazine</td>
-          <td>Berfungsi baik</td>
-          <td>
-            <select name="as_adjuster" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select>
-            <textarea name="note_as_adjuster"></textarea>
-          </td>
-        </tr>
-        <tr>
-          <td>Baut frame magazine</td>
-          <td>Lengkap & bersih</td>
-          <td>
-            <select name="baut_magazine" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select>
-            <textarea name="note_baut_magazine"></textarea>
-          </td>
-        </tr>
+        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
+        <tr><td>Baut frame rangka<br><span class="std-text">Std: Tidak kendor/lepas</span></td><td><select name="baut_frame" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_baut_frame"></textarea></td></tr>
+        <tr><td>Bubble leveller<br><span class="std-text">Std: Berfungsi benar</span></td><td><select name="bubble_leveller" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_bubble_leveller"></textarea></td></tr>
+        <tr><td>As Adjuster magazine<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="as_adjuster" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_as_adjuster"></textarea></td></tr>
+        <tr><td>Baut frame magazine<br><span class="std-text">Std: Lengkap & bersih</span></td><td><select name="baut_magazine" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_baut_magazine"></textarea></td></tr>
       </table>
     </div>
 
     <div class="step">
       <h3>3. PLATE STAND LABEL</h3>
       <table>
-        <tr><th>Jenis Pengecekan</th><th>Standard</th><th>Hasil</th></tr>
-        <tr><td>Cek V-Belt</td><td>Tidak kendor/kencang</td><td><select name="vbelt" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vbelt"></textarea></td></tr>
-        <tr><td>Cek Gear/Bushing/Bearing</td><td>Tidak goyang</td><td><select name="gearing" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_gearing"></textarea></td></tr>
-        <tr><td>Cek Vacuum pad</td><td>Baut & skun kencang</td><td><select name="vacuum_pad" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vacuum_pad"></textarea></td></tr>
-        <tr><td>Pergerakan spring/as vacuum</td><td>Smooth/halus</td><td><select name="spring_as" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_spring_as"></textarea></td></tr>
-        <tr><td>Cek linier bearing SL</td><td>Berfungsi baik</td><td><select name="linier_bearing" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_linier_bearing"></textarea></td></tr>
-        <tr><td>Cek tutup Rail</td><td>Terpasang benar</td><td><select name="tutup_rail" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tutup_rail"></textarea></td></tr>
+        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
+        <tr><td>V-Belt<br><span class="std-text">Std: Tidak kendor/kencang</span></td><td><select name="vbelt" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vbelt"></textarea></td></tr>
+        <tr><td>Gear/Bushing/Bearing<br><span class="std-text">Std: Tidak goyang</span></td><td><select name="gearing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_gearing"></textarea></td></tr>
+        <tr><td>Vacuum pad<br><span class="std-text">Std: Baut & skun kencang</span></td><td><select name="vacuum_pad" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vacuum_pad"></textarea></td></tr>
+        <tr><td>Spring/As vacuum pads<br><span class="std-text">Std: Smooth/halus</span></td><td><select name="spring_as" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_spring_as"></textarea></td></tr>
+        <tr><td>Linier bearing SL<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="linier_bearing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_linier_bearing"></textarea></td></tr>
+        <tr><td>Tutup Rail<br><span class="std-text">Std: Terpasang benar</span></td><td><select name="tutup_rail" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tutup_rail"></textarea></td></tr>
       </table>
     </div>
 
     <div class="step">
       <h3>4. PANEL KONTROL</h3>
       <table>
-        <tr><th>Jenis Pengecekan</th><th>Standard</th><th>Hasil</th></tr>
-        <tr><td>Kondisi Panel & Komponen</td><td>Tidak debu/lengket</td><td><select name="panel_komponen" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_panel"></textarea></td></tr>
-        <tr><td>Komponen Electrical</td><td>Tidak kendor</td><td><select name="komponen_electrical" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_electrical"></textarea></td></tr>
-        <tr><td>Instalasi Kabel</td><td>Terpasang rapi</td><td><select name="instalasi_kabel" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_kabel"></textarea></td></tr>
-        <tr><td>Instalasi solenoid Valve</td><td>Tidak kendor</td><td><select name="solenoid_valve_panel" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_solenoid_panel"></textarea></td></tr>
-        <tr><td>Cek kondisi Fan</td><td>Bersih/tidak debu</td><td><select name="fan_kondisi" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_fan"></textarea></td></tr>
-        <tr><td>Sambungan kabel power</td><td>Permanen</td><td><select name="sambungan_power" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_power"></textarea></td></tr>
+        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
+        <tr><td>Kondisi Panel & Comp<br><span class="std-text">Std: Tidak debu/lengket</span></td><td><select name="panel_komponen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_panel"></textarea></td></tr>
+        <tr><td>Komponen Electrical<br><span class="std-text">Std: Tidak kendor</span></td><td><select name="komponen_electrical" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_electrical"></textarea></td></tr>
+        <tr><td>Instalasi Kabel<br><span class="std-text">Std: Rapi / tidak kendor</span></td><td><select name="instalasi_kabel" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_kabel"></textarea></td></tr>
+        <tr><td>Instalasi Solenoid Valve<br><span class="std-text">Std: Tidak kendor</span></td><td><select name="solenoid_valve_panel" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_solenoid_panel"></textarea></td></tr>
+        <tr><td>Kondisi Fan<br><span class="std-text">Std: Bersih / tidak debu</span></td><td><select name="fan_kondisi" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_fan"></textarea></td></tr>
+        <tr><td>Kabel Power/Control<br><span class="std-text">Std: Permanen / No temporary</span></td><td><select name="sambungan_power" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_power"></textarea></td></tr>
       </table>
     </div>
 
     <div class="step">
-      <h3>5. SISTEM PNEUMATIC</h3>
+      <h3>5. PNEUMATIC</h3>
       <table>
-        <tr><th>Jenis Pengecekan</th><th>Standard</th><th>Hasil</th></tr>
-        <tr><td>Instalasi Pneu/Cyl/Tubing</td><td>Rapi & tidak bocor</td><td><select name="pneu_cyl_tubing" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_pneu_cyl"></textarea></td></tr>
-        <tr><td>Instalasi tubing terpasang</td><td>Rapi & permanen</td><td><select name="tubing_permanen" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tubing"></textarea></td></tr>
-        <tr><td>Cek solenoid Valve</td><td>Ada silencer</td><td><select name="solenoid_silencer" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sol_silencer"></textarea></td></tr>
-        <tr><td>Instalasi vacuum generator</td><td>Ada silencer</td><td><select name="vac_gen_silencer" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_silencer"></textarea></td></tr>
-        <tr><td>Fungsi vacuum Generator</td><td>0.4-0.5 kPa</td><td><select name="fungsi_vac_gen" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_gen"></textarea></td></tr>
-        <tr><td>Sensor Pneumatic</td><td>Berfungsi baik</td><td><select name="sensor_pneumatic" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_pneu"></textarea></td></tr>
-        <tr><td>Sensor vacuum</td><td>Pembacaan stabil</td><td><select name="sensor_vacuum" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_vac"></textarea></td></tr>
-        <tr><td>Tekanan supply angin</td><td>Stabil (4-8 bar)</td><td><select name="tekanan_angin" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_angin"></textarea></td></tr>
+        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
+        <tr><td>Instalasi Pneu/Cyl/Tubing<br><span class="std-text">Std: Rapi & No bocor</span></td><td><select name="pneu_cyl_tubing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_pneu_cyl"></textarea></td></tr>
+        <tr><td>Instalasi Tubing<br><span class="std-text">Std: Rapi & permanen</span></td><td><select name="tubing_permanen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tubing"></textarea></td></tr>
+        <tr><td>Solenoid Valve<br><span class="std-text">Std: Ada silencer</span></td><td><select name="solenoid_silencer" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sol_silencer"></textarea></td></tr>
+        <tr><td>Vacuum Generator<br><span class="std-text">Std: Ada silencer</span></td><td><select name="vac_gen_silencer" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_silencer"></textarea></td></tr>
+        <tr><td>Fungsi Vacuum Gen<br><span class="std-text">Std: 0.4 - 0.5 kPa</span></td><td><select name="fungsi_vac_gen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_gen"></textarea></td></tr>
+        <tr><td>Sensor Pneumatic<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="sensor_pneumatic" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_pneu"></textarea></td></tr>
+        <tr><td>Sensor Vacuum<br><span class="std-text">Std: Stabil</span></td><td><select name="sensor_vacuum" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_vac"></textarea></td></tr>
+        <tr><td>Supply Angin<br><span class="std-text">Std: Stabil (4-8 Bar)</span></td><td><select name="tekanan_angin" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_angin"></textarea></td></tr>
       </table>
     </div>
 
     <div class="step">
       <h3>6 & 7. ROBOT & VALIDASI</h3>
       <table>
-        <tr><th>Pengecekan</th><th>Standard</th><th>Hasil</th></tr>
-        <tr><td>Dummy Robot</td><td>Majun hitam (15m)</td><td><select name="dummy_robot" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_dummy"></textarea></td></tr>
-        <tr><td>Sistem static</td><td>9-13 Kv</td><td><select name="static_kv" onchange="toggleNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_static"></textarea></td></tr>
+        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
+        <tr><td>Dummy Robot<br><span class="std-text">Std: Majun hitam (15m)</span></td><td><select name="dummy_robot" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_dummy"></textarea></td></tr>
+        <tr><td>Sistem Static<br><span class="std-text">Std: Nilai 9-13 Kv</span></td><td><select name="static_kv" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_static"></textarea></td></tr>
       </table>
-      
-      <div style="margin-top: 20px;">
-        <label>Nama Mekanik Pelaksana:</label>
-        <input type="text" name="nama_pelaksana" id="mekanik_nama" required style="margin-top:5px;">
-        
-        <label style="margin-top: 15px; display: block;">Tanda Tangan:</label>
-        <canvas id="sig-canvas"></canvas>
-        <button type="button" class="clear-btn" onclick="clearParaf()">Hapus Tanda Tangan</button>
+      <div style="margin-top:20px">
+        <label><b>Nama Mekanik:</b></label>
+        <input type="text" name="nama_pelaksana" id="nm" required style="margin-top:5px">
+        <label style="margin-top:15px; display:block"><b>Tanda Tangan:</b></label>
+        <canvas id="canvas"></canvas>
+        <button type="button" class="btn-clear" onclick="clr()">Hapus Tanda Tangan</button>
       </div>
     </div>
   </form>
 
-  <div class="footer-btns">
-    <button type="button" class="btn-prev" id="btnBack" onclick="changeStep(-1)">Kembali</button>
-    <button type="button" class="btn-next" id="btnNext" onclick="changeStep(1)">Lanjut</button>
+  <div class="footer">
+    <button type="button" class="btn-prev" id="bBack" onclick="nav(-1)">KEMBALI</button>
+    <button type="button" class="btn-next" id="bNext" onclick="nav(1)">LANJUT</button>
   </div>
 </div>
 
 <script>
-  // CONFIG SUPABASE (TOKEN JWT KAMU SUDAH TERPASANG)
   const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ"; 
+  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(_URL, _KEY);
 
-  let currentStep = 0;
+  let step = 0;
   const steps = document.querySelectorAll(".step");
-  const bar = document.getElementById("progressBar");
+  const fill = document.getElementById("bar");
 
-  function changeStep(n) {
+  function nav(n) {
     if (n === 1) {
-      const inputs = steps[currentStep].querySelectorAll("select[required], input[required]");
-      for (let i of inputs) if (!i.value) return alert("Mohon lengkapi data!");
+      const rq = steps[step].querySelectorAll("select[required], input[required]");
+      for (let i of rq) if (!i.value) return alert("Isi semua data!");
     }
-    
-    currentStep += n;
-    if (currentStep >= steps.length) return submitData();
-
-    steps.forEach((s, i) => s.classList.toggle("active", i === currentStep));
-    bar.style.width = ((currentStep + 1) / steps.length) * 100 + "%";
-    document.getElementById("btnBack").style.visibility = currentStep === 0 ? "hidden" : "visible";
-    document.getElementById("btnNext").innerText = currentStep === steps.length - 1 ? "SIMPAN" : "Lanjut";
-
-    if (currentStep === 4) setTimeout(initCanvas, 300);
+    step += n;
+    if (step >= steps.length) return submit();
+    show();
   }
 
-  function toggleNG(s) { s.nextElementSibling.style.display = s.value === "NG" ? "block" : "none"; }
+  function show() {
+    steps.forEach((s, i) => s.classList.toggle("active", i === step));
+    fill.style.width = ((step + 1) / steps.length) * 100 + "%";
+    document.getElementById("bBack").style.visibility = step === 0 ? "hidden" : "visible";
+    document.getElementById("bNext").innerText = step === steps.length - 1 ? "SIMPAN" : "LANJUT";
+    if (step === 4) setTimeout(initCanvas, 300);
+  }
 
-  // LOGIK PARAFA (FIXED)
-  const canvas = document.getElementById("sig-canvas");
-  const ctx = canvas.getContext("2d");
+  function hNG(s) { s.nextElementSibling.style.display = s.value === "NG" ? "block" : "none"; }
+
+  // Tanda Tangan Logic
+  const cvs = document.getElementById("canvas");
+  const ctx = cvs.getContext("2d");
   let drawing = false;
 
   function initCanvas() {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    ctx.scale(ratio, ratio);
-    ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    const r = cvs.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    cvs.width = r.width * dpr;
+    cvs.height = r.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
   }
 
-  function getPos(e) {
-    const r = canvas.getBoundingClientRect();
+  function getXY(e) {
+    const r = cvs.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
     return { x: t.clientX - r.left, y: t.clientY - r.top };
   }
 
-  canvas.addEventListener("touchstart", (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive: false});
-  canvas.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive: false});
-  canvas.addEventListener("touchend", () => drawing = false);
-  function clearParaf() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  function start(e) { drawing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); if(e.touches) e.preventDefault(); }
+  function draw(e) { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); if(e.touches) e.preventDefault(); }
+  function stop() { drawing = false; }
 
-  async function submitData() {
-    const paraf = canvas.toDataURL();
-    if (paraf.length < 2000) return alert("Wajib Tanda Tangan!");
+  cvs.addEventListener("mousedown", start);
+  cvs.addEventListener("mousemove", draw);
+  window.addEventListener("mouseup", stop);
+  cvs.addEventListener("touchstart", start, {passive:false});
+  cvs.addEventListener("touchmove", draw, {passive:false});
+  cvs.addEventListener("touchend", stop);
 
-    const btn = document.getElementById("btnNext");
-    btn.disabled = true; btn.innerText = "Proses...";
+  function clr() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
 
-    const form = document.getElementById("checklistForm");
-    const data = Object.fromEntries(new FormData(form));
-    data.paraf_pelaksana = paraf;
+  async function submit() {
+    const img = cvs.toDataURL();
+    if (img.length < 2000) return alert("Paraf dulu!");
+    document.getElementById("bNext").disabled = true;
+    document.getElementById("bNext").innerText = "Proses...";
 
-    const { error } = await sb.from("pelaksana_a").insert([data]);
-    if (error) { alert(error.message); btn.disabled = false; }
-    else { alert("Checklist Berhasil Disimpan!"); location.reload(); }
+    const fd = Object.fromEntries(new FormData(document.getElementById("checklistForm")));
+    fd.paraf_pelaksana = img;
+
+    const { error } = await sb.from("pelaksana_a").insert([fd]);
+    if (error) { alert(error.message); document.getElementById("bNext").disabled = false; }
+    else { alert("BERHASIL!"); location.reload(); }
   }
 
-  changeStep(0);
+  show();
 </script>
 </body>
 </html>
