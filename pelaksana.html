@@ -2,361 +2,195 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Pelaksana - Checklist Harian Stand Label & Robot</title>
+  <title>Checklist Stand Label & Robot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; color: #333; }
-    h2 { text-align: center; color: #003366; margin-bottom: 15px; font-size: 20px; }
-    
-    .progress-container { width: 100%; background: #e0e0e0; border-radius: 10px; height: 8px; margin-bottom: 20px; }
-    .progress-bar { height: 100%; width: 0%; background: #003366; transition: width 0.3s; border-radius: 10px; }
-
-    .step { display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    body { font-family: sans-serif; background: #f4f4f4; padding: 15px; margin: 0; }
+    .progress-container { width: 100%; background: #ddd; height: 8px; margin-bottom: 20px; border-radius: 4px; }
+    .progress-bar { height: 100%; width: 0%; background: #003366; transition: 0.3s; border-radius: 4px; }
+    .step { display: none; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .step.active { display: block; }
-    
-    h3 { margin-top: 0; color: #003366; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; font-size: 18px; }
-    .item { margin-bottom: 15px; border-bottom: 1px solid #f9f9f9; padding-bottom: 10px; }
-    label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 8px; color: #444; }
-
-    select, input, textarea { 
-      width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none;
-    }
-    select:focus { border-color: #003366; }
-    textarea { margin-top: 8px; display: none; height: 70px; background: #fffdf0; border: 1px dashed #ffcc00; }
-
-    .btn-group { display: flex; gap: 10px; margin-top: 25px; }
-    button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .back { background: #e0e0e0; color: #555; }
+    .item { margin-bottom: 15px; }
+    label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 5px; }
+    select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    textarea { margin-top: 5px; display: none; height: 60px; }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .back { background: #ccc; }
     .next { background: #003366; color: #fff; }
-    .submit-btn { background: #28a745 !important; color: white; }
-    button:active { transform: scale(0.98); opacity: 0.9; }
-
-    /* SIGNATURE STYLE */
-    .canvas-container { background: #fff; border: 2px dashed #bbb; border-radius: 8px; position: relative; margin-top: 10px; }
-    canvas { width: 100%; height: 220px; display: block; touch-action: none; cursor: crosshair; }
-    .clear-btn { background: #ff4d4d; color: white; padding: 8px 15px; font-size: 12px; margin-top: 10px; width: auto; flex: none; }
+    canvas { width: 100%; height: 200px; border: 2px dashed #999; border-radius: 5px; touch-action: none; }
   </style>
 </head>
 <body>
 
-<h2>Checklist Harian<br>Stand Label & Robot</h2>
-
-<div class="progress-container">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
 
 <form id="checklistForm">
   <div class="step active">
-    <h3>1. FRAME / RANGKA</h3>
+    <h3>1. FRAME</h3>
     <div class="item">
-      <label>Cek kondisi baut frame rangka</label>
-      <select name="baut_frame" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_baut_frame" placeholder="Tulis kendala baut di sini..."></textarea>
+      <label>Baut Frame</label>
+      <select name="baut_frame" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_baut_frame" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Cek bubble leveller</label>
-      <select name="bubble_leveller" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_bubble_leveller" placeholder="Tulis kendala bubble leveller..."></textarea>
+      <label>Bubble Leveller</label>
+      <select name="bubble_leveller" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_bubble_leveller" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>2. MAGAZINE LABEL</h3>
+    <h3>2. MAGAZINE</h3>
     <div class="item">
-      <label>As Adjuster plate magazine label</label>
-      <select name="as_adjuster" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_as_adjuster" placeholder="Keterangan NG..."></textarea>
+      <label>As Adjuster</label>
+      <select name="as_adjuster" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_as_adjuster" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Baut frame / rangka magazine label</label>
-      <select name="baut_magazine" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_baut_magazine" placeholder="Keterangan NG..."></textarea>
+      <label>Baut Magazine</label>
+      <select name="baut_magazine" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_baut_magazine" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>3. PLATE STAND LABEL</h3>
+    <h3>3. PLATE</h3>
     <div class="item">
-      <label>V-Belt kondisi baik</label>
-      <select name="vbelt" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_vbelt" placeholder="Keterangan..."></textarea>
+      <label>V-Belt</label>
+      <select name="vbelt" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_vbelt" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Gear / Bushing / Bearing</label>
-      <select name="gearing" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_gearing" placeholder="Keterangan..."></textarea>
+      <label>Gearing/Bearing</label>
+      <select name="gearing" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_gearing" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>4. PANEL & KONTROL</h3>
+    <h3>4. PANEL</h3>
     <div class="item">
-      <label>Kondisi panel & komponen</label>
-      <select name="panel_komponen" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_panel" placeholder="Keterangan..."></textarea>
+      <label>Panel Komponen</label>
+      <select name="panel_komponen" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_panel" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Instalasi kabel</label>
-      <select name="instalasi_kabel" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_kabel" placeholder="Keterangan..."></textarea>
+      <label>Instalasi Kabel</label>
+      <select name="instalasi_kabel" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_kabel" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>5. SISTEM PNEUMATIC</h3>
+    <h3>5. PNEUMATIC</h3>
     <div class="item">
-      <label>Instalasi pneumatic & tubing</label>
-      <select name="pneumatic_tubing" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_pneumatic" placeholder="Keterangan..."></textarea>
+      <label>Pneumatic Tubing</label>
+      <select name="pneumatic_tubing" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_pneumatic" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Tekanan supply angin (4–8 bar)</label>
-      <select name="tekanan_angin" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_angin" placeholder="Keterangan..."></textarea>
+      <label>Tekanan Angin</label>
+      <select name="tekanan_angin" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_angin" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>6. SISTEM ROBOT</h3>
+    <h3>6. ROBOT</h3>
     <div class="item">
-      <label>Dummy Robot (cleaning 15 menit)</label>
-      <select name="dummy_robot" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_dummy" placeholder="Keterangan..."></textarea>
+      <label>Dummy Robot</label>
+      <select name="dummy_robot" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_dummy" placeholder="Ket NG..."></textarea>
     </div>
     <div class="item">
-      <label>Static (9–13 Kv)</label>
-      <select name="static_kv" onchange="toggleNote(this)" required>
-        <option value="">-- Pilih --</option>
-        <option value="OK">OK</option>
-        <option value="NG">NG</option>
-      </select>
-      <textarea name="note_static" placeholder="Keterangan..."></textarea>
+      <label>Static KV</label>
+      <select name="static_kv" onchange="toggleNote(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+      <textarea name="note_static" placeholder="Ket NG..."></textarea>
     </div>
   </div>
 
   <div class="step">
-    <h3>7. KONFIRMASI AKHIR</h3>
-    <div class="item">
-      <label>Nama Mekanik (Pelaksana)</label>
-      <input type="text" id="namaPelaksana" name="nama_pelaksana" required placeholder="Nama Anda" />
-    </div>
-    <label>Tanda Tangan Pelaksana:</label>
-    <div class="canvas-container">
-      <canvas id="signaturePad"></canvas>
-    </div>
-    <button type="button" class="clear-btn" onclick="clearSignature()">Hapus Tanda Tangan</button>
+    <h3>7. SELESAI</h3>
+    <label>Nama Pelaksana</label>
+    <input type="text" name="nama_pelaksana" id="nama_pelaksana" required />
+    <label style="margin-top:15px">Tanda Tangan</label>
+    <canvas id="signaturePad"></canvas>
+    <button type="button" onclick="clearSig()" style="background:red; color:#fff; margin-top:5px; padding:5px">Hapus Paraf</button>
   </div>
 </form>
 
 <div class="btn-group">
-  <button type="button" class="back" id="btnBack" onclick="prevStep()">Kembali</button>
-  <button type="button" class="next" id="btnNext" onclick="nextStep()">Lanjut</button>
+  <button type="button" class="back" onclick="prevStep()" id="btnBack">Back</button>
+  <button type="button" class="next" onclick="nextStep()" id="btnNext">Lanjut</button>
 </div>
 
 <script>
-/* ================= CONFIG SUPABASE ================= */
-// Masukkan URL dan Anon Key kamu di sini
 const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-const _KEY = "GANTI_DENGAN_ANON_KEY_KAMU"; 
+const _KEY = "PASTE_ANON_KEY_KAMU_DISINI"; 
 const sb = supabase.createClient(_URL, _KEY);
 
-/* ================= STEP NAVIGATION ================= */
-const steps = document.querySelectorAll(".step");
-const progressBar = document.getElementById("progressBar");
-const btnNext = document.getElementById("btnNext");
-const btnBack = document.getElementById("btnBack");
 let currentStep = 0;
+const steps = document.querySelectorAll(".step");
 
 function updateStep() {
   steps.forEach((s, i) => s.classList.toggle("active", i === currentStep));
-  progressBar.style.width = ((currentStep + 1) / steps.length) * 100 + "%";
-  
-  btnBack.style.visibility = currentStep === 0 ? "hidden" : "visible";
-  
-  if (currentStep === steps.length - 1) {
-    btnNext.innerText = "Kirim Checklist";
-    btnNext.classList.add("submit-btn");
-    // Penting: Inisialisasi canvas ulang saat step dibuka
-    setTimeout(initCanvas, 200);
-  } else {
-    btnNext.innerText = "Lanjut";
-    btnNext.classList.remove("submit-btn");
-  }
+  document.getElementById("progressBar").style.width = ((currentStep + 1) / steps.length) * 100 + "%";
+  document.getElementById("btnBack").style.visibility = currentStep === 0 ? "hidden" : "visible";
+  document.getElementById("btnNext").innerText = currentStep === steps.length - 1 ? "Kirim" : "Lanjut";
+  if(currentStep === 6) setTimeout(initCanvas, 200);
 }
 
 function nextStep() {
-  const currentInputs = steps[currentStep].querySelectorAll("select[required], input[required]");
-  let valid = true;
-  currentInputs.forEach(input => {
-    if (!input.value) valid = false;
-  });
-
-  if (!valid) {
-    alert("Harap isi bidang yang wajib diisi!");
-    return;
-  }
-
-  if (currentStep < steps.length - 1) {
-    currentStep++;
-    updateStep();
-  } else {
-    submitChecklist();
-  }
+  const inputs = steps[currentStep].querySelectorAll("select, input");
+  for(let i of inputs) if(i.hasAttribute('required') && !i.value) return alert("Isi data!");
+  if(currentStep < 6) { currentStep++; updateStep(); } else { submit(); }
 }
 
-function prevStep() {
-  if (currentStep > 0) {
-    currentStep--;
-    updateStep();
-  }
-}
+function prevStep() { if(currentStep > 0) { currentStep--; updateStep(); } }
 
-function toggleNote(select) {
-  const note = select.nextElementSibling;
-  if (select.value === "NG") {
-    note.style.display = "block";
-    note.setAttribute("required", "true");
-  } else {
-    note.style.display = "none";
-    note.removeAttribute("required");
-    note.value = "";
-  }
-}
+function toggleNote(s) { s.nextElementSibling.style.display = s.value === "NG" ? "block" : "none"; }
 
-/* ================= SIGNATURE LOGIC (FIXED) ================= */
+// SIGNATURE LOGIC
 const canvas = document.getElementById("signaturePad");
 const ctx = canvas.getContext("2d");
 let drawing = false;
 
 function initCanvas() {
-  const container = canvas.parentElement;
-  canvas.width = container.clientWidth;
-  canvas.height = 220; // Tinggi tetap
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 200;
   ctx.lineWidth = 3;
   ctx.lineCap = "round";
-  ctx.strokeStyle = "#000";
 }
 
 function getPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: clientX - rect.left, y: clientY - rect.top };
+  const r = canvas.getBoundingClientRect();
+  const c = e.touches ? e.touches[0] : e;
+  return { x: c.clientX - r.left, y: c.clientY - r.top };
 }
 
-function startDrawing(e) {
-  drawing = true;
-  const pos = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
-  if(e.type === "touchstart") e.preventDefault();
-}
+canvas.addEventListener("touchstart", (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive:false});
+canvas.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive:false});
+canvas.addEventListener("touchend", () => drawing = false);
+function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-function draw(e) {
-  if (!drawing) return;
-  const pos = getPos(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
-  if(e.type === "touchmove") e.preventDefault();
-}
-
-function stopDrawing() { drawing = false; }
-
-canvas.addEventListener("mousedown", startDrawing);
-canvas.addEventListener("mousemove", draw);
-window.addEventListener("mouseup", stopDrawing);
-
-canvas.addEventListener("touchstart", startDrawing, {passive: false});
-canvas.addEventListener("touchmove", draw, {passive: false});
-canvas.addEventListener("touchend", stopDrawing);
-
-function clearSignature() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-/* ================= SUBMIT DATA ================= */
-async function submitChecklist() {
-  const sigData = canvas.toDataURL("image/png");
+async function submit() {
+  const sig = canvas.toDataURL();
+  if(sig.length < 2000) return alert("Paraf dulu!");
   
-  // Validasi tanda tangan (tidak boleh kosong)
-  if (sigData.length < 2000) {
-    alert("Tanda tangan wajib diisi!");
-    return;
-  }
+  const btn = document.getElementById("btnNext");
+  btn.disabled = true; btn.innerText = "Sabar...";
 
-  btnNext.disabled = true;
-  btnNext.innerText = "Sedang Mengirim...";
+  const data = Object.fromEntries(new FormData(document.getElementById("checklistForm")));
+  data.paraf_pelaksana = sig;
 
-  const form = document.getElementById("checklistForm");
-  const formData = new FormData(form);
-  const data = Object.fromEntries(formData.entries());
-  
-  // Tambah info tambahan
-  data.signature_pelaksana = sigData;
-  data.tanggal = new Date().toLocaleString("id-ID");
-
-  const { error } = await sb.from("pelaksana_A").insert([data]);
-
-  if (error) {
-    alert("Error: " + error.message);
-    btnNext.disabled = false;
-    btnNext.innerText = "Kirim Checklist";
-  } else {
-    alert("Sukses! Checklist telah tersimpan.");
-    location.reload(); 
-  }
+  const { error } = await sb.from("pelaksana_a").insert([data]);
+  if(error) { alert(error.message); btn.disabled = false; }
+  else { alert("Berhasil!"); location.reload(); }
 }
 
-// Jalankan progress awal
 updateStep();
 </script>
-
 </body>
 </html>
