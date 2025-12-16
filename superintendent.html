@@ -8,70 +8,88 @@
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   
   <style>
-    :root { --navy: #001a33; --gold: #b38600; --bg: #e5e9ed; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 15px; margin: 0; }
+    :root { --dark-red: #8b0000; --navy: #003366; --bg: #f0f2f5; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; }
     .container { max-width: 500px; margin: auto; }
-    h2 { text-align: center; color: var(--navy); margin-bottom: 20px; text-transform: uppercase; }
+    h2 { text-align: center; color: var(--dark-red); margin-bottom: 20px; text-transform: uppercase; font-size: 20px; }
     
     fieldset { 
       background: #fff; padding: 15px; border-radius: 12px; 
-      border: 1px solid #bdc3c7; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 1px solid #d1d9e0; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    legend { font-weight: bold; color: white; background: var(--navy); padding: 4px 15px; border-radius: 20px; font-size: 11px; }
+    legend { font-weight: bold; color: #fff; background: var(--dark-red); padding: 4px 15px; border-radius: 20px; font-size: 11px; }
     
-    .info-box { background: #f8f9fa; border-radius: 8px; padding: 12px; border-left: 5px solid var(--gold); }
-    .line { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+    label { font-size: 12px; font-weight: bold; color: #444; display: block; margin-top: 10px; }
+    input, select, textarea { 
+      width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-top: 5px;
+    }
     
-    input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; margin-top: 5px; }
+    .summary-card { background: #fffcf0; border-radius: 8px; padding: 12px; border-left: 5px solid #f39c12; }
+    .summary-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+    .check-mark { color: #27ae60; font-weight: bold; }
 
-    /* Signature Area */
-    .sig-container { 
-      border: 1px solid #ccc; background: #fff; border-radius: 8px; 
+    .sig-wrapper { 
+      border: 2px dashed #ccc; background: #fff; border-radius: 8px; 
       margin-top: 10px; width: 100%; height: 180px; position: relative; touch-action: none;
     }
     #signature-pad { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
     
-    .btn-clear { background: #eee; border: 1px solid #ccc; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 8px; font-size: 11px; width: 100%; font-weight: bold; }
+    .btn-clear { background: #fdf2f2; color: #c0392b; border: 1px solid #f5c6cb; padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 8px; font-size: 11px; width: 100%; }
 
-    .btn-finalize { background: var(--navy); color: white; padding: 16px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-    .btn-finalize:disabled { background: #95a5a6; }
-    .back-link { display: block; text-align: center; margin-top: 15px; color: #7f8c8d; text-decoration: none; font-size: 14px; font-weight: bold; }
+    .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    button.btn-final { background: var(--dark-red); color: white; padding: 16px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button:disabled { background: #ccc; }
+    .btn-back { background: #666; color: white; text-decoration: none; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; }
+    
+    #loader { display: none; text-align: center; font-size: 12px; color: var(--dark-red); margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Mechanic Superintendent</h2>
+  <h2>Superintendent Approval</h2>
 
   <fieldset>
-    <legend>FILTER TANGGAL</legend>
-    <input type="date" id="targetDate" onchange="fetchData()">
-    <div id="loading" style="display:none; text-align:center; font-size:11px; color:orange;">Mencari data pelaksana & koordinator...</div>
+    <legend>FILTER LAPORAN</legend>
+    <label>Pilih Tanggal PM:</label>
+    <input type="date" id="selectDate">
+    
+    <label>Nomor Mesin:</label>
+    <select id="selectMesin">
+      <option value="">-- Pilih Mesin --</option>
+      <script>
+        for(let i=1; i<=30; i++) {
+          let val = "CHSLR-" + i.toString().padStart(2, '0');
+          document.write(`<option value="${val}">${val}</option>`);
+        }
+      </script>
+    </select>
+    <button onclick="searchData()" style="width:100%; margin-top:15px; background:var(--navy); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">Cek Validitas Data</button>
+    <div id="loader">Memverifikasi data 30 mesin...</div>
   </fieldset>
 
   <fieldset>
-    <legend>RINGKASAN APPROVAL</legend>
-    <div id="displaySummary" class="info-box">
-      <p style="color:#999; text-align:center; font-size:12px;">Pilih tanggal pengecekan...</p>
+    <legend>REVIEW STATUS</legend>
+    <div id="summaryContent" class="summary-card">
+      <p style="text-align:center; color:#888; font-size:12px;">Data akan muncul setelah filter dipilih.</p>
     </div>
   </fieldset>
 
   <fieldset>
-    <legend>FINAL VALIDATION</legend>
-    <label style="font-size:13px;">Nama Superintendent:</label>
-    <input type="text" id="nameSupt" placeholder="Nama Lengkap">
+    <legend>FINAL SIGNATURE</legend>
+    <input type="text" id="namaSupt" placeholder="Nama Superintendent">
+    <textarea id="catatan" rows="2" placeholder="Catatan Akhir (Opsional)"></textarea>
     
-    <label style="font-size:13px; margin-top:10px; display:block;">Catatan Superintendent:</label>
-    <textarea id="noteSupt" rows="2" placeholder="Final feedback..."></textarea>
-    
-    <div class="sig-container">
+    <div class="sig-wrapper">
       <canvas id="signature-pad"></canvas>
     </div>
-    <button type="button" class="btn-clear" onclick="resetPad()">RESET TANDA TANGAN</button>
+    <button type="button" class="btn-clear" onclick="clearPad()">BERSIHKAN TANDA TANGAN</button>
   </fieldset>
 
-  <button id="finalizeBtn" class="btn-finalize" onclick="processFinalize()">FINALIZE & CLOSE</button>
-  <a href="index.html" class="back-link">⬅ KEMBALI</a>
+  <div class="btn-group">
+    <button id="btnFinal" class="btn-final" onclick="submitFinal()">SIMPAN SEBAGAI FINAL</button>
+    <a href="index.html" class="btn-back">⬅ KEMBALI</a>
+  </div>
 </div>
 
 <script>
@@ -79,92 +97,71 @@
   const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(_URL, _KEY);
 
-  let sigPad;
-  let activeIdPelaksana = null;
+  let signaturePad;
+  let currentPelaksanaId = null;
 
   window.onload = () => {
     const canvas = document.getElementById("signature-pad");
-    sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)' });
-
-    function resize() {
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = canvas.offsetWidth * ratio;
-      canvas.height = canvas.offsetHeight * ratio;
-      canvas.getContext("2d").scale(ratio, ratio);
-    }
-    window.onresize = resize;
-    resize();
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+    signaturePad = new SignaturePad(canvas, { backgroundColor: '#fff', penColor: '#8b0000' });
   };
 
-  async function fetchData() {
-    const tgl = document.getElementById("targetDate").value;
-    const summary = document.getElementById("displaySummary");
-    if (!tgl) return;
+  async function searchData() {
+    const tgl = document.getElementById("selectDate").value;
+    const mesin = document.getElementById("selectMesin").value;
+    const summary = document.getElementById("summaryContent");
+    if (!tgl || !mesin) return alert("Lengkapi filter!");
 
-    document.getElementById("loading").style.display = "block";
-
+    document.getElementById("loader").style.display = "block";
+    
     try {
-      // 1. Cari data Pelaksana
-      const resP = await sb.from('pelaksana_a').select('id, nama_pelaksana, dummy_robot').eq('tanggal', tgl).order('id', {ascending:false});
+      // 1. Cek data pelaksana
+      const resP = await sb.from('pelaksana_a').select('*').eq('tanggal', tgl).eq('nomor_mesin', mesin).maybeSingle();
       
-      if (resP.data && resP.data.length > 0) {
-        const p = resP.data[0];
-        activeIdPelaksana = p.id;
-
-        // 2. Cari data Koordinator (untuk cross-check)
-        const resK = await sb.from('koordinator_a').select('nama_koordinator').eq('id_pelaksana', p.id);
-        const koorName = (resK.data && resK.data.length > 0) ? resK.data[0].nama_koordinator : "<span style='color:red;'>Belum Approve</span>";
-
-        summary.innerHTML = `
-          <div class="line"><span>👷 Pelaksana:</span> <b>${p.nama_pelaksana}</b></div>
-          <div class="line"><span>🤖 Status:</span> <b>${p.dummy_robot}</b></div>
-          <div class="line"><span>✅ Checker:</span> <b>${koorName}</b></div>
-        `;
+      if (!resP.data) {
+        summary.innerHTML = `<p style="color:red; text-align:center;">Laporan ${mesin} Belum Dibuat.</p>`;
+        currentPelaksanaId = null;
       } else {
-        activeIdPelaksana = null;
-        summary.innerHTML = `<p style="color:red; text-align:center; font-size:12px;">Data tidak ditemukan.</p>`;
+        currentPelaksanaId = resP.data.id;
+        // 2. Cek data koordinator
+        const resK = await sb.from('koordinator_a').select('*').eq('id_pelaksana', currentPelaksanaId).maybeSingle();
+        
+        summary.innerHTML = `
+          <div class="summary-line"><span>Unit:</span> <b>${resP.data.nomor_mesin}</b></div>
+          <div class="summary-line"><span>Pelaksana:</span> <b>${resP.data.nama_pelaksana} <span class="check-mark">✔</span></b></div>
+          <div class="summary-line"><span>Koordinator:</span> <b>${resK.data ? resK.data.nama_koordinator + ' <span class="check-mark">✔</span>' : '<span style="color:red">Belum Validasi</span>'}</b></div>
+        `;
       }
-    } catch (e) {
-      summary.innerHTML = "Error: " + e.message;
-    } finally {
-      document.getElementById("loading").style.display = "none";
-    }
+    } catch (e) { alert(e.message); }
+    finally { document.getElementById("loader").style.display = "none"; }
   }
 
-  function resetPad() { sigPad.clear(); }
+  function clearPad() { signaturePad.clear(); }
 
-  async function processFinalize() {
-    const name = document.getElementById("nameSupt").value;
-    const note = document.getElementById("noteSupt").value;
-    const btn = document.getElementById("finalizeBtn");
+  async function submitFinal() {
+    const nama = document.getElementById("namaSupt").value;
+    const tgl = document.getElementById("selectDate").value;
+    const mesin = document.getElementById("selectMesin").value;
+    if (!currentPelaksanaId || !nama || signaturePad.isEmpty()) return alert("Data tidak lengkap!");
 
-    if (!activeIdPelaksana) return alert("Pilih tanggal yang valid!");
-    if (!name || sigPad.isEmpty()) return alert("Nama & Paraf wajib diisi!");
-
-    btn.disabled = true;
-    btn.innerText = "Processing...";
+    document.getElementById("btnFinal").disabled = true;
 
     try {
-      const img = sigPad.toDataURL();
       const { error } = await sb.from('superintendent_a').insert([{
-        id_pelaksana: activeIdPelaksana,
-        nama_superintendent: name,
-        catatan_final: note,
-        paraf_superintendent: img,
-        tanggal: document.getElementById("targetDate").value
+        id_pelaksana: currentPelaksanaId,
+        nomor_mesin: mesin,
+        nama_superintendent: nama,
+        paraf_superintendent: signaturePad.toDataURL(),
+        tanggal: tgl
       }]);
-
       if (error) throw error;
-
-      alert("FINALIZED! Dokumen PM telah selesai diproses.");
+      alert("FINAL APPROVAL BERHASIL!");
       location.href = "index.html";
-    } catch (e) {
-      alert("Gagal: " + e.message);
-      btn.disabled = false;
-      btn.innerText = "FINALIZE & CLOSE";
-    }
+    } catch (e) { alert(e.message); document.getElementById("btnFinal").disabled = false; }
   }
 </script>
-
 </body>
 </html>
