@@ -13,49 +13,48 @@
     .container { max-width: 100%; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--navy); padding-bottom: 15px; margin-bottom: 20px; }
-    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; border: 1px solid #d1d9e0; }
     
-    .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; color: white; transition: 0.3s; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; color: white; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
     .btn-main { background: var(--navy); }
     .btn-excel { background: #1d6f42; }
+    .btn-main:hover { background: #002244; transform: translateY(-1px); }
 
-    .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; }
+    .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; min-height: 300px; }
     table { width: 100%; border-collapse: collapse; min-width: 1600px; background: white; }
     th { background: var(--navy); color: white; padding: 12px; font-size: 11px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1); }
-    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 11px; text-align: center; border-right: 1px solid #f0f0f0; }
+    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 11px; text-align: center; }
 
-    .col-machine { background: #fff9db; font-weight: bold; color: #d9480f; font-size: 13px; }
+    .col-machine { background: #fff9db; font-weight: bold; color: #d9480f; font-size: 13px; border-right: 2px solid #ffe066; }
     .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 10px; }
     .badge-ok { background: #d4edda; color: var(--ok); }
     .badge-ng { background: #f8d7da; color: var(--ng); }
     
-    .sign-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 100px; }
-    .paraf-img { width: 70px; height: 40px; object-fit: contain; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; }
-    .name-tag { font-weight: bold; font-size: 9px; color: var(--navy); margin-top: 2px; }
-    .pending-txt { color: #e67e22; font-style: italic; font-size: 10px; font-weight: bold; }
+    .sign-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .paraf-img { width: 70px; height: 40px; object-fit: contain; border: 1px solid #eee; background: #fafafa; border-radius: 4px; }
+    .name-tag { font-weight: bold; font-size: 9px; color: var(--navy); }
+    
+    .empty-state { padding: 80px !important; color: #888; text-align: center; background: #fafafa; }
+    .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
 
-    @media print {
-      .filter-area, .btn, .header a { display: none !important; }
-      table { min-width: 100% !important; font-size: 8px; }
-      .paraf-img { width: 50px; }
-    }
+    input[type="date"], select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; min-width: 150px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2 style="color: var(--navy); margin: 0;">📊 MASTER DATA 30 MESIN - CHSLR</h2>
-    <a href="index.html" style="text-decoration: none; color: #666; font-weight: bold; font-size: 14px;">⬅ MENU UTAMA</a>
+    <h2 style="color: var(--navy); margin: 0;">📊 MONITORING PREVENTIVE MAINTENANCE</h2>
+    <a href="index.html" style="text-decoration: none; color: #666; font-weight: bold;">⬅ KEMBALI</a>
   </div>
 
   <div class="filter-area">
     <div>
-      <label><b>Tanggal:</b></label>
+      <label style="display:block; font-size:11px; font-weight:bold; margin-bottom:4px;">TANGGAL:</label>
       <input type="date" id="tglInput">
     </div>
     <div>
-      <label><b>No. Mesin:</b></label>
+      <label style="display:block; font-size:11px; font-weight:bold; margin-bottom:4px;">NOMOR MESIN:</label>
       <select id="mesinInput">
         <option value="">-- Semua Mesin --</option>
         <script>
@@ -66,8 +65,10 @@
         </script>
       </select>
     </div>
-    <button class="btn btn-main" onclick="loadData()">🔍 REFRESH DATA</button>
-    <button class="btn btn-excel" onclick="exportToExcel()">📥 SIMPAN EXCEL</button>
+    <div style="display:flex; gap:10px; align-items:flex-end; margin-top:15px;">
+      <button class="btn btn-main" onclick="loadData()">🔍 TEMUKAN DATA</button>
+      <button class="btn btn-excel" onclick="exportToExcel()">📥 EXCEL</button>
+    </div>
   </div>
 
   <div class="table-scroll">
@@ -94,7 +95,12 @@
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="13" style="padding:50px;">Memuat data terintegrasi...</td></tr>
+        <tr>
+          <td colspan="13" class="empty-state">
+            <b>Silakan pilih filter di atas dan klik tombol "Temukan Data"</b><br>
+            <small>Data tidak ditampilkan otomatis untuk mempercepat performa halaman.</small>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -109,12 +115,22 @@
     const tb = document.getElementById("tableBody");
     const tgl = document.getElementById("tglInput").value;
     const mesin = document.getElementById("mesinInput").value;
-    
-    tb.innerHTML = `<tr><td colspan="13" style="padding:50px;">🔄 Mensinkronisasi 30 Mesin...</td></tr>`;
+
+    // Validasi sederhana
+    if (!tgl && !mesin) {
+      alert("Pilih minimal Tanggal atau Nomor Mesin dulu ya!");
+      return;
+    }
+
+    tb.innerHTML = `<tr><td colspan="13" style="padding:100px; text-align:center;">
+      <b style="color:var(--navy)">🔄 Sedang Mencari Data...</b><br>
+      <span>Menghubungkan ke Database Supabase</span>
+    </td></tr>`;
 
     try {
-      // Ambil data dari 3 tabel sekaligus
       let qP = sb.from('pelaksana_a').select('*');
+      
+      // Terapkan filter hanya jika dipilih
       if (tgl) qP = qP.eq('tanggal', tgl);
       if (mesin) qP = qP.eq('nomor_mesin', mesin);
       
@@ -125,8 +141,12 @@
       ]);
 
       if (resP.error) throw resP.error;
+      
       if (resP.data.length === 0) {
-        tb.innerHTML = `<tr><td colspan="13" style="padding:50px; color:#999;">Belum ada data yang cocok dengan filter.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="13" class="empty-state" style="color:red">
+          <b>Data Tidak Ditemukan!</b><br>
+          <span>Mungkin belum ada inputan untuk filter yang dipilih.</span>
+        </td></tr>`;
         return;
       }
 
@@ -146,7 +166,7 @@
           <td><span class="badge ${p.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.pneu_cyl_tubing}</span></td>
           <td><span class="badge ${p.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.fungsi_vac_gen}</span></td>
           <td><span class="badge ${p.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.dummy_robot}</span></td>
-          <td style="font-weight:bold; color:var(--navy)">${p.static_kv || '-'}</td>
+          <td style="font-weight:bold;">${p.static_kv || '-'}</td>
           
           <td>
             <div class="sign-container">
@@ -161,7 +181,7 @@
                 <img src="${k.paraf_koordinator}" class="paraf-img">
                 <span class="name-tag">${k.nama_koordinator}</span>
               </div>
-            ` : `<span class="pending-txt">Belum Review</span>`}
+            ` : `<span style="color:#e67e22; font-style:italic; font-size:10px;">Belum Review</span>`}
           </td>
 
           <td>
@@ -170,24 +190,26 @@
                 <img src="${s.paraf_superintendent}" class="paraf-img">
                 <span class="name-tag">${s.nama_superintendent}</span>
               </div>
-            ` : `<span class="pending-txt">Belum Final</span>`}
+            ` : `<span style="color:#e67e22; font-style:italic; font-size:10px;">Belum Final</span>`}
           </td>
         `;
         tb.appendChild(tr);
       });
 
     } catch (err) {
-      tb.innerHTML = `<tr><td colspan="13" style="color:red; padding:20px;">Error: ${err.message}</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="13" style="color:red; padding:20px;">Gagal: ${err.message}</td></tr>`;
     }
   }
 
   function exportToExcel() {
+    const tb = document.getElementById("tableBody");
+    if (tb.rows.length <= 1 && tb.rows[0].classList.contains('empty-state')) {
+      return alert("Cari data dulu baru bisa di-Export!");
+    }
     const table = document.getElementById("masterTable");
-    const wb = XLSX.utils.table_to_book(table, {sheet: "Laporan PM"});
-    XLSX.writeFile(wb, `Laporan_PM_CHSLR_${new Date().toLocaleDateString()}.xlsx`);
+    const wb = XLSX.utils.table_to_book(table, {sheet: "PM_CHSLR"});
+    XLSX.writeFile(wb, `Report_PM_CHSLR.xlsx`);
   }
-
-  window.onload = loadData;
 </script>
 </body>
 </html>
