@@ -1,405 +1,296 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Pelaksana - Checklist Harian Stand Label & Robot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Harian Stand Label & Robot - Pelaksana</title>
 
-  <!-- Supabase Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 16px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 16px;
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
 
-    .step {
-      background: #fff;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-    }
+.progress {
+  width: 100%;
+  background: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
 
-    .item {
-      margin-bottom: 12px;
-    }
+.progress-bar {
+  height: 10px;
+  width: 0%;
+  background: #003366;
+}
 
-    label {
-      font-size: 13px;
-    }
+.step {
+  display: none;
+  background: #fff;
+  padding: 16px;
+  border-radius: 10px;
+}
 
-    select, textarea, input {
-      width: 100%;
-      padding: 7px;
-      margin-top: 4px;
-    }
+.step.active {
+  display: block;
+}
 
-    textarea {
-      display: none;
-    }
+.item {
+  margin-bottom: 12px;
+}
 
-    button {
-      padding: 12px;
-      width: 100%;
-      margin-top: 14px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background: #003366;
-      color: #fff;
-    }
+label {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
 
-    .signature-container {
-      margin-top: 8px;
-      border: 2px dashed #666;
-      border-radius: 6px;
-      position: relative;
-    }
+select, textarea, input {
+  width: 100%;
+  padding: 6px;
+}
 
-    canvas {
-      width: 100%;
-      height: 160px;
-      touch-action: none;
-    }
-  </style>
+textarea {
+  display: none;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.back { background: #ccc; }
+.next { background: #003366; color: #fff; }
+
+canvas {
+  width: 100%;
+  height: 160px;
+  border: 1px dashed #999;
+  border-radius: 8px;
+  touch-action: none;
+}
+</style>
 </head>
 
 <body>
 
-<h2>Checklist Harian Stand Label & Robot</h2>
+<h2>Checklist Harian<br>Stand Label & Robot</h2>
 
-<!-- ================= LIST CHECKLIST ================= -->
-<form id="checklistForm">
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
 
-  <!-- Pelaksana -->
-  <div class="step">
-    <h3>Data Pelaksana</h3>
-    <div class="item">
-      <label>Nama Pelaksana</label>
-      <input type="text" id="namaPelaksana" required placeholder="Masukkan nama mekanik">
-    </div>
-  </div>
+<!-- ===================== STEP 1 ===================== -->
+<div class="step active">
+<h3>FRAME / RANGKA</h3>
 
-  <!-- FRAME / RANGKA -->
-  <div class="step">
-    <h3>FRAME / RANGKA STAND LABEL</h3>
+<div class="item">
+<label>Baut frame rangka</label>
+<select data-key="frame_baut" onchange="toggleNote(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
+</div>
 
-    <div class="item">
-      <label>Kondisi baut frame rangka</label>
-      <select name="frame_baut" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<div class="item">
+<label>Bubble leveller</label>
+<select data-key="frame_bubble" onchange="toggleNote(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea placeholder="Keterangan jika NG"></textarea>
+</div>
+</div>
 
-    <div class="item">
-      <label>Bubble leveller</label>
-      <select name="bubble_leveller" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
+<!-- ===================== STEP 2 ===================== -->
+<div class="step">
+<h3>MAGAZINE LABEL</h3>
 
-  <!-- MAGAZINE LABEL -->
-  <div class="step">
-    <h3>MAGAZINE LABEL</h3>
+<div class="item">
+<label>As adjuster plate</label>
+<select data-key="mag_adjuster" onchange="toggleNote(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+</div>
 
-    <div class="item">
-      <label>As adjuster plate magazine label</label>
-      <select name="magazine_adjuster" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<div class="item">
+<label>Baut frame magazine</label>
+<select data-key="mag_baut" onchange="toggleNote(this)">
+<option value="">-- Pilih --</option>
+<option>OK</option>
+<option>NG</option>
+</select>
+<textarea></textarea>
+</div>
+</div>
 
-    <div class="item">
-      <label>Baut frame / rangka magazine label</label>
-      <select name="magazine_baut" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
+<!-- ===================== STEP 3 ===================== -->
+<div class="step">
+<h3>PLATE STAND LABEL</h3>
 
-  <!-- PLATE STAND LABEL -->
-  <div class="step">
-    <h3>PLATE STAND LABEL</h3>
+<div class="item"><label>V-Belt</label><select data-key="plate_vbelt" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Gear / Bushing / Bearing</label><select data-key="plate_gear" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Vacuum Pad</label><select data-key="plate_vacuum" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Spring / As Vacuum</label><select data-key="plate_spring" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Linear Bearing SL</label><select data-key="plate_linear" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Tutup Rail</label><select data-key="plate_rail" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+</div>
 
-    <div class="item">
-      <label>V-Belt</label>
-      <select name="plate_vbelt" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<!-- ===================== STEP 4 ===================== -->
+<div class="step">
+<h3>PANEL KONTROL</h3>
 
-    <div class="item">
-      <label>Gear / Bushing / Bearing</label>
-      <select name="plate_gear" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<div class="item"><label>Kondisi Panel</label><select data-key="panel_kondisi" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Komponen Electrical</label><select data-key="panel_electrical" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Instalasi Kabel</label><select data-key="panel_kabel" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Solenoid Valve</label><select data-key="panel_solenoid" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Fan Panel</label><select data-key="panel_fan" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+</div>
 
-    <div class="item">
-      <label>Vacuum pad</label>
-      <select name="plate_vacuum" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<!-- ===================== STEP 5 ===================== -->
+<div class="step">
+<h3>SISTEM PNEUMATIC</h3>
 
-    <div class="item">
-      <label>Perg. spring/as vacuum pad</label>
-      <select name="plate_spring" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<div class="item"><label>Instalasi Pneumatic</label><select data-key="pneu_instalasi" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Tekanan Angin (4–8 bar)</label><select data-key="pneu_tekanan" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+</div>
 
-    <div class="item">
-      <label>Linear bearing SL</label>
-      <select name="plate_bearing" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<!-- ===================== STEP 6 ===================== -->
+<div class="step">
+<h3>SISTEM ROBOT</h3>
 
-    <div class="item">
-      <label>Tutup rail</label>
-      <select name="plate_rail" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
+<div class="item"><label>Dummy Robot (cleaning)</label><select data-key="robot_dummy" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+<div class="item"><label>Static (9–13 Kv)</label><select data-key="robot_static" onchange="toggleNote(this)"><option></option><option>OK</option><option>NG</option></select><textarea></textarea></div>
+</div>
 
-  <!-- PANEL KONTROL STAND LABEL -->
-  <div class="step">
-    <h3>PANEL KONTROL STAND LABEL</h3>
+<!-- ===================== STEP 7 PARAF ===================== -->
+<div class="step">
+<h3>PARAF PELAKSANA</h3>
 
-    <div class="item">
-      <label>Kondisi panel</label>
-      <select name="panel_kondisi" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<label>Nama Pelaksana</label>
+<input id="namaPelaksana" placeholder="Nama Mekanik">
 
-    <div class="item">
-      <label>Electrical</label>
-      <select name="panel_electrical" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<p>Tanda Tangan:</p>
+<canvas id="signaturePad"></canvas>
 
-    <div class="item">
-      <label>Instalasi kabel</label>
-      <select name="panel_kabel" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
+<button onclick="clearSignature()">Clear TTD</button>
+</div>
 
-    <div class="item">
-      <label>Solenoid Valve</label>
-      <select name="panel_solenoid" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-
-    <div class="item">
-      <label>Fan</label>
-      <select name="panel_fan" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-
-    <div class="item">
-      <label>Sambungan kabel</label>
-      <select name="panel_power" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
-
-  <!-- SISTEM PNEUMATIC -->
-  <div class="step">
-    <h3>SISTEM PNEUMATIC STAND LABEL</h3>
-
-    <div class="item">
-      <label>Pneumatic / tubing</label>
-      <select name="pneumatic_tubing" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-
-    <div class="item">
-      <label>Tekanan supply angin (4–8 bar)</label>
-      <select name="pneumatic_tekanan" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
-
-  <!-- SISTEM ROBOT -->
-  <div class="step">
-    <h3>SISTEM ROBOT</h3>
-
-    <div class="item">
-      <label>Dummy robot</label>
-      <select name="robot_dummy" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-
-    <div class="item">
-      <label>Static 9–13 Kv</label>
-      <select name="robot_static" onchange="toggleNote(this)">
-        <option value="">-- Pilih --</option>
-        <option>OK</option>
-        <option>NG</option>
-      </select>
-      <textarea placeholder="Keterangan jika NG"></textarea>
-    </div>
-  </div>
-
-  <!-- PARAF -->
-  <div class="step">
-    <h3>PARAF PELAKSANA</h3>
-
-    <div class="item">
-      <label>Nama Pelaksana</label>
-      <input type="text" id="pelaksanaName" placeholder="Nama lengkap" required>
-    </div>
-
-    <div class="item">
-      <label>Tanda Tangan</label>
-      <div class="signature-container">
-        <canvas id="signaturePad"></canvas>
-      </div>
-      <button type="button" onclick="clearSignaturePad()">Hapus Tanda Tangan</button>
-    </div>
-  </div>
-
-  <button type="button" onclick="submitToSupabase()">Kirim Checklist</button>
-
-</form>
+<div class="btn-group">
+<button class="back" onclick="prevStep()">Back</button>
+<button class="next" onclick="nextStep()">Next</button>
+</div>
 
 <script>
-  // Supabase setup
-  const supabaseUrl = "https://duljhawudstjxibhuenv.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+/* ===== SUPABASE ===== */
+const supabase = supabase.createClient(
+  "https://duljhawudstjxibhuenv.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ"
+);
 
-  function toggleNote(select) {
-    const note = select.nextElementSibling;
-    note.style.display = select.value === 'NG' ? 'block' : 'none';
+/* ===== STEP ===== */
+const steps = document.querySelectorAll('.step');
+const progressBar = document.getElementById('progressBar');
+let currentStep = 0;
+
+function updateStep(){
+  steps.forEach((s,i)=>s.classList.toggle('active',i===currentStep));
+  progressBar.style.width = ((currentStep+1)/steps.length)*100+"%";
+}
+
+function nextStep(){
+  if(currentStep === steps.length-1){
+    submitData();
+  } else {
+    currentStep++;
+    updateStep();
+  }
+}
+
+function prevStep(){
+  if(currentStep>0){ currentStep--; updateStep(); }
+}
+
+function toggleNote(sel){
+  sel.nextElementSibling.style.display = sel.value==="NG"?"block":"none";
+}
+
+/* ===== SIGNATURE ===== */
+const canvas = document.getElementById("signaturePad");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas(){
+  const ratio = Math.max(window.devicePixelRatio||1,1);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.scale(ratio,ratio);
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+}
+resizeCanvas();
+
+let drawing=false;
+canvas.addEventListener("pointerdown",e=>{drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);});
+canvas.addEventListener("pointermove",e=>{if(!drawing)return;ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();});
+canvas.addEventListener("pointerup",()=>drawing=false);
+
+function clearSignature(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+/* ===== SUBMIT ===== */
+async function submitData(){
+  const nama = document.getElementById("namaPelaksana").value;
+  const signature = canvas.toDataURL();
+
+  if(!nama || signature.length < 500){
+    alert("Nama & tanda tangan WAJIB");
+    return;
   }
 
-  // Signature pad
-  const canvas = document.getElementById("signaturePad");
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
+  const data = { nama_pelaksana: nama, signature, tanggal: new Date(), status:"PELaksana" };
 
-  canvas.addEventListener("pointerdown", (e) => {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+  document.querySelectorAll("select").forEach(s=>{
+    data[s.dataset.key] = s.value;
+    data[s.dataset.key+"_note"] = s.nextElementSibling?.value || "";
   });
 
-  canvas.addEventListener("pointermove", (e) => {
-    if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  });
+  const { error } = await supabase.from("pelaksana_A").insert([data]);
 
-  canvas.addEventListener("pointerup", () => drawing = false);
-
-  function clearSignaturePad() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if(error){
+    alert("Gagal simpan: "+error.message);
+  } else {
+    alert("Checklist & Paraf berhasil disimpan");
+    location.href = "index.html";
   }
+}
 
-  async function submitToSupabase() {
-    const form = document.getElementById("checklistForm");
-    const formData = new FormData(form);
-
-    const checklistData = {};
-    formData.forEach((value, key) => {
-      checklistData[key] = value;
-    });
-
-    const signatureBase64 = canvas.toDataURL("image/png");
-
-    const { data, error } = await supabase
-      .from("pelaksana_a")
-      .insert([{
-        tanggal: new Date().toISOString().split("T")[0],
-        nama_pelaksana: document.getElementById("pelaksanaName").value,
-        checklist: checklistData,
-        paraf_pelaksana: signatureBase64
-      }]);
-
-    if (error) {
-      alert("Gagal kirim: " + error.message);
-    } else {
-      alert("Checklist berhasil dikirim!");
-      window.location.href = "index.html";
-    }
-  }
+updateStep();
 </script>
 
 </body>
