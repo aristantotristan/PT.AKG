@@ -5,9 +5,10 @@
   <title>CHSLR - Preventive Maintenance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
-    h1 { text-align: center; color: #003366; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f2f2f2; padding: 20px; margin: 0; }
+    h1 { text-align: center; color: #003366; margin-bottom: 30px; }
     .menu { max-width: 420px; margin: auto; }
+    
     a { 
       display: block; 
       background: #003366; 
@@ -15,27 +16,46 @@
       text-decoration: none; 
       padding: 16px; 
       margin: 12px 0; 
-      border-radius: 8px; 
+      border-radius: 10px; 
       text-align: center; 
       font-size: 16px; 
       font-weight: bold;
       transition: 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    a:hover { background: #0055aa; transform: scale(1.02); }
+    
+    a:hover { background: #0055aa; transform: translateY(-2px); }
+    
     /* Warna khusus untuk Result */
     .btn-result { background: #28a745; }
     .btn-result:hover { background: #218838; }
+
+    /* Warna khusus untuk QR Generator (Admin tool) */
+    .btn-qr { 
+      background: #6f42c1; 
+      margin-top: 30px; 
+      border: 2px dashed #fff;
+    }
+    .btn-qr:hover { background: #5a32a3; }
+    
+    .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
   </style>
 </head>
 <body>
 
-<h1>CHSLR</h1>
+<h1>CHSLR SYSTEM</h1>
 
 <div class="menu">
   <a href="pelaksana.html">👷 Pelaksana / User</a>
   <a href="koordinator.html">🧑‍💼 Koordinator / Pengecek</a>
   <a href="superintendent.html">👔 Mechanic Superintendent</a>
   <a href="result.html" class="btn-result">📊 Result Data (History)</a>
+  
+  <a href="qr-generator.html" class="btn-qr">🔲 Print QR Code Mesin</a>
+</div>
+
+<div class="footer">
+  &copy; 2025 Maintenance Management System
 </div>
 
 </body>
