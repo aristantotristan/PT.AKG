@@ -6,24 +6,25 @@
   <title>Checklist Stand Label & Robot</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --primary: #003366; --bg: #f4f7f6; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .progress-bar { height: 8px; background: #ddd; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+    :root { --primary: #003366; --bg: #f4f7f6; --danger: #d32f2f; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+    .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-bottom: 20px; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; border-radius: 3px; }
     .step { display: none; }
     .step.active { display: block; }
-    h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-    .item { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-    .std { font-size: 12px; color: #666; font-style: italic; margin-bottom: 5px; display: block; }
-    select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    textarea { margin-top: 5px; display: none; height: 60px; background: #fff9c4; }
-    .btn-group { display: flex; gap: 10px; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .btn-back { background: #bbb; }
-    .btn-next { background: var(--primary); color: #white; color: white; }
-    canvas { width: 100%; height: 200px; border: 2px dashed #999; border-radius: 8px; background: #fafafa; touch-action: none; }
+    h3 { color: var(--primary); font-size: 18px; margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; }
+    .item { margin-bottom: 18px; border-bottom: 1px solid #f5f5f5; padding-bottom: 12px; }
+    label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #333; }
+    .std { font-size: 12px; color: var(--danger); font-style: italic; margin-bottom: 8px; display: block; }
+    select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+    textarea { margin-top: 8px; display: none; height: 70px; background: #fffbe6; }
+    .btn-group { display: flex; gap: 12px; margin-top: 25px; }
+    button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    .btn-back { background: #e0e0e0; color: #444; }
+    .btn-next { background: var(--primary); color: #fff; }
+    canvas { width: 100%; height: 220px; border: 2px dashed #bbb; border-radius: 8px; background: #fff; touch-action: none; margin-top: 10px; }
+    .clear-sig { background: #ffeded; color: var(--danger); padding: 8px; font-size: 12px; margin-top: 8px; border: 1px solid var(--danger); }
   </style>
 </head>
 <body>
@@ -33,34 +34,21 @@
   <form id="checklistForm">
 
     <div class="step active">
-      <h3>1. FRAME / RANGKA</h3>
+      <h3>1 & 2. FRAME & MAGAZINE</h3>
       <div class="item">
-        <label>Baut Frame Rangka</label>
-        <span class="std">Std: Tidak kendor/lepas</span>
-        <select name="baut_frame" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <label>Baut Frame Rangka</label><span class="std">Std: Tidak kendor/lepas</span>
+        <select name="baut_frame" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_baut_frame" placeholder="Alasan NG..."></textarea>
       </div>
       <div class="item">
-        <label>Bubble Leveller</label>
-        <span class="std">Std: Terpasang & berfungsi benar</span>
-        <select name="bubble_leveller" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_bubble_leveller" placeholder="Alasan NG..."></textarea>
-      </div>
-    </div>
-
-    <div class="step">
-      <h3>2. MAGAZINE LABEL</h3>
-      <div class="item">
-        <label>As Adjuster Plate</label>
-        <span class="std">Std: Berfungsi baik</span>
-        <select name="as_adjuster" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_as_adjuster" placeholder="Alasan NG..."></textarea>
+        <label>Bubble Leveller</label><span class="std">Std: Terpasang & berfungsi benar</span>
+        <select name="bubble_leveller" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_bubble_leveller"></textarea>
       </div>
       <div class="item">
-        <label>Baut Frame Magazine</label>
-        <span class="std">Std: Lengkap & bersih</span>
-        <select name="baut_magazine" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_baut_magazine" placeholder="Alasan NG..."></textarea>
+        <label>As Adjuster Magazine</label><span class="std">Std: Berfungsi baik</span>
+        <select name="as_adjuster" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_as_adjuster"></textarea>
       </div>
     </div>
 
@@ -68,94 +56,95 @@
       <h3>3. PLATE STAND LABEL</h3>
       <div class="item">
         <label>V-Belt</label><span class="std">Std: Tidak kendor/terlalu kencang</span>
-        <select name="vbelt" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <select name="vbelt" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_vbelt"></textarea>
       </div>
       <div class="item">
-        <label>Gear/Bushing/Bearing</label><span class="std">Std: Tidak goyang</span>
-        <select name="gearing" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_gearing"></textarea>
-      </div>
-      <div class="item">
         <label>Vacuum Pad</label><span class="std">Std: Baut & skun kencang</span>
-        <select name="vacuum_pad" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <select name="vacuum_pad" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_vacuum_pad"></textarea>
       </div>
       <div class="item">
-        <label>Spring/As Vacuum Pad</label><span class="std">Std: Smooth/halus</span>
-        <select name="spring_as" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_spring_as"></textarea>
+        <label>Linear Bearing SL</label><span class="std">Std: Berfungsi baik / tidak kendor</span>
+        <select name="linier_bearing" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_linier_bearing"></textarea>
+      </div>
+      <div class="item">
+        <label>Tutup Rail</label><span class="std">Std: Terpasang benar</span>
+        <select name="tutup_rail" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_tutup_rail"></textarea>
       </div>
     </div>
 
     <div class="step">
       <h3>4. PANEL KONTROL</h3>
       <div class="item">
-        <label>Kondisi Panel</label><span class="std">Std: Tidak berdebu/lengket</span>
-        <select name="panel_komponen" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <label>Panel & Komponen</label><span class="std">Std: Tidak berdebu & lengket</span>
+        <select name="panel_komponen" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_panel"></textarea>
       </div>
       <div class="item">
-        <label>Komponen Electrical</label><span class="std">Std: Tidak kendor</span>
-        <select name="komponen_electrical" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_electrical"></textarea>
+        <label>Instalasi Kabel</label><span class="std">Std: Terpasang rapi / tidak kendor</span>
+        <select name="instalasi_kabel" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_kabel"></textarea>
       </div>
       <div class="item">
-        <label>Kondisi Fan</label><span class="std">Std: Bersih/tidak berdebu</span>
-        <select name="fan_kondisi" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_fan"></textarea>
+        <label>Sambungan Kabel Power</label><span class="std">Std: Permanen / tanpa sambungan sementara</span>
+        <select name="sambungan_power" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_power"></textarea>
       </div>
     </div>
 
     <div class="step">
-      <h3>5. PNEUMATIC SYSTEM</h3>
+      <h3>5. SISTEM PNEUMATIC</h3>
       <div class="item">
         <label>Instalasi Cylinder/Tubing</label><span class="std">Std: Rapi & tidak bocor</span>
-        <select name="pneumatic_tubing" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
-        <textarea name="note_pneumatic"></textarea>
+        <select name="pneu_cyl_tubing" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_pneu_cyl"></textarea>
       </div>
       <div class="item">
-        <label>Solenoid Silencer</label><span class="std">Std: Dilengkapi silencer</span>
-        <select name="solenoid_silencer" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <label>Cek Solenoid Valve</label><span class="std">Std: Dilengkapi silencer</span>
+        <select name="solenoid_silencer" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_sol_silencer"></textarea>
       </div>
       <div class="item">
-        <label>Tekanan Angin</label><span class="std">Std: Stabil 4-8 Bar</span>
-        <select name="tekanan_angin" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <label>Fungsi Vacuum Gen</label><span class="std">Std: Spek (0.4 - 0.5 kPa)</span>
+        <select name="fungsi_vac_gen" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
+        <textarea name="note_vac_gen"></textarea>
+      </div>
+      <div class="item">
+        <label>Tekanan Supply Angin</label><span class="std">Std: Stabil (4-8) Bar</span>
+        <select name="tekanan_angin" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_angin"></textarea>
       </div>
     </div>
 
     <div class="step">
-      <h3>6. SISTEM ROBOT</h3>
+      <h3>6 & 7. ROBOT & PARAF</h3>
       <div class="item">
         <label>Dummy Robot</label><span class="std">Std: Cleaning majun hitam (15 mnt)</span>
-        <select name="dummy_robot" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <select name="dummy_robot" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_dummy"></textarea>
       </div>
       <div class="item">
         <label>Sistem Static</label><span class="std">Std: Nilai 9-13 Kv</span>
-        <select name="static_kv" onchange="showNG(this)" required><option value="">-- Pilih --</option><option>OK</option><option>NG</option></select>
+        <select name="static_kv" onchange="checkNG(this)" required><option value="">--Pilih--</option><option>OK</option><option>NG</option></select>
         <textarea name="note_static"></textarea>
       </div>
-    </div>
-
-    <div class="step">
-      <h3>7. VALIDASI PELAKSANA</h3>
       <div class="item">
-        <label>Nama Pelaksana</label>
-        <input type="text" name="nama_pelaksana" id="namaInput" required placeholder="Masukkan Nama Anda">
+        <label>Nama Mekanik</label>
+        <input type="text" name="nama_pelaksana" id="namaMekanik" required placeholder="Ketik nama anda">
       </div>
       <label>Tanda Tangan:</label>
       <canvas id="sigPad"></canvas>
-      <button type="button" onclick="clearSig()" style="background:#f44336; color:white; margin-top:10px; padding:5px">Hapus Tanda Tangan</button>
+      <button type="button" class="clear-sig" onclick="clearSig()">Hapus Tanda Tangan</button>
     </div>
 
   </form>
 
-  <div class="btn-group" style="margin-top:20px">
+  <div class="btn-group">
     <button type="button" class="btn-back" id="btnBack" onclick="changeStep(-1)">Kembali</button>
-    <button type="button" class="btn-next" id="btnNext" onclick="changeStep(1)">Lanjut</button>
+    <button type="button" class="btn-next" id="idNext" onclick="changeStep(1)">Lanjut</button>
   </div>
 </div>
 
@@ -170,65 +159,65 @@
 
   function changeStep(n) {
     if (n === 1) {
-      const inputs = steps[step].querySelectorAll("select[required], input[required]");
-      for (let i of inputs) if (!i.value) return alert("Mohon isi semua data!");
+      const activeStep = steps[step];
+      const required = activeStep.querySelectorAll("select[required], input[required]");
+      for (let r of required) if (!r.value) return alert("Lengkapi semua pengecekan!");
     }
 
     step += n;
-    if (step < 0) step = 0;
     if (step >= steps.length) return submit();
 
     steps.forEach((s, i) => s.classList.toggle("active", i === step));
     progress.style.width = ((step + 1) / steps.length) * 100 + "%";
     document.getElementById("btnBack").style.visibility = step === 0 ? "hidden" : "visible";
-    document.getElementById("btnNext").innerText = step === steps.length - 1 ? "Kirim Data" : "Lanjut";
+    document.getElementById("idNext").innerText = step === steps.length - 1 ? "SIMPAN" : "Lanjut";
 
-    if (step === 6) setTimeout(resizeCanvas, 300); // Fix Paraf pas buka step terakhir
+    if (step === 4) setTimeout(initSig, 300);
   }
 
-  function showNG(el) { el.nextElementSibling.style.display = el.value === "NG" ? "block" : "none"; }
+  function checkNG(el) { el.nextElementSibling.style.display = el.value === "NG" ? "block" : "none"; }
 
-  // FIX PARAF LOGIC
+  // TANDA TANGAN FIX
   const canvas = document.getElementById("sigPad");
   const ctx = canvas.getContext("2d");
-  let drawing = false;
+  let writing = false;
 
-  function resizeCanvas() {
+  function initSig() {
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = canvas.offsetHeight * ratio;
     ctx.scale(ratio, ratio);
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.strokeStyle = "#000";
   }
 
-  function getPos(e) {
+  function getXY(e) {
     const r = canvas.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
     return { x: t.clientX - r.left, y: t.clientY - r.top };
   }
 
-  canvas.addEventListener("touchstart", (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive: false});
-  canvas.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive: false});
-  canvas.addEventListener("touchend", () => drawing = false);
+  canvas.addEventListener("touchstart", (e) => { writing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive: false});
+  canvas.addEventListener("touchmove", (e) => { if(!writing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive: false});
+  canvas.addEventListener("touchend", () => writing = false);
 
   function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
   async function submit() {
-    const sig = canvas.toDataURL();
-    if (sig.length < 2000) return alert("Tanda tangan wajib diisi!");
+    const img = canvas.toDataURL();
+    if (img.length < 2000) return alert("Tanda tangan dulu!");
 
-    const btn = document.getElementById("btnNext");
-    btn.disabled = true; btn.innerText = "Mengirim...";
+    const btn = document.getElementById("idNext");
+    btn.disabled = true; btn.innerText = "Proses...";
 
     const form = document.getElementById("checklistForm");
     const data = Object.fromEntries(new FormData(form));
-    data.paraf_pelaksana = sig;
+    data.paraf_pelaksana = img;
 
     const { error } = await sb.from("pelaksana_a").insert([data]);
-    if (error) { alert(error.message); btn.disabled = false; btn.innerText = "Kirim Data"; }
-    else { alert("Checklist Berhasil Disimpan!"); location.reload(); }
+    if (error) { alert(error.message); btn.disabled = false; }
+    else { alert("Checklist Terkirim!"); location.reload(); }
   }
 
   changeStep(0);
