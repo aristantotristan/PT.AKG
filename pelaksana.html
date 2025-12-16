@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Pelaksana Checklist</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Pelaksana</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -14,8 +14,22 @@ body {
   padding:16px;
 }
 
-.step { display:none; background:#fff; padding:16px; border-radius:10px; }
-.step.active { display:block; }
+h2,h3 { margin-top:0 }
+
+.step {
+  display:none;
+  background:#fff;
+  padding:16px;
+  border-radius:10px;
+}
+
+.step.active { display:block }
+
+select,input {
+  width:100%;
+  padding:10px;
+  margin:6px 0 14px;
+}
 
 button {
   width:100%;
@@ -26,11 +40,11 @@ button {
   font-size:16px;
 }
 
-.next { background:#003366; color:#fff; }
-.back { background:#ccc; }
+.next { background:#003366; color:#fff }
+.back { background:#aaa }
 
 canvas {
-  border:2px dashed #666;
+  border:2px dashed #555;
   width:100%;
   height:180px;
   background:#fff;
@@ -41,53 +55,40 @@ canvas {
 
 <body>
 
-<h2>Checklist Pelaksana</h2>
+<h2>Checklist Harian Stand Label & Robot</h2>
 
 <!-- STEP 1 -->
 <div class="step active">
-  <h3>FRAME STAND LABEL</h3>
+  <h3>FRAME / RANGKA</h3>
 
-  <label>Baut rangka</label>
-  <select>
-    <option>OK</option>
-    <option>NG</option>
-  </select>
+  Baut rangka
+  <select><option>OK</option><option>NG</option></select>
 
-  <label>Bubble Leveller</label>
-  <select>
-    <option>OK</option>
-    <option>NG</option>
-  </select>
+  Bubble leveller
+  <select><option>OK</option><option>NG</option></select>
 </div>
 
 <!-- STEP 2 -->
 <div class="step">
   <h3>MAGAZINE LABEL</h3>
 
-  <label>Adjuster Plate</label>
-  <select>
-    <option>OK</option>
-    <option>NG</option>
-  </select>
+  Adjuster plate
+  <select><option>OK</option><option>NG</option></select>
 
-  <label>Baut Magazine</label>
-  <select>
-    <option>OK</option>
-    <option>NG</option>
-  </select>
+  Baut magazine
+  <select><option>OK</option><option>NG</option></select>
 </div>
 
 <!-- STEP 3 -->
 <div class="step">
-  <h3>TANDA TANGAN</h3>
+  <h3>TANDA TANGAN PELAKSANA</h3>
 
-  <label>Nama Pelaksana</label>
-  <input id="nama" placeholder="Nama mekanik">
+  Nama Pelaksana
+  <input id="nama" placeholder="Nama">
 
   <p>Paraf:</p>
   <canvas id="ttd"></canvas>
-
-  <button onclick="clearCanvas()">Clear TTD</button>
+  <button onclick="clearCanvas()">Clear</button>
 </div>
 
 <button class="back" onclick="prev()">Back</button>
@@ -96,97 +97,99 @@ canvas {
 <script>
 /* ================= STEP ================= */
 const steps = document.querySelectorAll(".step");
-let step = 0;
+let idx = 0;
 
-function show() {
-  steps.forEach((s,i)=>s.classList.toggle("active", i===step));
+function render(){
+  steps.forEach((s,i)=>s.classList.toggle("active", i===idx));
+  if(idx===2) initCanvas();
 }
-function next() {
-  if(step < steps.length-1){
-    step++; show();
+render();
+
+function next(){
+  if(idx < steps.length-1){
+    idx++; render();
   } else {
     submit();
   }
 }
-function prev() {
-  if(step>0){ step--; show(); }
+function prev(){
+  if(idx>0){ idx--; render(); }
 }
 
-/* ================= CANVAS SIGNATURE (FIXED) ================= */
-const canvas = document.getElementById("ttd");
-const ctx = canvas.getContext("2d");
+/* ================= CANVAS ================= */
+let canvas, ctx, drawing=false, ready=false;
 
-function resize() {
+function initCanvas(){
+  if(ready) return;
+  canvas = document.getElementById("ttd");
+  ctx = canvas.getContext("2d");
+
   const ratio = window.devicePixelRatio || 1;
   canvas.width = canvas.offsetWidth * ratio;
   canvas.height = canvas.offsetHeight * ratio;
   ctx.setTransform(ratio,0,0,ratio,0,0);
   ctx.lineWidth = 2;
   ctx.lineCap = "round";
+
+  canvas.onmousedown = e=>{
+    drawing=true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX,e.offsetY);
+  };
+  canvas.onmousemove = e=>{
+    if(!drawing) return;
+    ctx.lineTo(e.offsetX,e.offsetY);
+    ctx.stroke();
+  };
+  canvas.onmouseup = ()=> drawing=false;
+
+  canvas.ontouchstart = e=>{
+    e.preventDefault();
+    drawing=true;
+    const t=e.touches[0], r=canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(t.clientX-r.left,t.clientY-r.top);
+  };
+  canvas.ontouchmove = e=>{
+    e.preventDefault();
+    if(!drawing) return;
+    const t=e.touches[0], r=canvas.getBoundingClientRect();
+    ctx.lineTo(t.clientX-r.left,t.clientY-r.top);
+    ctx.stroke();
+  };
+  canvas.ontouchend = ()=> drawing=false;
+
+  ready=true;
 }
-resize();
-window.addEventListener("resize", resize);
-
-let draw = false;
-
-canvas.addEventListener("mousedown", e => {
-  draw = true;
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
-});
-canvas.addEventListener("mousemove", e => {
-  if(!draw) return;
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
-});
-canvas.addEventListener("mouseup", ()=> draw=false);
-
-canvas.addEventListener("touchstart", e => {
-  e.preventDefault();
-  draw = true;
-  const t = e.touches[0];
-  const r = canvas.getBoundingClientRect();
-  ctx.beginPath();
-  ctx.moveTo(t.clientX-r.left, t.clientY-r.top);
-});
-canvas.addEventListener("touchmove", e => {
-  e.preventDefault();
-  if(!draw) return;
-  const t = e.touches[0];
-  const r = canvas.getBoundingClientRect();
-  ctx.lineTo(t.clientX-r.left, t.clientY-r.top);
-  ctx.stroke();
-});
-canvas.addEventListener("touchend", ()=> draw=false);
 
 function clearCanvas(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-/* ================= SUPABASE ================= */
-const sb = supabase.createClient(
+/* ================= SUBMIT ================= */
+const supabase = supabasejs.createClient(
   "https://duljhawudstjxibhuenv.supabase.co",
-  "ISI_ANON_KEY_DISINI"
+  "PASTE_ANON_KEY_MU_DISINI"
 );
 
 async function submit(){
   const img = canvas.toDataURL();
-
   if(img.length < 1000){
-    alert("TTD belum diisi!");
+    alert("TTD belum diisi");
     return;
   }
 
-  const { error } = await sb.from("pelaksana_A").insert({
-    nama_pelaksana: document.getElementById("nama").value,
-    ttd_pelaksana: img,
-    created_at: new Date()
-  });
+  const { error } = await supabase
+    .from("pelaksana_A")
+    .insert({
+      nama_pelaksana: document.getElementById("nama").value,
+      ttd_pelaksana: img
+    });
 
   if(error){
     alert(error.message);
   } else {
-    alert("Checklist terkirim!");
+    alert("BERHASIL DISIMPAN");
     location.reload();
   }
 }
