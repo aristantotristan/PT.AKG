@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Pelaksana - Checklist CHSLR</title>
+  <title>Pelaksana - Checklist Harian Stand Label & Robot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -12,23 +12,31 @@
     }
     h2 {
       text-align: center;
+      margin-bottom: 6px;
+    }
+    h3 {
+      background: #003366;
+      color: white;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
     }
     fieldset {
       background: #fff;
-      padding: 16px;
+      padding: 12px;
       border-radius: 10px;
       border: 1px solid #ccc;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     label {
       display: block;
-      margin-top: 10px;
-      font-size: 14px;
+      font-size: 13px;
+      margin-top: 8px;
     }
-    select, input, textarea {
+    select, textarea, input {
       width: 100%;
-      padding: 8px;
       margin-top: 4px;
+      padding: 6px;
     }
     textarea {
       display: none;
@@ -41,49 +49,193 @@
       border: none;
       border-radius: 8px;
       font-size: 16px;
+      margin-top: 10px;
     }
     .back {
-      margin-top: 10px;
-      background: #aaa;
+      background: #888;
     }
   </style>
 </head>
 <body>
 
-<h2>Checklist Harian<br>Stand Label & Robot</h2>
+<h2>CHECKLIST HARIAN</h2>
+<p style="text-align:center;">Stand Label & Robot</p>
 
 <fieldset>
   <legend>Data Pelaksana</legend>
   <label>Nama Pelaksana</label>
-  <input type="text" id="p1_name" placeholder="Nama Mekanik">
+  <input type="text" placeholder="Nama Mekanik">
 </fieldset>
 
+<!-- FRAME / RANGKA -->
+<h3>FRAME / RANGKA STAND LABEL</h3>
 <fieldset>
-  <legend>FRAME / RANGKA</legend>
-
-  <label>Cek kondisi baut frame rangka</label>
+  <label>Cek kondisi baut frame rangka<br><small>Standard: tidak kendor / lepas</small></label>
   <select onchange="toggleNote(this)">
     <option value="">-- Pilih --</option>
     <option>OK</option>
     <option>NG</option>
   </select>
-  <textarea placeholder="Keterangan jika NG"></textarea>
+  <textarea placeholder="Keterangan NG"></textarea>
 
-  <label>Cek bubble leveller</label>
+  <label>Cek bubble leveller<br><small>Standard: terpasang & berfungsi</small></label>
   <select onchange="toggleNote(this)">
     <option value="">-- Pilih --</option>
     <option>OK</option>
     <option>NG</option>
   </select>
-  <textarea placeholder="Keterangan jika NG"></textarea>
+  <textarea placeholder="Keterangan NG"></textarea>
 </fieldset>
 
+<!-- MAGAZINE LABEL -->
+<h3>MAGAZINE LABEL</h3>
 <fieldset>
-  <legend>Paraf Pelaksana</legend>
-  <p>(TTD akan kita buat versi canvas / backend Supabase di step berikutnya)</p>
+  <label>Cek adjuster plate magazine label<br><small>Standard: berfungsi baik</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek baut frame/rangka magazine label<br><small>Standard: lengkap & bersih</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
 </fieldset>
 
-<button onclick="submitPelaksana()">Simpan Checklist</button>
+<!-- PLATE STAND LABEL -->
+<h3>PLATE STAND LABEL</h3>
+<fieldset>
+  <label>Cek V-Belt<br><small>Standard: tidak kendor / terlalu kencang</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek Gear / Bushing / Bearing<br><small>Standard: tidak goyang</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek Vacuum Pad<br><small>Standard: baut & skun kencang</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Pergerakan spring / as vacuum pad<br><small>Standard: smooth / halus</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek linier bearing SL<br><small>Standard: berfungsi baik / tidak kendor</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek tutup rail<br><small>Standard: terpasang dengan benar</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+</fieldset>
+
+<!-- PANEL KONTROL -->
+<h3>PANEL KONTROL STAND LABEL</h3>
+<fieldset>
+  <label>Kondisi panel & komponen<br><small>Standard: tidak berdebu & lengket</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Komponen electrical<br><small>Standard: tidak kendor</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Instalasi kabel<br><small>Standard: rapi & tidak kendor</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Cek Fan Panel<br><small>Standard: bersih & tidak berdebu</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+</fieldset>
+
+<!-- SISTEM PNEUMATIC -->
+<h3>SISTEM PNEUMATIC STAND LABEL</h3>
+<fieldset>
+  <label>Instalasi pneumatic / cylinder / tubing<br><small>Standard: rapi & tidak bocor</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Tekanan supply angin<br><small>Standard: stabil 4–8 bar</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+</fieldset>
+
+<!-- SISTEM ROBOT -->
+<h3>SISTEM ROBOT</h3>
+<fieldset>
+  <label>Dummy Robot<br><small>Standard: cleaning 15 menit</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+
+  <label>Sistem Static<br><small>Standard: 9–13 Kv</small></label>
+  <select onchange="toggleNote(this)">
+    <option value="">-- Pilih --</option>
+    <option>OK</option>
+    <option>NG</option>
+  </select>
+  <textarea></textarea>
+</fieldset>
+
+<button onclick="submitChecklist()">Simpan Checklist</button>
 <button class="back" onclick="location.href='index.html'">⬅ Kembali</button>
 
 <script>
@@ -92,8 +244,8 @@
     note.style.display = select.value === 'NG' ? 'block' : 'none';
   }
 
-  function submitPelaksana() {
-    alert('Checklist Pelaksana tersimpan (dummy). Next: Koordinator');
+  function submitChecklist() {
+    alert('Checklist Pelaksana tersimpan (next: Supabase)');
   }
 </script>
 
