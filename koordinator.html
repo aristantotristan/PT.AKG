@@ -11,40 +11,40 @@
     :root { --navy: #003366; --bg: #f4f7f9; --white: #ffffff; }
     body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #333; }
     .container { max-width: 500px; margin: auto; }
-    h2 { text-align: center; color: var(--navy); margin-bottom: 20px; font-size: 22px; }
+    h2 { text-align: center; color: var(--navy); margin-bottom: 20px; font-size: 22px; text-transform: uppercase; }
     
     fieldset { 
       background: var(--white); padding: 15px; border-radius: 12px; 
       border: 1px solid #d1d9e0; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    legend { font-weight: bold; color: var(--navy); background: #f0f4f8; padding: 4px 12px; border-radius: 10px; font-size: 12px; border: 1px solid #d1d9e0; }
+    legend { font-weight: bold; color: var(--navy); background: #f0f4f8; padding: 4px 12px; border-radius: 10px; font-size: 11px; border: 1px solid #d1d9e0; }
     
-    input[type="date"], input[type="text"], textarea { 
+    label { font-size: 12px; font-weight: bold; color: #666; display: block; margin-top: 10px; }
+    input, select, textarea { 
       width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-top: 5px;
     }
     
-    .summary-card { background: #f9f9f9; border-radius: 8px; padding: 12px; border-left: 4px solid var(--navy); min-height: 100px; }
+    .search-group { background: #eef2f7; padding: 12px; border-radius: 8px; }
+    .summary-card { background: #f9f9f9; border-radius: 8px; padding: 12px; border-left: 5px solid var(--navy); min-height: 80px; }
     .summary-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
     .status-ok { color: #28a745; font-weight: bold; }
     .status-ng { color: #dc3545; font-weight: bold; }
 
-    /* Fix Signature Canvas */
     .sig-wrapper { 
       border: 1px solid #ccc; background: #fff; border-radius: 8px; 
       margin-top: 10px; width: 100%; height: 180px; position: relative; touch-action: none;
     }
-    #signature-pad { 
-      position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 8px; 
-    }
+    #signature-pad { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 8px; }
     
-    .btn-clear { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 6px 12px; border-radius: 5px; cursor: pointer; margin-top: 8px; font-size: 11px; width: 100%; }
+    .btn-clear { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 8px; font-size: 11px; width: 100%; font-weight: bold; }
 
     .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-    button.btn-approve { background: var(--navy); color: white; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button.btn-approve { background: var(--navy); color: white; padding: 16px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button.btn-approve:active { transform: scale(0.98); }
     button:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-back { background: #6c757d; color: white; text-decoration: none; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; }
+    .btn-back { background: #6c757d; color: white; text-decoration: none; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; }
     
-    #loader { display: none; text-align: center; font-size: 12px; color: var(--navy); margin-top: 5px; }
+    #loader { display: none; text-align: center; font-size: 12px; color: var(--navy); margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -53,23 +53,43 @@
   <h2>Koordinator Approval</h2>
 
   <fieldset>
-    <legend>FILTER TANGGAL</legend>
-    <input type="date" id="selectDate" onchange="searchData()">
-    <div id="loader">Memproses data...</div>
+    <legend>CARI DATA PM</legend>
+    <div class="search-group">
+      <label>1. Pilih Tanggal:</label>
+      <input type="date" id="selectDate">
+      
+      <label>2. Pilih Nomor Mesin:</label>
+      <select id="selectMesin">
+        <option value="">-- Pilih Mesin --</option>
+        <script>
+          for(let i=1; i<=30; i++) {
+            let val = "CHSLR-" + i.toString().padStart(2, '0');
+            document.write(`<option value="${val}">${val}</option>`);
+          }
+        </script>
+      </select>
+      
+      <button onclick="searchData()" style="width:100%; margin-top:15px; background:#fff; border:1px solid var(--navy); color:var(--navy); padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🔍 CARI LAPORAN</button>
+    </div>
+    <div id="loader">🔄 Mengambil data dari server...</div>
   </fieldset>
 
   <fieldset>
-    <legend>RINGKASAN HASIL PELAKSANA</legend>
+    <legend>HASIL PENGECEKAN PELAKSANA</legend>
     <div id="summaryContent" class="summary-card">
-      <p style="color:#999; text-align:center; font-size:12px; margin-top:30px;">Silakan pilih tanggal...</p>
+      <p style="color:#999; text-align:center; font-size:12px; margin-top:20px;">Tentukan tanggal & mesin untuk melihat ringkasan.</p>
     </div>
   </fieldset>
 
   <fieldset>
-    <legend>VALIDASI & PARAF</legend>
-    <input type="text" id="namaKoor" placeholder="Nama Koordinator">
-    <textarea id="catatan" rows="2" placeholder="Catatan Tambahan (Opsional)" style="margin-top:10px;"></textarea>
+    <legend>VALIDASI KOORDINATOR</legend>
+    <label>Nama Koordinator:</label>
+    <input type="text" id="namaKoor" placeholder="Masukkan nama lengkap">
     
+    <label>Catatan Review:</label>
+    <textarea id="catatan" rows="2" placeholder="Tulis instruksi perbaikan jika ada..."></textarea>
+    
+    <label>Tanda Tangan:</label>
     <div class="sig-wrapper">
       <canvas id="signature-pad"></canvas>
     </div>
@@ -77,7 +97,7 @@
   </fieldset>
 
   <div class="btn-group">
-    <button id="btnApprove" class="btn-approve" onclick="submitApprove()">APPROVE & SIMPAN</button>
+    <button id="btnApprove" class="btn-approve" onclick="submitApprove()">APPROVE & VALIDATE</button>
     <a href="index.html" class="btn-back">⬅ KEMBALI</a>
   </div>
 </div>
@@ -90,11 +110,8 @@
   let signaturePad;
   let currentPelaksanaId = null;
 
-  // Inisialisasi Tanda Tangan
   window.onload = () => {
     const canvas = document.getElementById("signature-pad");
-    
-    // Fungsi resize canvas agar responsif
     function resizeCanvas() {
       const ratio = Math.max(window.devicePixelRatio || 1, 1);
       canvas.width = canvas.offsetWidth * ratio;
@@ -105,7 +122,7 @@
 
     signaturePad = new SignaturePad(canvas, {
       backgroundColor: 'rgb(255, 255, 255)',
-      penColor: 'rgb(0, 0, 102)' // Navy pen
+      penColor: 'rgb(0, 0, 102)'
     });
 
     window.onresize = resizeCanvas;
@@ -114,14 +131,22 @@
 
   async function searchData() {
     const tgl = document.getElementById("selectDate").value;
+    const mesin = document.getElementById("selectMesin").value;
     const loader = document.getElementById("loader");
     const summary = document.getElementById("summaryContent");
 
-    if (!tgl) return;
+    if (!tgl || !mesin) return alert("Pilih Tanggal dan Nomor Mesin!");
+    
     loader.style.display = "block";
+    summary.innerHTML = "";
 
     try {
-      const { data, error } = await sb.from('pelaksana_a').select('*').eq('tanggal', tgl).order('id', {ascending:false});
+      // Query dengan filter ganda: Tanggal DAN Nomor Mesin
+      const { data, error } = await sb.from('pelaksana_a')
+        .select('*')
+        .eq('tanggal', tgl)
+        .eq('nomor_mesin', mesin)
+        .order('id', {ascending:false});
 
       if (error) throw error;
 
@@ -129,17 +154,17 @@
         const item = data[0];
         currentPelaksanaId = item.id;
         summary.innerHTML = `
+          <div class="summary-line"><span>🆔 Mesin:</span> <b>${item.nomor_mesin}</b></div>
           <div class="summary-line"><span>👤 Pelaksana:</span> <b>${item.nama_pelaksana}</b></div>
           <div class="summary-line"><span>📅 Tanggal:</span> <b>${item.tanggal}</b></div>
-          <div class="summary-line"><span>🤖 Robot:</span> <b class="${item.dummy_robot === 'OK' ? 'status-ok' : 'status-ng'}">${item.dummy_robot}</b></div>
-          <div class="summary-line"><span>⚡ Static:</span> <b>${item.static_kv} Kv</b></div>
+          <div class="summary-line"><span>🤖 Status Robot:</span> <b class="${item.dummy_robot === 'OK' ? 'status-ok' : 'status-ng'}">${item.dummy_robot}</b></div>
+          <div class="summary-line"><span>⚡ Nilai Static:</span> <b>${item.static_kv} Kv</b></div>
         `;
       } else {
         currentPelaksanaId = null;
-        summary.innerHTML = `<p style="color:red; text-align:center; font-size:12px; margin-top:30px;">Data tidak ditemukan di tanggal ini.</p>`;
+        summary.innerHTML = `<p style="color:#dc3545; text-align:center; font-size:12px; margin-top:20px; font-weight:bold;">Data Mesin ${mesin} belum diinput pelaksana pada tanggal ini.</p>`;
       }
     } catch (err) {
-      console.error(err);
       summary.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
     } finally {
       loader.style.display = "none";
@@ -151,33 +176,36 @@
   async function submitApprove() {
     const nama = document.getElementById("namaKoor").value;
     const ket = document.getElementById("catatan").value;
+    const tgl = document.getElementById("selectDate").value;
+    const mesin = document.getElementById("selectMesin").value;
     const btn = document.getElementById("btnApprove");
 
-    if (!currentPelaksanaId) return alert("Pilih tanggal yang memiliki data pelaksana dulu!");
+    if (!currentPelaksanaId) return alert("Cari data laporan yang valid dulu!");
     if (!nama || signaturePad.isEmpty()) return alert("Nama dan Tanda Tangan wajib diisi!");
 
     btn.disabled = true;
-    btn.innerText = "⏳ Memproses...";
+    btn.innerText = "⏳ Menyimpan Approval...";
 
     try {
-      const parafBase64 = signaturePad.toDataURL(); // Ambil gambar ttd
+      const parafBase64 = signaturePad.toDataURL();
 
       const { error } = await sb.from('koordinator_a').insert([{
         id_pelaksana: currentPelaksanaId,
+        nomor_mesin: mesin,
         nama_koordinator: nama,
         keterangan: ket,
         paraf_koordinator: parafBase64,
-        tanggal: document.getElementById("selectDate").value
+        tanggal: tgl
       }]);
 
       if (error) throw error;
 
-      alert("BERHASIL! Approval telah disimpan.");
+      alert("BERHASIL! Validasi Koordinator untuk " + mesin + " telah disimpan.");
       location.href = "index.html";
     } catch (err) {
       alert("Gagal simpan: " + err.message);
       btn.disabled = false;
-      btn.innerText = "APPROVE & SIMPAN";
+      btn.innerText = "APPROVE & VALIDATE";
     }
   }
 </script>
