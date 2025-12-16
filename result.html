@@ -5,27 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Result - CHSLR</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
   <style>
     :root { --navy: #003366; --bg: #f4f7f6; --ok: #28a745; --ng: #dc3545; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
     .container { max-width: 1400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--navy); padding-bottom: 15px; margin-bottom: 20px; }
     
-    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
-    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px; }
     .btn-main { background: var(--navy); color: white; }
     .btn-reset { background: #6c757d; color: white; }
+    .btn-excel { background: #1d6f42; color: white; } /* Warna Hijau Excel */
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
     .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; }
     table { width: 100%; border-collapse: collapse; min-width: 1500px; }
-    th { background: var(--navy); color: white; padding: 12px; font-size: 12px; text-transform: uppercase; position: sticky; top: 0; }
-    td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
+    th { background: var(--navy); color: white; padding: 12px; font-size: 11px; text-transform: uppercase; position: sticky; top: 0; }
+    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: middle; }
     tr:hover { background-color: #f9fbff; }
 
-    .badge { padding: 5px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    .badge { padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
     .badge-ok { background: #d4edda; color: var(--ok); }
     .badge-ng { background: #f8d7da; color: var(--ng); }
-    .paraf-img { width: 90px; height: 50px; object-fit: contain; border: 1px solid #ddd; background: #fff; }
+    .paraf-img { width: 70px; height: 40px; object-fit: contain; border: 1px solid #ddd; background: #fff; }
     
     .status-msg { text-align: center; padding: 40px; font-size: 16px; color: #666; }
   </style>
@@ -41,27 +45,32 @@
   <div class="filter-area">
     <label><b>Pilih Tanggal:</b></label>
     <input type="date" id="tglInput" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-    <button class="btn btn-main" onclick="loadData()">CARI DATA</button>
-    <button class="btn btn-reset" onclick="resetData()">TAMPILKAN SEMUA</button>
+    <button class="btn btn-main" onclick="loadData()">🔍 CARI DATA</button>
+    <button class="btn btn-reset" onclick="resetData()">🔄 REFRESH</button>
+    <button class="btn btn-excel" onclick="exportToExcel()">📥 EKSPOR EXCEL</button>
   </div>
 
   <div class="table-scroll">
-    <table>
+    <table id="dataTable">
       <thead>
         <tr>
-          <th>ID & Tanggal</th>
+          <th>Tanggal</th>
           <th>Nama Pelaksana</th>
-          <th>Frame & Magazine</th>
-          <th>Plate Stand Label</th>
-          <th>Electrical & Panel</th>
-          <th>Pneumatic System</th>
-          <th>Robot (Dummy)</th>
+          <th>Baut Frame</th>
+          <th>Baut Mag</th>
+          <th>V-Belt</th>
+          <th>Vac Pad</th>
+          <th>Panel</th>
+          <th>Fan</th>
+          <th>Pneu Cyl</th>
+          <th>Vac Gen</th>
+          <th>Robot Dummy</th>
           <th>Static (Kv)</th>
-          <th>Paraf</th>
+          <th>Note Static</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="9" class="status-msg">Klik "CARI DATA" atau "TAMPILKAN SEMUA"</td></tr>
+        <tr><td colspan="13" class="status-msg">Menghubungkan ke server...</td></tr>
       </tbody>
     </table>
   </div>
@@ -72,31 +81,25 @@
   const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(_URL, _KEY);
 
+  let currentData = []; // Simpan data global untuk ekspor
+
   async function loadData() {
     const tb = document.getElementById("tableBody");
     const tgl = document.getElementById("tglInput").value;
 
-    tb.innerHTML = `<tr><td colspan="9" class="status-msg">⏳ Menghubungkan ke Supabase...</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="13" class="status-msg">⏳ Memuat data...</td></tr>`;
 
     try {
       let query = sb.from('pelaksana_a').select('*');
+      if (tgl) { query = query.eq('tanggal', tgl); }
 
-      if (tgl) {
-        query = query.eq('tanggal', tgl);
-      }
+      const { data, error } = await query.order('tanggal', { ascending: false });
 
-      const { data, error } = await query.order('id', { ascending: false });
-
-      if (error) {
-        tb.innerHTML = `<tr><td colspan="9" style="color:red; text-align:center; padding:20px;">
-          <b>ERROR DATABASE:</b> ${error.message}<br>
-          <i>Cek RLS Policy di Supabase SQL Editor.</i>
-        </td></tr>`;
-        return;
-      }
+      if (error) throw error;
+      currentData = data; // Masukkan ke variable global
 
       if (!data || data.length === 0) {
-        tb.innerHTML = `<tr><td colspan="9" class="status-msg">📭 Data Kosong. Pastikan input di Pelaksana sudah Berhasil.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="13" class="status-msg">📭 Data Kosong.</td></tr>`;
         return;
       }
 
@@ -104,33 +107,56 @@
       data.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><small style="color:#999">${item.id.substring(0,8)}</small><br><b>${item.tanggal}</b></td>
+          <td><b>${item.tanggal}</b></td>
           <td style="font-weight:bold; color:var(--navy)">${item.nama_pelaksana}</td>
-          <td>
-            <span class="badge ${item.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">Frame: ${item.baut_frame}</span><br>
-            <span class="badge ${item.baut_magazine === 'OK' ? 'badge-ok' : 'badge-ng'}">Mag: ${item.baut_magazine}</span>
-          </td>
-          <td>
-            <span class="badge ${item.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">V-Belt: ${item.vbelt}</span><br>
-            <span class="badge ${item.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac: ${item.vacuum_pad}</span>
-          </td>
-          <td>
-            <span class="badge ${item.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">Panel: ${item.panel_komponen}</span><br>
-            <span class="badge ${item.fan_kondisi === 'OK' ? 'badge-ok' : 'badge-ng'}">Fan: ${item.fan_kondisi}</span>
-          </td>
-          <td>
-            <span class="badge ${item.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">Pneu: ${item.pneu_cyl_tubing}</span><br>
-            <span class="badge ${item.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">Gen: ${item.fungsi_vac_gen}</span>
-          </td>
+          <td><span class="badge ${item.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.baut_frame}</span></td>
+          <td><span class="badge ${item.baut_magazine === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.baut_magazine}</span></td>
+          <td><span class="badge ${item.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.vbelt}</span></td>
+          <td><span class="badge ${item.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.vacuum_pad}</span></td>
+          <td><span class="badge ${item.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.panel_komponen}</span></td>
+          <td><span class="badge ${item.fan_kondisi === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.fan_kondisi}</span></td>
+          <td><span class="badge ${item.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.pneu_cyl_tubing}</span></td>
+          <td><span class="badge ${item.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.fungsi_vac_gen}</span></td>
           <td><span class="badge ${item.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.dummy_robot}</span></td>
-          <td><b style="font-size:16px">${item.static_kv || '0'}</b> Kv</td>
-          <td><img src="${item.paraf_pelaksana}" class="paraf-img"></td>
+          <td><b>${item.static_kv || '0'}</b></td>
+          <td><small>${item.note_static || '-'}</small></td>
         `;
         tb.appendChild(tr);
       });
     } catch (err) {
-      tb.innerHTML = `<tr><td colspan="9" style="color:red; text-align:center;">Koneksi Terputus/Gagal.</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="13" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
     }
+  }
+
+  function exportToExcel() {
+    if (currentData.length === 0) {
+      alert("Tidak ada data untuk diekspor!");
+      return;
+    }
+
+    // Persiapkan data untuk Excel (Hapus kolom paraf karena gambar tidak bisa masuk Excel biasa)
+    const dataExcel = currentData.map(item => ({
+      Tanggal: item.tanggal,
+      Nama: item.nama_pelaksana,
+      "Baut Frame": item.baut_frame,
+      "Baut Magazine": item.baut_magazine,
+      "V-Belt": item.vbelt,
+      "Vacuum Pad": item.vacuum_pad,
+      "Panel Komponen": item.panel_komponen,
+      "Fan Kondisi": item.fan_kondisi,
+      "Pneu Cyl": item.pneu_cyl_tubing,
+      "Fungsi Vac Gen": item.fungsi_vac_gen,
+      "Robot Dummy": item.dummy_robot,
+      "Static Kv": item.static_kv,
+      "Note Static": item.note_static
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan PM");
+    
+    // Download file
+    XLSX.writeFile(workbook, `Laporan_PM_CHSLR_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
   function resetData() {
@@ -138,7 +164,6 @@
     loadData();
   }
 
-  // Load otomatis saat halaman dibuka
   window.onload = loadData;
 </script>
 </body>
