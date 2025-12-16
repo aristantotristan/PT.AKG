@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Superintendent - Final Approval</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 16px;
+    }
+    h2 {
+      text-align: center;
+    }
+    fieldset {
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 16px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .back {
+      background: #aaa;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Mechanic Superintendent</h2>
+
+<fieldset>
+  <legend>Ringkasan Akhir</legend>
+  <p>Status: <b>Menunggu Final Approval</b></p>
+</fieldset>
+
+<fieldset>
+  <legend>Paraf Superintendent</legend>
+  <label>Nama Superintendent</label>
+  <input type="text" placeholder="Nama Superintendent">
+</fieldset>
+
+<button onclick="finalize()">Finalize</button>
+<button class="back" onclick="location.href='index.html'">⬅ Kembali</button>
+
+<script>
+  function finalize() {
+    alert('Checklist selesai & di-finalize (dummy)');
+  }
+</script>
+
+</body>
+</html>
