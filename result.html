@@ -8,98 +8,142 @@
   <style>
     :root { --primary: #003366; --bg: #f4f7f6; --ok: #28a745; --ng: #dc3545; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-    .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+    .container { max-width: 1300px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
     h2 { color: var(--primary); margin: 0; }
-    .btn-back { background: #6c757d; color: white; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; }
-    
-    .table-wrapper { overflow-x: auto; border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; min-width: 900px; }
-    th { background: var(--primary); color: white; padding: 12px; text-align: left; font-size: 14px; }
-    td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
-    
-    .badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+    .btn-back { background: #6c757d; color: white; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; font-size: 14px; }
+
+    .filter-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    input[type="date"] { padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+    .btn-reset { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+    .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #eee; }
+    table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+    th { background: var(--primary); color: white; padding: 12px; text-align: left; font-size: 13px; position: sticky; top: 0; }
+    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; }
+    tr:hover { background-color: #f1f4f8; }
+
+    .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
     .badge-ok { background: #e8f5e9; color: var(--ok); }
     .badge-ng { background: #ffebee; color: var(--ng); }
     
-    .paraf-img { width: 85px; height: auto; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
-    .loading { text-align: center; padding: 40px; color: var(--primary); font-weight: bold; }
+    .note { display: block; font-size: 10px; color: #666; margin-top: 3px; font-style: italic; }
+    .paraf-img { width: 80px; height: auto; border: 1px solid #ddd; background: #fff; border-radius: 4px; }
+    
+    .loading { text-align: center; padding: 50px; font-weight: bold; color: var(--primary); }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2>📊 Data Monitoring Stand Label & Robot</h2>
+    <h2>📊 Monitoring Preventive Maintenance</h2>
     <a href="index.html" class="btn-back">⬅ Kembali</a>
+  </div>
+
+  <div class="filter-box">
+    <label><b>Filter Tanggal:</b></label>
+    <input type="date" id="inputTgl" onchange="fetchData()">
+    <button class="btn-reset" onclick="resetFilter()">Tampilkan Semua</button>
   </div>
 
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>ID & Tanggal</th>
-          <th>Robot Status (_dummy)</th>
-          <th>Static Value (static_kv)</th>
-          <th>Note Static</th>
-          <th>Paraf Pelaksana</th>
+          <th>Tanggal & Nama</th>
+          <th>Frame & Magazine</th>
+          <th>Plate Stand Label</th>
+          <th>Panel Kontrol</th>
+          <th>Sistem Pneumatic</th>
+          <th>Robot (Dummy)</th>
+          <th>Static Kv</th>
+          <th>Paraf</th>
         </tr>
       </thead>
-      <tbody id="resultBody">
-        <tr><td colspan="5" class="loading">Menghubungkan ke Database Supabase...</td></tr>
+      <tbody id="contentBody">
+        <tr><td colspan="8" class="loading">Memuat data dari database...</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  // Inisialisasi Supabase
   const SUPABASE_URL = "https://duljhawudstjxibhuenv.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ"; 
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  async function loadData() {
-    const tableBody = document.getElementById("resultBody");
-    
-    // Ambil data dari tabel pelaksana_a
-    const { data, error } = await sb.from('pelaksana_a').select('*').order('id', { ascending: false });
+  async function fetchData() {
+    const tableBody = document.getElementById("contentBody");
+    const tglFilter = document.getElementById("inputTgl").value;
+
+    tableBody.innerHTML = `<tr><td colspan="8" class="loading">Sedang mencari data...</td></tr>`;
+
+    let query = sb.from('pelaksana_a').select('*');
+
+    if (tglFilter) {
+      query = query.eq('tanggal', tglFilter);
+    }
+
+    const { data, error } = await query.order('tanggal', { ascending: false });
 
     if (error) {
-      tableBody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
       return;
     }
 
     if (!data || data.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Database Masih Kosong. Silakan isi checklist dulu.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px;">Data tidak ditemukan.</td></tr>`;
       return;
     }
 
     tableBody.innerHTML = "";
     data.forEach(row => {
-      // Kita pakai nama kolom sesuai screenshot Supabase kamu: _dummy dan static_kv
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <small style="color:#999;">${row.id.substring(0,8)}</small><br>
-          <b>${new Date().toLocaleDateString('id-ID')}</b>
+          <b>${row.tanggal}</b><br>
+          <span style="color:var(--primary)">${row.nama_pelaksana}</span>
         </td>
         <td>
-          <span class="badge ${row._dummy === 'OK' ? 'badge-ok' : 'badge-ng'}">${row._dummy || 'N/A'}</span>
+          <span class="badge ${row.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">Baut: ${row.baut_frame}</span>
+          <span class="badge ${row.as_adjuster === 'OK' ? 'badge-ok' : 'badge-ng'}">As: ${row.as_adjuster}</span>
         </td>
-        <td><strong style="color:var(--primary)">${row.static_kv || '0'}</strong> Kv</td>
-        <td>${row.note_static || '<span style="color:#ccc;">Empty</span>'}</td>
         <td>
-          ${row.paraf_pelaksana 
-            ? `<img src="${row.paraf_pelaksana}" class="paraf-img">` 
-            : '<em style="color:#999;">Tidak ada paraf</em>'}
+          <span class="badge ${row.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">V-Belt: ${row.vbelt}</span>
+          <span class="badge ${row.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">Vac: ${row.vacuum_pad}</span>
+        </td>
+        <td>
+          <span class="badge ${row.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">Panel: ${row.panel_komponen}</span>
+          <span class="badge ${row.fan_kondisi === 'OK' ? 'badge-ok' : 'badge-ng'}">Fan: ${row.fan_kondisi}</span>
+        </td>
+        <td>
+          <span class="badge ${row.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">Tubing: ${row.pneu_cyl_tubing}</span>
+          <span class="badge ${row.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">VacGen: ${row.fungsi_vac_gen}</span>
+        </td>
+        <td>
+          <span class="badge ${row.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${row.dummy_robot}</span>
+          <span class="note">${row.note_dummy || ''}</span>
+        </td>
+        <td>
+          <b>${row.static_kv || '0'} Kv</b>
+          <span class="note">${row.note_static || ''}</span>
+        </td>
+        <td>
+          <img src="${row.paraf_pelaksana}" class="paraf-img">
         </td>
       `;
       tableBody.appendChild(tr);
     });
   }
 
-  loadData();
-</script>
+  function resetFilter() {
+    document.getElementById("inputTgl").value = "";
+    fetchData();
+  }
 
+  fetchData();
+</script>
 </body>
 </html>
