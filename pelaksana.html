@@ -3,112 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Checklist Stand Label & Robot</title>
+  <title>Checklist Pelaksana - CHSLR</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --primary: #003366; --bg: #f2f5f8; }
-    body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-    .card { background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; max-width: 600px; margin: auto; }
-    .header { background: var(--primary); color: #fff; padding: 15px; text-align: center; font-weight: bold; }
-    .progress-bar { height: 6px; background: #e0e0e0; }
-    .progress-fill { height: 100%; background: #ffcc00; width: 0%; transition: 0.3s; }
+    :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; --text: #333; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: var(--text); }
     
-    .step { display: none; padding: 15px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; max-width: 600px; margin: auto; }
+    .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; font-size: 18px; }
+    
+    .progress-bar { height: 8px; background: #e0e0e0; }
+    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .step { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
     .step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-    th { background: #f8f9fa; border: 1px solid #ddd; padding: 8px; text-align: left; }
-    td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
+    h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 0; font-size: 16px; }
+    
+    .machine-select-box { background: #eef2f7; padding: 15px; border-radius: 10px; border: 2px dashed var(--primary); text-align: center; }
+    select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s; }
+    select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,51,102,0.1); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #f8f9fa; border: 1px solid #eee; padding: 10px; font-size: 12px; text-align: left; color: #666; }
+    td { border: 1px solid #eee; padding: 10px; vertical-align: top; }
     
     .std-text { font-size: 11px; color: #d32f2f; font-weight: bold; display: block; margin-top: 4px; }
-    select, input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    textarea { margin-top: 5px; display: none; height: 50px; background: #fffde7; }
+    textarea { width: 100%; margin-top: 8px; display: none; height: 60px; border: 1px solid #ffcc00; border-radius: 6px; background: #fffde7; padding: 8px; box-sizing: border-box; }
 
-    canvas { 
-      width: 100%; height: 200px; border: 2px dashed #999; border-radius: 6px; 
-      background: #fafafa; margin-top: 10px; touch-action: none; 
-    }
+    .canvas-wrapper { border: 2px solid #ddd; border-radius: 8px; background: #fafafa; margin-top: 10px; position: relative; touch-action: none; }
+    canvas { width: 100%; height: 200px; display: block; border-radius: 8px; }
     
-    .footer { display: flex; gap: 10px; padding: 15px; background: #f8f9fa; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-    .btn-prev { background: #ccc; }
+    .footer { display: flex; gap: 12px; padding: 20px; background: #f8f9fa; border-top: 1px solid #eee; }
+    button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 15px; }
+    .btn-prev { background: #e0e0e0; color: #666; }
     .btn-next { background: var(--primary); color: #fff; }
-    .btn-clear { background: #f44336; color: #fff; margin-top: 5px; font-size: 12px; padding: 6px; }
+    .btn-clear { background: #fee2e2; color: #dc2626; margin-top: 8px; padding: 8px; font-size: 12px; border: 1px solid #fecaca; }
+    button:active { transform: scale(0.98); }
+    button:disabled { background: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <div class="header">CHECKLIST HARIAN STAND LABEL & ROBOT</div>
+  <div class="header">CHECKLIST STAND LABEL & ROBOT</div>
   <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
 
   <form id="checklistForm">
     <div class="step active">
-      <h3>1 & 2. FRAME & MAGAZINE</h3>
-      <table>
-        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
-        <tr><td>Baut frame rangka<br><span class="std-text">Std: Tidak kendor/lepas</span></td><td><select name="baut_frame" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_baut_frame"></textarea></td></tr>
-        <tr><td>Bubble leveller<br><span class="std-text">Std: Berfungsi benar</span></td><td><select name="bubble_leveller" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_bubble_leveller"></textarea></td></tr>
-        <tr><td>As Adjuster magazine<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="as_adjuster" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_as_adjuster"></textarea></td></tr>
-        <tr><td>Baut frame magazine<br><span class="std-text">Std: Lengkap & bersih</span></td><td><select name="baut_magazine" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_baut_magazine"></textarea></td></tr>
-      </table>
-    </div>
-
-    <div class="step">
-      <h3>3. PLATE STAND LABEL</h3>
-      <table>
-        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
-        <tr><td>V-Belt<br><span class="std-text">Std: Tidak kendor/kencang</span></td><td><select name="vbelt" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vbelt"></textarea></td></tr>
-        <tr><td>Gear/Bushing/Bearing<br><span class="std-text">Std: Tidak goyang</span></td><td><select name="gearing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_gearing"></textarea></td></tr>
-        <tr><td>Vacuum pad<br><span class="std-text">Std: Baut & skun kencang</span></td><td><select name="vacuum_pad" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vacuum_pad"></textarea></td></tr>
-        <tr><td>Spring/As vacuum pads<br><span class="std-text">Std: Smooth/halus</span></td><td><select name="spring_as" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_spring_as"></textarea></td></tr>
-        <tr><td>Linier bearing SL<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="linier_bearing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_linier_bearing"></textarea></td></tr>
-        <tr><td>Tutup Rail<br><span class="std-text">Std: Terpasang benar</span></td><td><select name="tutup_rail" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tutup_rail"></textarea></td></tr>
-      </table>
-    </div>
-
-    <div class="step">
-      <h3>4. PANEL KONTROL</h3>
-      <table>
-        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
-        <tr><td>Kondisi Panel & Comp<br><span class="std-text">Std: Tidak debu/lengket</span></td><td><select name="panel_komponen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_panel"></textarea></td></tr>
-        <tr><td>Komponen Electrical<br><span class="std-text">Std: Tidak kendor</span></td><td><select name="komponen_electrical" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_electrical"></textarea></td></tr>
-        <tr><td>Instalasi Kabel<br><span class="std-text">Std: Rapi / tidak kendor</span></td><td><select name="instalasi_kabel" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_kabel"></textarea></td></tr>
-        <tr><td>Instalasi Solenoid Valve<br><span class="std-text">Std: Tidak kendor</span></td><td><select name="solenoid_valve_panel" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_solenoid_panel"></textarea></td></tr>
-        <tr><td>Kondisi Fan<br><span class="std-text">Std: Bersih / tidak debu</span></td><td><select name="fan_kondisi" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_fan"></textarea></td></tr>
-        <tr><td>Kabel Power/Control<br><span class="std-text">Std: Permanen / No temporary</span></td><td><select name="sambungan_power" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_power"></textarea></td></tr>
-      </table>
-    </div>
-
-    <div class="step">
-      <h3>5. PNEUMATIC</h3>
-      <table>
-        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
-        <tr><td>Instalasi Pneu/Cyl/Tubing<br><span class="std-text">Std: Rapi & No bocor</span></td><td><select name="pneu_cyl_tubing" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_pneu_cyl"></textarea></td></tr>
-        <tr><td>Instalasi Tubing<br><span class="std-text">Std: Rapi & permanen</span></td><td><select name="tubing_permanen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_tubing"></textarea></td></tr>
-        <tr><td>Solenoid Valve<br><span class="std-text">Std: Ada silencer</span></td><td><select name="solenoid_silencer" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sol_silencer"></textarea></td></tr>
-        <tr><td>Vacuum Generator<br><span class="std-text">Std: Ada silencer</span></td><td><select name="vac_gen_silencer" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_silencer"></textarea></td></tr>
-        <tr><td>Fungsi Vacuum Gen<br><span class="std-text">Std: 0.4 - 0.5 kPa</span></td><td><select name="fungsi_vac_gen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_gen"></textarea></td></tr>
-        <tr><td>Sensor Pneumatic<br><span class="std-text">Std: Berfungsi baik</span></td><td><select name="sensor_pneumatic" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_pneu"></textarea></td></tr>
-        <tr><td>Sensor Vacuum<br><span class="std-text">Std: Stabil</span></td><td><select name="sensor_vacuum" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_sensor_vac"></textarea></td></tr>
-        <tr><td>Supply Angin<br><span class="std-text">Std: Stabil (4-8 Bar)</span></td><td><select name="tekanan_angin" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_angin"></textarea></td></tr>
-      </table>
-    </div>
-
-    <div class="step">
-      <h3>6 & 7. ROBOT & VALIDASI</h3>
-      <table>
-        <tr><th>Jenis Pengecekan / Standard</th><th width="80">Hasil</th></tr>
-        <tr><td>Dummy Robot<br><span class="std-text">Std: Majun hitam (15m)</span></td><td><select name="dummy_robot" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_dummy"></textarea></td></tr>
-        <tr><td>Sistem Static<br><span class="std-text">Std: Nilai 9-13 Kv</span></td><td><select name="static_kv" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_static"></textarea></td></tr>
-      </table>
-      <div style="margin-top:20px">
-        <label><b>Nama Mekanik:</b></label>
-        <input type="text" name="nama_pelaksana" id="nm" required style="margin-top:5px">
-        <label style="margin-top:15px; display:block"><b>Tanda Tangan:</b></label>
-        <canvas id="canvas"></canvas>
-        <button type="button" class="btn-clear" onclick="clr()">Hapus Tanda Tangan</button>
+      <h3>STEP 0: IDENTITAS MESIN</h3>
+      <div class="machine-select-box">
+        <label style="font-weight: bold; margin-bottom: 10px; display: block;">Pilih Nomor Mesin:</label>
+        <select name="nomor_mesin" id="nomor_mesin" required>
+          <option value="">-- PILIH MESIN --</option>
+          <script>
+            for(let i=1; i<=30; i++){
+              let val = "CHSLR-" + i.toString().padStart(2, '0');
+              document.write(`<option value="${val}">${val}</option>`);
+            }
+          </script>
+        </select>
       </div>
+      <p style="font-size: 12px; color: #777; margin-top: 15px; line-height: 1.4;">
+        * Pastikan nomor mesin sesuai dengan nameplate di lapangan sebelum melanjutkan.
+      </p>
+    </div>
+
+    <div class="step">
+      <h3>STEP 1: FRAME & MAGAZINE</h3>
+      <table>
+        <tr><th>Pengecekan</th><th width="90">Hasil</th></tr>
+        <tr>
+          <td>Baut frame rangka<br><span class="std-text">Std: Tidak kendor/lepas</span></td>
+          <td><select name="baut_frame" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_baut_frame" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+        <tr>
+          <td>Bubble leveller<br><span class="std-text">Std: Berfungsi benar</span></td>
+          <td><select name="bubble_leveller" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_bubble_leveller" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <h3>STEP 2: PLATE STAND LABEL</h3>
+      <table>
+        <tr><th>Pengecekan</th><th width="90">Hasil</th></tr>
+        <tr>
+          <td>V-Belt<br><span class="std-text">Std: Tidak kendor/kencang</span></td>
+          <td><select name="vbelt" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vbelt" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+        <tr>
+          <td>Vacuum pad<br><span class="std-text">Std: Baut & skun kencang</span></td>
+          <td><select name="vacuum_pad" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vacuum_pad" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <h3>STEP 3: PNEUMATIC & ROBOT</h3>
+      <table>
+        <tr><th>Pengecekan</th><th width="90">Hasil</th></tr>
+        <tr>
+          <td>Fungsi Vacuum Gen<br><span class="std-text">Std: 0.4 - 0.5 kPa</span></td>
+          <td><select name="fungsi_vac_gen" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_vac_gen" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+        <tr>
+          <td>Dummy Robot<br><span class="std-text">Std: Majun hitam (15m)</span></td>
+          <td><select name="dummy_robot" onchange="hNG(this)" required><option value="">-</option><option>OK</option><option>NG</option></select><textarea name="note_dummy" placeholder="Sebutkan kendala..."></textarea></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <h3>STEP 4: FINALISASI</h3>
+      <label><b>Nama Mekanik Pelaksana:</b></label>
+      <input type="text" name="nama_pelaksana" placeholder="Ketik Nama Lengkap" required style="margin-top:8px">
+      
+      <label style="margin-top:20px; display:block"><b>Tanda Tangan Digital:</b></label>
+      <div class="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+      </div>
+      <button type="button" class="btn-clear" onclick="clr()">HAPUS TANDA TANGAN</button>
+      
+      <input type="hidden" name="tanggal" id="tgl_hidden">
     </div>
   </form>
 
@@ -126,12 +144,19 @@
   let step = 0;
   const steps = document.querySelectorAll(".step");
   const fill = document.getElementById("bar");
+  const cvs = document.getElementById("canvas");
+  const ctx = cvs.getContext("2d");
+  let drawing = false;
 
+  // Navigasi
   function nav(n) {
     if (n === 1) {
-      const rq = steps[step].querySelectorAll("select[required], input[required]");
-      for (let i of rq) if (!i.value) return alert("Isi semua data!");
+      const inputs = steps[step].querySelectorAll("select[required], input[required]");
+      for (let i of inputs) {
+        if (!i.value) return alert("Mohon lengkapi data di tahap ini!");
+      }
     }
+    
     step += n;
     if (step >= steps.length) return submit();
     show();
@@ -141,24 +166,33 @@
     steps.forEach((s, i) => s.classList.toggle("active", i === step));
     fill.style.width = ((step + 1) / steps.length) * 100 + "%";
     document.getElementById("bBack").style.visibility = step === 0 ? "hidden" : "visible";
-    document.getElementById("bNext").innerText = step === steps.length - 1 ? "SIMPAN" : "LANJUT";
-    if (step === 4) setTimeout(initCanvas, 300);
+    document.getElementById("bNext").innerText = step === steps.length - 1 ? "SIMPAN DATA" : "LANJUT";
+    
+    // Init canvas saat sampai step terakhir
+    if (step === steps.length - 1) {
+      setTimeout(initCanvas, 300);
+      document.getElementById("tgl_hidden").value = new Date().toISOString().split('T')[0];
+    }
   }
 
-  function hNG(s) { s.nextElementSibling.style.display = s.value === "NG" ? "block" : "none"; }
+  function hNG(s) {
+    const area = s.nextElementSibling;
+    if(area && area.tagName === "TEXTAREA") {
+      area.style.display = s.value === "NG" ? "block" : "none";
+      if(s.value !== "NG") area.value = "";
+    }
+  }
 
-  // Tanda Tangan Logic
-  const cvs = document.getElementById("canvas");
-  const ctx = cvs.getContext("2d");
-  let drawing = false;
-
+  // Tanda Tangan
   function initCanvas() {
     const r = cvs.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     cvs.width = r.width * dpr;
     cvs.height = r.height * dpr;
     ctx.scale(dpr, dpr);
-    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000066";
   }
 
   function getXY(e) {
@@ -167,8 +201,22 @@
     return { x: t.clientX - r.left, y: t.clientY - r.top };
   }
 
-  function start(e) { drawing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); if(e.touches) e.preventDefault(); }
-  function draw(e) { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); if(e.touches) e.preventDefault(); }
+  function start(e) { 
+    drawing = true; 
+    const p = getXY(e); 
+    ctx.beginPath(); 
+    ctx.moveTo(p.x, p.y); 
+    if(e.touches) e.preventDefault(); 
+  }
+  
+  function draw(e) { 
+    if(!drawing) return; 
+    const p = getXY(e); 
+    ctx.lineTo(p.x, p.y); 
+    ctx.stroke(); 
+    if(e.touches) e.preventDefault(); 
+  }
+  
   function stop() { drawing = false; }
 
   cvs.addEventListener("mousedown", start);
@@ -180,18 +228,29 @@
 
   function clr() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
 
+  // Submit
   async function submit() {
     const img = cvs.toDataURL();
-    if (img.length < 2000) return alert("Paraf dulu!");
-    document.getElementById("bNext").disabled = true;
-    document.getElementById("bNext").innerText = "Proses...";
+    if (img.length < 2000) return alert("Tanda tangan wajib diisi!");
 
-    const fd = Object.fromEntries(new FormData(document.getElementById("checklistForm")));
+    const btn = document.getElementById("bNext");
+    btn.disabled = true;
+    btn.innerText = "⏳ Menyimpan...";
+
+    const form = document.getElementById("checklistForm");
+    const fd = Object.fromEntries(new FormData(form));
     fd.paraf_pelaksana = img;
 
-    const { error } = await sb.from("pelaksana_a").insert([fd]);
-    if (error) { alert(error.message); document.getElementById("bNext").disabled = false; }
-    else { alert("BERHASIL!"); location.reload(); }
+    try {
+      const { error } = await sb.from("pelaksana_a").insert([fd]);
+      if (error) throw error;
+      alert("✅ Data Berhasil Disimpan!");
+      location.reload();
+    } catch (err) {
+      alert("❌ Gagal: " + err.message);
+      btn.disabled = false;
+      btn.innerText = "SIMPAN DATA";
+    }
   }
 
   show();
