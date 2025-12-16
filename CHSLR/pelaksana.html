@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checklist Harian Stand Label & Robot - Pelaksana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 16px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .progress {
+      width: 100%;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      width: 0%;
+      background: #003366;
+      transition: width 0.3s;
+    }
+
+    .step {
+      display: none;
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .item {
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    select, textarea, input {
+      width: 100%;
+      padding: 6px;
+    }
+
+    textarea {
+      display: none;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .back {
+      background: #ccc;
+    }
+
+    .next {
+      background: #003366;
+      color: #fff;
+    }
+
+    /* SIGNATURE */
+    .signature-box {
+      border: 2px dashed #999;
+      border-radius: 8px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 150px;
+      touch-action: none;
+    }
+
+    .clear {
+      background: #b00020;
+      color: #fff;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Checklist Harian<br>Stand Label & Robot</h2>
+
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step active">
+  <h3>FRAME / RANGKA</h3>
+
+  <div class="item">
+    <label>Cek kondisi baut frame rangka</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea placeholder="Keterangan jika NG"></textarea>
+  </div>
+
+  <div class="item">
+    <label>Cek bubble leveller</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea placeholder="Keterangan jika NG"></textarea>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step">
+  <h3>MAGAZINE LABEL</h3>
+
+  <div class="item">
+    <label>As adjuster plate magazine label</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea placeholder="Keterangan jika NG"></textarea>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+  <h3>SISTEM ROBOT</h3>
+
+  <div class="item">
+    <label>Dummy robot (cleaning 15 menit)</label>
+    <select onchange="toggleNote(this)">
+      <option value="">-- Pilih --</option>
+      <option>OK</option>
+      <option>NG</option>
+    </select>
+    <textarea placeholder="Keterangan jika NG"></textarea>
+  </div>
+</div>
+
+<!-- STEP 4 : PARAF -->
+<div class="step">
+  <h3>PARAF PELAKSANA</h3>
+
+  <label>Nama Pelaksana</label>
+  <input type="text" id="namaPelaksana" placeholder="Nama Mekanik">
+
+  <label>Tanggal</label>
+  <input type="text" id="tanggal" readonly>
+
+  <div class="signature-box">
+    <canvas id="signature"></canvas>
+  </div>
+
+  <button class="clear" onclick="clearSignature()">Hapus Tanda Tangan</button>
+</div>
+
+<div class="btn-group">
+  <button class="back" onclick="prevStep()">Back</button>
+  <button class="next" onclick="nextStep()">Next</button>
+</div>
+
+<script>
+  const steps = document.querySelectorAll('.step');
+  const progressBar = document.getElementById('progressBar');
+  let currentStep = 0;
+
+  function updateStep() {
+    steps.forEach((step, index) => {
+      step.classList.toggle('active', index === currentStep);
+    });
+    progressBar.style.width =
+      ((currentStep + 1) / steps.length) * 100 + '%';
+  }
+
+  function nextStep() {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      updateStep();
+    } else {
+      alert("Checklist & Paraf Pelaksana siap disimpan");
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      updateStep();
+    }
+  }
+
+  function toggleNote(select) {
+    const note = select.nextElementSibling;
+    note.style.display = select.value === 'NG' ? 'block' : 'none';
+  }
+
+  // DATE
+  document.getElementById("tanggal").value =
+    new Date().toLocaleDateString("id-ID");
+
+  // SIGNATURE PAD
+  const canvas = document.getElementById("signature");
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resizeCanvas();
+
+  canvas.addEventListener("pointerdown", e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener("pointerup", () => drawing = false);
+  canvas.addEventListener("pointerleave", () => drawing = false);
+
+  function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  updateStep();
+</script>
+
+</body>
+</html>
