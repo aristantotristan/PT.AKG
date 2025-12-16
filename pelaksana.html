@@ -1,198 +1,343 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Checklist Pelaksana</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Pelaksana - Checklist Harian Stand Label & Robot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
-  padding:16px;
-}
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 16px; margin: 0; }
+    h2 { text-align: center; color: #003366; margin-bottom: 20px; }
+    
+    .progress { width: 100%; background: #ddd; border-radius: 10px; height: 10px; margin-bottom: 20px; }
+    .progress-bar { height: 100%; width: 0%; background: #003366; transition: width 0.3s; border-radius: 10px; }
 
-h2,h3 { margin-top:0 }
+    .step { display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .step.active { display: block; }
+    
+    h3 { margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .item { margin-bottom: 15px; }
+    label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 6px; }
 
-.step {
-  display:none;
-  background:#fff;
-  padding:16px;
-  border-radius:10px;
-}
+    select, input, textarea { 
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;
+    }
+    textarea { margin-top: 8px; display: none; height: 60px; }
 
-.step.active { display:block }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .back { background: #bbb; color: white; }
+    .next { background: #003366; color: #fff; }
+    .submit { background: #28a745 !important; color: white; }
 
-select,input {
-  width:100%;
-  padding:10px;
-  margin:6px 0 14px;
-}
-
-button {
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-  font-size:16px;
-}
-
-.next { background:#003366; color:#fff }
-.back { background:#aaa }
-
-canvas {
-  border:2px dashed #555;
-  width:100%;
-  height:180px;
-  background:#fff;
-  touch-action:none;
-}
-</style>
+    canvas { 
+      width: 100%; height: 200px; border: 2px dashed #999; border-radius: 8px; 
+      background: #fafafa; touch-action: none; cursor: crosshair;
+    }
+  </style>
 </head>
-
 <body>
 
-<h2>Checklist Harian Stand Label & Robot</h2>
+<h2>Checklist Harian<br>Stand Label & Robot</h2>
 
-<!-- STEP 1 -->
-<div class="step active">
-  <h3>FRAME / RANGKA</h3>
-
-  Baut rangka
-  <select><option>OK</option><option>NG</option></select>
-
-  Bubble leveller
-  <select><option>OK</option><option>NG</option></select>
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<!-- STEP 2 -->
-<div class="step">
-  <h3>MAGAZINE LABEL</h3>
+<form id="checklistForm">
+  <div class="step active" data-title="FRAME">
+    <h3>1. FRAME / RANGKA</h3>
+    <div class="item">
+      <label>Cek kondisi baut frame rangka</label>
+      <select name="baut_frame" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_baut_frame" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Cek bubble leveller</label>
+      <select name="bubble_leveller" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_bubble_leveller" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
 
-  Adjuster plate
-  <select><option>OK</option><option>NG</option></select>
+  <div class="step" data-title="MAGAZINE">
+    <h3>2. MAGAZINE LABEL</h3>
+    <div class="item">
+      <label>As Adjuster plate magazine label</label>
+      <select name="as_adjuster" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_as_adjuster" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Baut frame / rangka magazine label</label>
+      <select name="baut_magazine" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_baut_magazine" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
 
-  Baut magazine
-  <select><option>OK</option><option>NG</option></select>
+  <div class="step" data-title="PLATE">
+    <h3>3. PLATE STAND LABEL</h3>
+    <div class="item">
+      <label>V-Belt kondisi baik</label>
+      <select name="vbelt" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_vbelt" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Gear / Bushing / Bearing</label>
+      <select name="gearing" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_gearing" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
+
+  <div class="step" data-title="PANEL">
+    <h3>4. PANEL KONTROL</h3>
+    <div class="item">
+      <label>Kondisi panel & komponen</label>
+      <select name="panel_komponen" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_panel" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Instalasi kabel</label>
+      <select name="instalasi_kabel" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_kabel" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
+
+  <div class="step" data-title="PNEUMATIC">
+    <h3>5. SISTEM PNEUMATIC</h3>
+    <div class="item">
+      <label>Instalasi pneumatic & tubing</label>
+      <select name="pneumatic_tubing" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_pneumatic" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Tekanan supply angin (4–8 bar)</label>
+      <select name="tekanan_angin" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_angin" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
+
+  <div class="step" data-title="ROBOT">
+    <h3>6. SISTEM ROBOT</h3>
+    <div class="item">
+      <label>Dummy Robot (cleaning 15 menit)</label>
+      <select name="dummy_robot" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_dummy" placeholder="Keterangan jika NG"></textarea>
+    </div>
+    <div class="item">
+      <label>Static (9–13 Kv)</label>
+      <select name="static_kv" onchange="toggleNote(this)" required>
+        <option value="">-- Pilih --</option>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+      <textarea name="note_static" placeholder="Keterangan jika NG"></textarea>
+    </div>
+  </div>
+
+  <div class="step" data-title="SIGNATURE">
+    <h3>7. PENYELESAIAN</h3>
+    <div class="item">
+      <label>Nama Pelaksana (Mekanik)</label>
+      <input type="text" id="namaPelaksana" name="nama_pelaksana" required placeholder="Masukkan nama lengkap" />
+    </div>
+    <label>Tanda Tangan:</label>
+    <canvas id="signaturePad"></canvas>
+    <button type="button" onclick="clearSignature()" style="margin-top:8px; background:#f44336; color:white; padding: 8px; font-size: 12px;">Hapus Paraf</button>
+  </div>
+</form>
+
+<div class="btn-group">
+  <button type="button" class="back" id="btnBack" onclick="prevStep()">Kembali</button>
+  <button type="button" class="next" id="btnNext" onclick="nextStep()">Lanjut</button>
 </div>
-
-<!-- STEP 3 -->
-<div class="step">
-  <h3>TANDA TANGAN PELAKSANA</h3>
-
-  Nama Pelaksana
-  <input id="nama" placeholder="Nama">
-
-  <p>Paraf:</p>
-  <canvas id="ttd"></canvas>
-  <button onclick="clearCanvas()">Clear</button>
-</div>
-
-<button class="back" onclick="prev()">Back</button>
-<button class="next" onclick="next()">Next / Submit</button>
 
 <script>
-/* ================= STEP ================= */
+/* ================= KONFIGURASI SUPABASE ================= */
+const _URL = "https://duljhawudstjxibhuenv.supabase.co";
+const _KEY = "PASTE_ANON_KEY_KAMU_DI_SINI"; // <-- GANTI DENGAN ANON KEY ANDA
+const sb = supabase.createClient(_URL, _KEY);
+
+/* ================= LOGIK STEP ================= */
 const steps = document.querySelectorAll(".step");
-let idx = 0;
+const progressBar = document.getElementById("progressBar");
+const btnNext = document.getElementById("btnNext");
+const btnBack = document.getElementById("btnBack");
+let currentStep = 0;
 
-function render(){
-  steps.forEach((s,i)=>s.classList.toggle("active", i===idx));
-  if(idx===2) initCanvas();
+function updateStep() {
+  steps.forEach((s, i) => s.classList.toggle("active", i === currentStep));
+  progressBar.style.width = ((currentStep + 1) / steps.length) * 100 + "%";
+  
+  btnBack.style.visibility = currentStep === 0 ? "hidden" : "visible";
+  btnNext.innerText = currentStep === steps.length - 1 ? "Simpan Checklist" : "Lanjut";
+  if(currentStep === steps.length - 1) btnNext.classList.add('submit');
+  else btnNext.classList.remove('submit');
 }
-render();
 
-function next(){
-  if(idx < steps.length-1){
-    idx++; render();
+function nextStep() {
+  // Validasi sederhana sebelum lanjut
+  const currentInputs = steps[currentStep].querySelectorAll("select[required], input[required]");
+  for (let input of currentInputs) {
+    if (!input.value) {
+      alert("Harap isi semua bidang sebelum lanjut.");
+      return;
+    }
+  }
+
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    updateStep();
   } else {
-    submit();
+    submitChecklist();
   }
 }
-function prev(){
-  if(idx>0){ idx--; render(); }
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    updateStep();
+  }
 }
 
-/* ================= CANVAS ================= */
-let canvas, ctx, drawing=false, ready=false;
+function toggleNote(select) {
+  const note = select.nextElementSibling;
+  note.style.display = select.value === "NG" ? "block" : "none";
+  if(select.value !== "NG") note.value = "";
+}
 
-function initCanvas(){
-  if(ready) return;
-  canvas = document.getElementById("ttd");
-  ctx = canvas.getContext("2d");
+/* ================= LOGIK TANDA TANGAN ================= */
+const canvas = document.getElementById("signaturePad");
+const ctx = canvas.getContext("2d");
+let drawing = false;
 
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = canvas.offsetWidth * ratio;
-  canvas.height = canvas.offsetHeight * ratio;
-  ctx.setTransform(ratio,0,0,ratio,0,0);
-  ctx.lineWidth = 2;
+function setupCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  ctx.lineWidth = 3;
   ctx.lineCap = "round";
-
-  canvas.onmousedown = e=>{
-    drawing=true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX,e.offsetY);
-  };
-  canvas.onmousemove = e=>{
-    if(!drawing) return;
-    ctx.lineTo(e.offsetX,e.offsetY);
-    ctx.stroke();
-  };
-  canvas.onmouseup = ()=> drawing=false;
-
-  canvas.ontouchstart = e=>{
-    e.preventDefault();
-    drawing=true;
-    const t=e.touches[0], r=canvas.getBoundingClientRect();
-    ctx.beginPath();
-    ctx.moveTo(t.clientX-r.left,t.clientY-r.top);
-  };
-  canvas.ontouchmove = e=>{
-    e.preventDefault();
-    if(!drawing) return;
-    const t=e.touches[0], r=canvas.getBoundingClientRect();
-    ctx.lineTo(t.clientX-r.left,t.clientY-r.top);
-    ctx.stroke();
-  };
-  canvas.ontouchend = ()=> drawing=false;
-
-  ready=true;
+  ctx.strokeStyle = "#000";
 }
 
-function clearCanvas(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+window.onload = setupCanvas;
+window.onresize = setupCanvas;
+
+// Support Mouse & Touch
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
-/* ================= SUBMIT ================= */
-const supabase = supabasejs.createClient(
-  "https://duljhawudstjxibhuenv.supabase.co",
-  "PASTE_ANON_KEY_MU_DISINI"
-);
+function startDrawing(e) {
+  drawing = true;
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  e.preventDefault();
+}
 
-async function submit(){
-  const img = canvas.toDataURL();
-  if(img.length < 1000){
-    alert("TTD belum diisi");
+function draw(e) {
+  if (!drawing) return;
+  const pos = getPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  e.preventDefault();
+}
+
+function stopDrawing() { drawing = false; }
+
+canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mousemove", draw);
+canvas.addEventListener("mouseup", stopDrawing);
+canvas.addEventListener("touchstart", startDrawing);
+canvas.addEventListener("touchmove", draw);
+canvas.addEventListener("touchend", stopDrawing);
+
+function clearSignature() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/* ================= KIRIM DATA KE SUPABASE ================= */
+async function submitChecklist() {
+  const sigImage = canvas.toDataURL();
+  
+  // Validasi tanda tangan (jika kosong, panjang string pendek)
+  if (sigImage.length < 2000) {
+    alert("Silakan tanda tangan terlebih dahulu.");
     return;
   }
 
-  const { error } = await supabase
-    .from("pelaksana_A")
-    .insert({
-      nama_pelaksana: document.getElementById("nama").value,
-      ttd_pelaksana: img
-    });
+  btnNext.disabled = true;
+  btnNext.innerText = "Mengirim...";
 
-  if(error){
-    alert(error.message);
+  // Ambil semua data dari Form secara otomatis
+  const formData = new FormData(document.getElementById("checklistForm"));
+  const dataObject = Object.fromEntries(formData.entries());
+  
+  // Tambah metadata
+  dataObject.signature_pelaksana = sigImage;
+  dataObject.tanggal = new Date().toISOString();
+
+  const { error } = await sb.from("pelaksana_A").insert([dataObject]);
+
+  if (error) {
+    alert("Gagal simpan ke database: " + error.message);
+    btnNext.disabled = false;
+    btnNext.innerText = "Simpan Checklist";
   } else {
-    alert("BERHASIL DISIMPAN");
-    location.reload();
+    alert("Checklist BERHASIL disimpan!");
+    location.reload(); // Refresh halaman setelah sukses
   }
 }
+
+updateStep();
 </script>
 
 </body>
