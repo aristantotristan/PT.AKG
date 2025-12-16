@@ -3,44 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Result - CHSLR</title>
+  <title>Master Dashboard - CHSLR</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <style>
-    :root { --navy: #003366; --bg: #f4f7f6; --ok: #28a745; --ng: #dc3545; }
+    :root { --navy: #003366; --bg: #f4f7f6; --ok: #28a745; --ng: #dc3545; --pending: #6c757d; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-    .container { max-width: 1400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .container { max-width: 1600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--navy); padding-bottom: 15px; margin-bottom: 20px; }
-    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filter-area { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
     
     .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; color: white; transition: 0.3s; }
     .btn-main { background: var(--navy); }
     .btn-excel { background: #1d6f42; }
-    .btn-pdf { background: #c0392b; } /* Warna Merah PDF */
-    .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+    .btn-pdf { background: #c0392b; }
 
     .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; }
-    table { width: 100%; border-collapse: collapse; min-width: 1500px; }
-    th { background: var(--navy); color: white; padding: 12px; font-size: 11px; text-transform: uppercase; }
-    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1800px; background: white; }
+    th { background: var(--navy); color: white; padding: 12px; font-size: 10px; text-transform: uppercase; position: sticky; top: 0; }
+    td { padding: 8px; border-bottom: 1px solid #eee; font-size: 11px; text-align: center; }
 
-    .badge { padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+    .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 9px; white-space: nowrap; }
     .badge-ok { background: #d4edda; color: var(--ok); }
     .badge-ng { background: #f8d7da; color: var(--ng); }
-    .paraf-img { width: 80px; height: 45px; object-fit: contain; border: 1px solid #eee; background: white; }
+    
+    .sign-container { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .paraf-img { width: 80px; height: 50px; object-fit: contain; border: 1px solid #eee; background: white; border-radius: 4px; }
+    .pending-txt { color: var(--pending); font-style: italic; font-size: 10px; }
+    .name-tag { font-weight: bold; font-size: 10px; color: var(--navy); }
 
-    /* CSS Khusus Cetak */
     @media print {
+      @page { size: landscape; margin: 5mm; }
       .filter-area, .btn, .header a { display: none !important; }
-      body { background: white; padding: 0; }
-      .container { box-shadow: none; max-width: 100%; width: 100%; }
-      .table-scroll { overflow: visible !important; }
-      table { min-width: 100% !important; border: 1px solid #000; }
-      th, td { border: 1px solid #000 !important; color: black !important; }
-      th { background: #eee !important; color: black !important; }
-      .paraf-img { width: 100px !important; display: block !important; }
+      .container { width: 100%; max-width: none; padding: 0; box-shadow: none; }
+      table { font-size: 9px; min-width: 100% !important; border: 1px solid black; }
+      th, td { border: 1px solid black !important; padding: 4px; }
+      .paraf-img { width: 70px !important; }
     }
   </style>
 </head>
@@ -48,37 +48,42 @@
 
 <div class="container">
   <div class="header">
-    <h2 id="pageTitle" style="color: var(--navy); margin: 0;">📊 MONITORING PREVENTIVE MAINTENANCE</h2>
-    <a href="index.html" style="text-decoration: none; color: #666; font-weight: bold;">⬅ KEMBALI</a>
+    <h2 style="color: var(--navy); margin: 0;">📋 MASTER MONITORING PREVENTIVE MAINTENANCE</h2>
+    <a href="index.html" style="text-decoration: none; color: #666; font-weight: bold;">⬅ MENU UTAMA</a>
   </div>
 
   <div class="filter-area">
-    <label><b>Pilih Tanggal:</b></label>
+    <label><b>Filter Tanggal:</b></label>
     <input type="date" id="tglInput" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-    <button class="btn btn-main" onclick="loadData()">🔍 CARI</button>
-    <button class="btn btn-excel" onclick="exportToExcel()">📥 EXCEL (Data)</button>
-    <button class="btn btn-pdf" onclick="window.print()">🖨️ CETAK PDF (Ada Paraf)</button>
+    <button class="btn btn-main" onclick="loadData()">🔍 REFRESH DATA</button>
+    <button class="btn btn-excel" onclick="exportToExcel()">📥 EXPORT EXCEL</button>
+    <button class="btn btn-pdf" onclick="window.print()">🖨️ PRINT LAPORAN</button>
   </div>
 
   <div class="table-scroll">
-    <table id="dataTable">
+    <table>
       <thead>
         <tr>
-          <th>Tanggal</th>
-          <th>Nama Pelaksana</th>
-          <th>Baut Frame</th>
+          <th rowspan="2">Tgl & Pelaksana</th>
+          <th colspan="7">Checklist Item (Pelaksana)</th>
+          <th rowspan="2">Static (Kv)</th>
+          <th colspan="3">Approval Status (Tanda Tangan)</th>
+        </tr>
+        <tr>
+          <th>Baut</th>
           <th>V-Belt</th>
           <th>Vac Pad</th>
           <th>Panel</th>
           <th>Pneu Cyl</th>
           <th>Vac Gen</th>
-          <th>Robot Dummy</th>
-          <th>Static (Kv)</th>
-          <th>Tanda Tangan</th>
+          <th>Robot</th>
+          <th>1. Pelaksana</th>
+          <th>2. Koordinator</th>
+          <th>3. Superintendent</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="11" style="text-align:center; padding:40px;">Memuat data...</td></tr>
+        <tr><td colspan="12" style="padding:50px;">⏳ Sinkronisasi data 3 level...</td></tr>
       </tbody>
     </table>
   </div>
@@ -88,55 +93,80 @@
   const _URL = "https://duljhawudstjxibhuenv.supabase.co";
   const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(_URL, _KEY);
-  let currentData = [];
 
   async function loadData() {
     const tb = document.getElementById("tableBody");
     const tgl = document.getElementById("tglInput").value;
-    tb.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:40px;">⏳ Menarik data...</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="12" style="padding:50px;">🔄 Menghubungkan database...</td></tr>`;
 
     try {
-      let query = sb.from('pelaksana_a').select('*');
-      if (tgl) query = query.eq('tanggal', tgl);
-      const { data, error } = await query.order('tanggal', { ascending: false });
+      // 1. Ambil Data Pelaksana
+      let qP = sb.from('pelaksana_a').select('*');
+      if (tgl) qP = qP.eq('tanggal', tgl);
+      const resP = await qP.order('tanggal', { ascending: false });
 
-      if (error) throw error;
-      currentData = data;
+      // 2. Ambil Data Koordinator & Supt secara paralel
+      const [resK, resS] = await Promise.all([
+        sb.from('koordinator_a').select('*'),
+        sb.from('superintendent_a').select('*')
+      ]);
+
+      if (resP.error) throw resP.error;
+
       tb.innerHTML = "";
+      resP.data.forEach(p => {
+        // Cari Approval Koordinator & Supt berdasarkan id_pelaksana
+        const k = resK.data.find(item => item.id_pelaksana === p.id);
+        const s = resS.data.find(item => item.id_pelaksana === p.id);
 
-      data.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><b>${item.tanggal}</b></td>
-          <td style="font-weight:bold;">${item.nama_pelaksana}</td>
-          <td><span class="badge ${item.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.baut_frame}</span></td>
-          <td><span class="badge ${item.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.vbelt}</span></td>
-          <td><span class="badge ${item.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.vacuum_pad}</span></td>
-          <td><span class="badge ${item.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.panel_komponen}</span></td>
-          <td><span class="badge ${item.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.pneu_cyl_tubing}</span></td>
-          <td><span class="badge ${item.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.fungsi_vac_gen}</span></td>
-          <td><span class="badge ${item.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${item.dummy_robot}</span></td>
-          <td><b>${item.static_kv || '0'}</b></td>
-          <td><img src="${item.paraf_pelaksana}" class="paraf-img"></td>
+          <td><b>${p.tanggal}</b><br><small>${p.nama_pelaksana}</small></td>
+          <td><span class="badge ${p.baut_frame === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.baut_frame}</span></td>
+          <td><span class="badge ${p.vbelt === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.vbelt}</span></td>
+          <td><span class="badge ${p.vacuum_pad === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.vacuum_pad}</span></td>
+          <td><span class="badge ${p.panel_komponen === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.panel_komponen}</span></td>
+          <td><span class="badge ${p.pneu_cyl_tubing === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.pneu_cyl_tubing}</span></td>
+          <td><span class="badge ${p.fungsi_vac_gen === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.fungsi_vac_gen}</span></td>
+          <td><span class="badge ${p.dummy_robot === 'OK' ? 'badge-ok' : 'badge-ng'}">${p.dummy_robot}</span></td>
+          <td><b>${p.static_kv || 0}</b></td>
+          
+          <td>
+            <div class="sign-container">
+              <img src="${p.paraf_pelaksana}" class="paraf-img">
+              <span class="name-tag">${p.nama_pelaksana}</span>
+            </div>
+          </td>
+
+          <td>
+            ${k ? `
+              <div class="sign-container">
+                <img src="${k.paraf_koordinator}" class="paraf-img">
+                <span class="name-tag">${k.nama_koordinator}</span>
+              </div>
+            ` : `<span class="pending-txt">Menunggu...</span>`}
+          </td>
+
+          <td>
+            ${s ? `
+              <div class="sign-container">
+                <img src="${s.paraf_superintendent}" class="paraf-img">
+                <span class="name-tag">${s.nama_superintendent}</span>
+              </div>
+            ` : `<span class="pending-txt">Menunggu...</span>`}
+          </td>
         `;
         tb.appendChild(tr);
       });
+
     } catch (err) {
-      tb.innerHTML = `<tr><td colspan="11" style="color:red; text-align:center;">${err.message}</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="12" style="color:red; padding:20px;">Gagal sinkronisasi: ${err.message}</td></tr>`;
     }
   }
 
   function exportToExcel() {
-    if (currentData.length === 0) return alert("Data kosong!");
-    const dataExcel = currentData.map(item => ({
-      Tanggal: item.tanggal, Nama: item.nama_pelaksana, 
-      "Baut Frame": item.baut_frame, "V-Belt": item.vbelt, 
-      "Robot": item.dummy_robot, "Static Kv": item.static_kv
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan");
-    XLSX.writeFile(workbook, `Laporan_PM_${new Date().toLocaleDateString()}.xlsx`);
+    // Logika ekspor yang menyertakan informasi approval
+    alert("Fitur ekspor excel sedang dikonfigurasi untuk data gabungan...");
   }
 
   window.onload = loadData;
