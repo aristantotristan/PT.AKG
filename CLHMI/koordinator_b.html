@@ -1,157 +1,93 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Koordinator - CLHMI</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root { --primary: #ffcc00; --dark: #003366; --bg: #f8f9fa; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; }
-    .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
-    .header { background: var(--primary); color: var(--dark); padding: 20px; text-align: center; font-weight: bold; }
-    
-    .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; transition: 0.2s; }
-    .list-item:hover { background: #fff9e6; }
-    .badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #e0e0e0; }
-    
-    #detail-section { display: none; padding: 20px; }
-    .summary-box { background: #f0f4f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
-    
-    .canvas-wrapper { border: 2px solid #ccc; border-radius: 8px; background: #fff; touch-action: none; margin-top: 10px; }
-    canvas { width: 100%; height: 180px; display: block; }
-    
-    .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-verify { background: var(--dark); color: white; }
-    .btn-back { background: #666; color: white; margin-top: 5px; }
-    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koordinator - CLHMI 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary: #ffcc00; --dark: #003366; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; margin: 0; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
+        .header { background: var(--primary); color: var(--dark); padding: 20px; text-align: center; font-weight: bold; }
+        .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; transition: 0.2s; }
+        .list-item:hover { background: #fff9e6; }
+        .badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #e0e0e0; float: right; }
+        #detail-section { display: none; padding: 20px; }
+        .summary-box { background: #f0f4f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; word-break: break-word; }
+        .canvas-wrapper { border: 2px solid #ccc; border-radius: 8px; background: #fff; touch-action: none; margin-top: 10px; }
+        canvas { width: 100%; height: 180px; display: block; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-verify { background: var(--dark); color: white; }
+        .btn-back { background: #666; color: white; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 
 <div class="card">
-  <div class="header">VERIFIKASI KOORDINATOR</div>
+    <div class="header">VERIFIKASI KOORDINATOR</div>
 
-  <div id="list-section">
-    <div style="padding: 15px; font-weight: bold; border-bottom: 2px solid var(--primary);">
-      Menunggu Pengecekan:
+    <div id="list-section">
+        <div style="padding: 15px; font-weight: bold; border-bottom: 2px solid var(--primary);">Menunggu Pengecekan:</div>
+        <div id="loading" style="padding:20px; text-align:center;">Memuat data antrian...</div>
+        <div id="queue-container"></div>
     </div>
-    <div id="loading">Memuat data...</div>
-    <div id="queue-container"></div>
-  </div>
 
-  <div id="detail-section">
-    <div class="summary-box" id="data-summary"></div>
-    
-    <label><b>Nama Koordinator:</b></label>
-    <input type="text" id="nama_koordinator" placeholder="Ketik Nama Anda">
-    
-    <label><b>Paraf Verifikasi:</b></label>
-    <div class="canvas-wrapper">
-      <canvas id="canvas"></canvas>
+    <div id="detail-section">
+        <div class="summary-box" id="data-summary"></div>
+        <label><b>Nama Koordinator:</b></label>
+        <input type="text" id="nama_koordinator" placeholder="Ketik Nama Anda">
+        <label><b>Paraf Verifikasi:</b></label>
+        <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
+        <button class="btn btn-verify" onclick="submitVerify()">VERIFIKASI & TERUSKAN</button>
+        <button class="btn btn-back" onclick="location.reload()">KEMBALI</button>
     </div>
-    <button class="btn btn-verify" onclick="submitVerify()">VERIFIKASI & TERUSKAN</button>
-    <button class="btn btn-back" onclick="location.reload()">BATAL</button>
-  </div>
 </div>
 
 <script>
-  const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-  const sb = supabase.createClient(_URL, _KEY);
+    const _URL = "https://duljhawudstjxibhuenv.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+    const sb = supabase.createClient(_URL, _KEY);
+    let selectedId = null, drawing = false;
+    const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
-  let selectedId = null;
-
-  // -- 1. AMBIL DATA YANG STATUSNYA 'Waiting' --
-  async function loadQueue() {
-    const { data, error } = await sb.from('pelaksana_b')
-      .select('*')
-      .eq('status_koordinator', 'Waiting')
-      .order('id', { ascending: false });
-
-    document.getElementById("loading").style.display = "none";
-    const container = document.getElementById("queue-container");
-    
-    if (data.length === 0) {
-      container.innerHTML = "<p style='padding:20px; color:#999'>Tidak ada antrian.</p>";
-      return;
+    async function loadQueue() {
+        const { data, error } = await sb.from('pelaksana_b').select('*').eq('status_koordinator', 'Waiting').order('id', { ascending: false });
+        document.getElementById("loading").style.display = "none";
+        const container = document.getElementById("queue-container");
+        if (data.length === 0) { container.innerHTML = "<p style='padding:20px; color:#999'>Tidak ada antrian.</p>"; return; }
+        data.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "list-item";
+            div.onclick = () => showDetail(item);
+            div.innerHTML = `<span class="badge">Baru</span><div style="word-break:break-word;"><strong>${item.nomor_mesin}</strong></div><small>Pelaksana: ${item.nama_pelaksana}</small>`;
+            container.appendChild(div);
+        });
     }
 
-    data.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.onclick = () => showDetail(item);
-      div.innerHTML = `
-        <strong>${item.nomor_mesin}</strong> <span class="badge">${item.tanggal}</span><br>
-        <small>Oleh: ${item.nama_pelaksana} | Kondisi: <b>${item.kondisi_umum}</b></small>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  // -- 2. TAMPILKAN RINGKASAN DATA --
-  function showDetail(item) {
-    selectedId = item.id;
-    document.getElementById("list-section").style.display = "none";
-    document.getElementById("detail-section").style.display = "block";
-    
-    document.getElementById("data-summary").innerHTML = `
-      <b>RINGKASAN CHECKLIST:</b><br>
-      Mesin: ${item.nomor_mesin}<br>
-      Pelaksana: ${item.nama_pelaksana}<br>
-      Kondisi: ${item.kondisi_umum}<br>
-      Catatan: ${item.keterangan_ng || '-'}<br>
-      <hr>
-      <i>Sesuai deskripsi sistem, tugas Anda adalah memverifikasi data di atas dan memberikan paraf persetujuan.</i>
-    `;
-    initCanvas();
-  }
-
-  // -- LOGIKA TANDA TANGAN --
-  const cvs = document.getElementById("canvas");
-  const ctx = cvs.getContext("2d");
-  let drawing = false;
-
-  function initCanvas() {
-    const r = cvs.getBoundingClientRect();
-    cvs.width = r.width; cvs.height = r.height;
-    ctx.lineWidth = 3; ctx.lineCap = "round";
-  }
-
-  cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
-  cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
-  cvs.addEventListener("touchend", () => drawing = false);
-
-  function getXY(e) {
-    const r = cvs.getBoundingClientRect();
-    const t = e.touches[0];
-    return { x: t.clientX - r.left, y: t.clientY - r.top };
-  }
-
-  // -- 3. UPDATE DATA: TAMBAH PARAF KOORDINATOR & UBAH STATUS --
-  async function submitVerify() {
-    const nama = document.getElementById("nama_koordinator").value;
-    const img = cvs.toDataURL();
-    
-    if(!nama || img.length < 2000) return alert("Nama dan Paraf wajib diisi!");
-
-    const { error } = await sb.from('pelaksana_b')
-      .update({ 
-        nama_koordinator: nama, 
-        paraf_koordinator: img, 
-        status_koordinator: 'DONE', // Pengecekan koordinator selesai
-        status_final: 'Waiting'      // Naik ke Superintendent
-      })
-      .eq('id', selectedId);
-
-    if(error) alert("Gagal verifikasi: " + error.message);
-    else {
-      alert("✅ Verifikasi Berhasil! Menunggu Approval Superintendent.");
-      location.reload();
+    function showDetail(item) {
+        selectedId = item.id;
+        document.getElementById("list-section").style.display = "none";
+        document.getElementById("detail-section").style.display = "block";
+        document.getElementById("data-summary").innerHTML = `<b>UNIT:</b> ${item.nomor_mesin}<br><b>PELAKSANA:</b> ${item.nama_pelaksana}<br><b>HASIL:</b> ${item.kondisi_umum}<br><b>CATATAN:</b> ${item.keterangan_ng || '-'}`;
+        initCanvas();
     }
-  }
 
-  window.onload = loadQueue;
+    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; }
+    cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+    cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
+    cvs.addEventListener("touchend", () => drawing = false);
+    function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
+
+    async function submitVerify() {
+        const nama = document.getElementById("nama_koordinator").value;
+        const img = cvs.toDataURL();
+        if(!nama || img.length < 2000) return alert("Nama dan Paraf wajib diisi!");
+        const { error } = await sb.from('pelaksana_b').update({ nama_koordinator: nama, paraf_koordinator: img, status_koordinator: 'DONE', status_final: 'Waiting' }).eq('id', selectedId);
+        if(!error) { alert("Berhasil Diverifikasi!"); location.reload(); }
+    }
+    window.onload = loadQueue;
 </script>
 </body>
 </html>
