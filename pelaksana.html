@@ -16,8 +16,8 @@
     
     /* Section Scanner */
     #scanner-section { padding: 20px; text-align: center; }
-    #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; }
-    .scan-guide { margin-top: 15px; font-size: 14px; color: #666; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #fff; }
+    #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 15px; }
+    .scan-guide { font-size: 14px; color: #666; border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #fff; line-height: 1.4; }
 
     /* Form Checklist (Hidden by default) */
     #main-content { display: none; }
@@ -60,7 +60,7 @@
     <h3>🔍 SCAN QR CODE MESIN</h3>
     <div id="reader"></div>
     <div class="scan-guide" id="scan-status">
-      Silakan arahkan kamera ke QR Code yang tertempel di mesin untuk membuka form.
+      Posisikan QR Code (MESIN 1 - 30) di dalam kotak scanner untuk memverifikasi lokasi Anda.
     </div>
   </div>
 
@@ -74,7 +74,7 @@
       <div class="step active">
         <h3>STEP 0: INFO MESIN</h3>
         <div class="machine-info-badge">
-          <span style="font-size: 11px; color: #666;">Mesin Terdeteksi:</span><br>
+          <span style="font-size: 11px; color: #666;">Unit Terdeteksi:</span><br>
           <b style="font-size: 18px; color: var(--primary);" id="display_mesin">-</b>
         </div>
         <label><b>Nama Mekanik Pelaksana:</b></label>
@@ -162,7 +162,6 @@
 </div>
 
 <script>
-  // --- KONFIGURASI SUPABASE ---
   const _URL = "https://duljhawudstjxibhuenv.supabase.co";
   const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
   const sb = supabase.createClient(_URL, _KEY);
@@ -175,56 +174,49 @@
   const ctx = cvs.getContext("2d");
   let drawing = false;
 
-  // --- LOGIKA SCANNER ---
   function startScanner() {
     html5QrCode = new Html5Qrcode("reader");
     const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-    
     html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
   }
 
   async function onScanSuccess(decodedText) {
     const statusTxt = document.getElementById("scan-status");
-    statusTxt.innerHTML = "⏳ Memvalidasi kode mesin: " + decodedText;
+    const cleanID = decodedText.toUpperCase().trim(); // SINKRONISASI FORMAT
+    
+    statusTxt.innerHTML = "⏳ Validasi Database: " + cleanID;
 
     try {
-      // Validasi ke tabel db_mesin
       const { data, error } = await sb.from('db_mesin')
         .select('*')
-        .eq('id_mesin', decodedText)
+        .eq('id_mesin', cleanID)
         .eq('status_aktif', true)
         .single();
 
       if (error || !data) {
-        statusTxt.innerHTML = "❌ Kode Mesin Salah atau Tidak Aktif!";
+        statusTxt.innerHTML = "❌ KODE TIDAK TERDAFTAR!<br>Gunakan QR MESIN 1 - 30";
         statusTxt.style.color = "red";
         return;
       }
 
-      // Jika Valid: Buka Form
-      statusTxt.innerHTML = "✅ Berhasil! Membuka form...";
+      statusTxt.innerHTML = "✅ Validasi Berhasil!";
       html5QrCode.stop();
       
       document.getElementById("scanner-section").style.display = "none";
       document.getElementById("main-content").style.display = "block";
-      
-      // Set ID Mesin ke Form
       document.getElementById("nomor_mesin_hidden").value = data.id_mesin;
       document.getElementById("display_mesin").innerText = data.id_mesin + " (" + data.nama_mesin + ")";
-      
       show();
     } catch (err) {
-      alert("Error Validasi: " + err.message);
+      alert("Error: " + err.message);
     }
   }
 
-  // --- NAVIGASI FORM ---
   function nav(n) {
     if (n === 1) {
       const inputs = steps[step].querySelectorAll("select[required], input[required]");
-      for (let i of inputs) if (!i.value) return alert("Lengkapi data!");
+      for (let i of inputs) if (!i.value) return alert("Mohon lengkapi data!");
     }
-    
     step += n;
     if (step >= steps.length) return submit();
     show();
@@ -235,11 +227,8 @@
     fill.style.width = ((step + 1) / steps.length) * 100 + "%";
     document.getElementById("bBack").style.visibility = step === 0 ? "hidden" : "visible";
     document.getElementById("bNext").innerText = step === steps.length - 1 ? "SIMPAN" : "LANJUT";
-    
-    if (step === steps.length - 1) {
-      setTimeout(initCanvas, 300);
-      document.getElementById("tgl_hidden").value = new Date().toISOString().split('T')[0];
-    }
+    if (step === steps.length - 1) setTimeout(initCanvas, 300);
+    document.getElementById("tgl_hidden").value = new Date().toISOString().split('T')[0];
   }
 
   function hNG(s) {
@@ -247,7 +236,6 @@
     if(area) area.style.display = s.value === "NG" ? "block" : "none";
   }
 
-  // --- LOGIKA TANDA TANGAN ---
   function initCanvas() {
     const r = cvs.getBoundingClientRect();
     cvs.width = r.width; cvs.height = r.height;
@@ -268,17 +256,13 @@
 
   function clr() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
 
-  // --- SIMPAN DATA ---
   async function submit() {
     const img = cvs.toDataURL();
-    if (img.length < 2000) return alert("Tanda tangan kosong!");
-
+    if (img.length < 2000) return alert("Tanda tangan wajib diisi!");
     const btn = document.getElementById("bNext");
     btn.disabled = true; btn.innerText = "⏳ Menyimpan...";
-
     const fd = Object.fromEntries(new FormData(document.getElementById("checklistForm")));
     fd.paraf_pelaksana = img;
-
     try {
       const { error } = await sb.from("pelaksana_a").insert([fd]);
       if (error) throw error;
@@ -290,7 +274,6 @@
     }
   }
 
-  // Jalankan scanner saat halaman dibuka
   window.onload = startScanner;
 </script>
 </body>
