@@ -1,30 +1,29 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>CHSLR - Main Menu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; padding: 20px; margin: 0; }
-    h1 { text-align: center; color: #003366; margin-bottom: 30px; font-size: 24px; }
-    .menu { max-width: 420px; margin: auto; }
-    a { display: block; background: #003366; color: #fff; text-decoration: none; padding: 16px; margin: 12px 0; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    a:hover { background: #0055aa; transform: translateY(-2px); }
-    .btn-result { background: #28a745; }
-    /* DETAIL: Tombol kembali keluar folder */
-    .btn-back { background: #4b5563; margin-top: 30px; border: 1px dashed rgba(255,255,255,0.5); }
-    .footer { text-align: center; font-size: 12px; color: #888; margin-top: 25px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gateway System - PT AKG</title>
+    <style>
+        :root { --primary-clhmi: #003366; --primary-chslr: #d32f2f; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .container { text-align: center; background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
+        h1 { color: #333; margin-bottom: 5px; font-size: 22px; }
+        .button-group { display: flex; flex-direction: column; gap: 15px; margin-top: 25px; }
+        .btn { padding: 18px; border-radius: 12px; text-decoration: none; font-weight: bold; color: white; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-chslr { background-color: var(--primary-chslr); }
+        .btn-clhmi { background-color: var(--primary-clhmi); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); opacity: 0.9; }
+    </style>
 </head>
 <body>
-<h1>CHSLR SYSTEM</h1>
-<div class="menu">
-  <a href="pelaksana.html">👷 Pelaksana / User</a>
-  <a href="koordinator.html">🧑‍💼 Koordinator / Pengecek</a>
-  <a href="superintendent.html">👔 Mechanic Superintendent</a>
-  <a href="result.html" class="btn-result">📊 Result Data (History)</a>
-  <a href="../center.html" class="btn-back">⬅️ KEMBALI KE PUSAT</a>
+<div class="container">
+    <h1>GATEWAY SYSTEM</h1>
+    <p style="font-size: 14px; color: #777;">Maintenance Digitalization - PT AKG</p>
+    <div class="button-group">
+        <a href="CHSLR/chslr.html" class="btn btn-chslr">⚙️ CHSLR SYSTEM</a>
+        <a href="CLHMI/clhmi.html" class="btn btn-clhmi">🏗️ CLHMI SYSTEM</a>
+    </div>
 </div>
-<div class="footer">&copy; 2025 PT. AKG - CHSLR Management</div>
 </body>
 </html>
