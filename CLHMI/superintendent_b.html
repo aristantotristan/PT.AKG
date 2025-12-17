@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superintendent - CLHMI</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --primary: #6f42c1; --dark: #003366; --bg: #f4f7f6; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
+    .header { background: var(--primary); color: white; padding: 20px; text-align: center; font-weight: bold; }
+    
+    .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; transition: 0.2s; border-left: 5px solid #ddd; }
+    .list-item:hover { background: #f3effb; border-left-color: var(--primary); }
+    .badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #e0e0e0; float: right; }
+    
+    #detail-section { display: none; padding: 20px; }
+    .approval-box { background: #fdfdfe; border: 1px dashed #6f42c1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; margin-top: 10px; }
+    
+    .canvas-wrapper { border: 2px solid #6f42c1; border-radius: 8px; background: #fff; touch-action: none; margin-top: 10px; }
+    canvas { width: 100%; height: 180px; display: block; }
+    
+    .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn-approve { background: var(--primary); color: white; }
+    .btn-back { background: #666; color: white; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">FINAL APPROVAL SUPERINTENDENT</div>
+
+  <div id="list-section">
+    <div style="padding: 15px; font-weight: bold; border-bottom: 2px solid var(--primary);">
+      Menunggu Approval Final:
+    </div>
+    <div id="loading" style="padding:20px; text-align:center;">Memeriksa berkas masuk...</div>
+    <div id="queue-container"></div>
+  </div>
+
+  <div id="detail-section">
+    <div class="approval-box">
+      <h4 style="margin-top:0; color:var(--primary)">Lembar Verifikasi Berjenjang</h4>
+      <div id="data-summary"></div>
+      
+      <div class="summary-grid">
+        <div style="border-right: 1px solid #eee">
+          <small>Diparaf Pelaksana:</small><br>
+          <strong id="p_nama">-</strong>
+        </div>
+        <div>
+          <small>Dicek Koordinator:</small><br>
+          <strong id="k_nama">-</strong>
+        </div>
+      </div>
+    </div>
+    
+    <label><b>Nama Superintendent:</b></label>
+    <input type="text" id="nama_superintendent" placeholder="Ketik Nama Lengkap">
+    
+    <label><b>Paraf Approval Final:</b></label>
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+    <button class="btn btn-approve" onclick="submitFinal()">APPROVE & SELESAI (DONE)</button>
+    <button class="btn btn-back" onclick="location.reload()">KEMBALI</button>
+  </div>
+</div>
+
+<script>
+  const _URL = "https://duljhawudstjxibhuenv.supabase.co";
+  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+  const sb = supabase.createClient(_URL, _KEY);
+
+  let selectedId = null;
+
+  // -- 1. AMBIL DATA YANG SUDAH DICEF KOORDINATOR --
+  async function loadQueue() {
+    const { data, error } = await sb.from('pelaksana_b')
+      .select('*')
+      .eq('status_koordinator', 'DONE')
+      .eq('status_final', 'Waiting')
+      .order('id', { ascending: false });
+
+    document.getElementById("loading").style.display = "none";
+    const container = document.getElementById("queue-container");
+    
+    if (data.length === 0) {
+      container.innerHTML = "<p style='padding:20px; text-align:center; color:#999'>Belum ada laporan yang diverifikasi koordinator.</p>";
+      return;
+    }
+
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.onclick = () => showDetail(item);
+      div.innerHTML = `
+        <span class="badge">Siap Approval</span>
+        <strong>${item.nomor_mesin}</strong><br>
+        <small>Mekanik: ${item.nama_pelaksana} | Pengecek: ${item.nama_koordinator}</small>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // -- 2. TAMPILKAN DETAIL UNTUK APPROVAL --
+  function showDetail(item) {
+    selectedId = item.id;
+    document.getElementById("list-section").style.display = "none";
+    document.getElementById("detail-section").style.display = "block";
+    
+    document.getElementById("data-summary").innerHTML = `
+      <b>Unit:</b> ${item.nomor_mesin}<br>
+      <b>Tanggal:</b> ${item.tanggal}<br>
+      <b>Hasil Checklist:</b> ${item.kondisi_umum} ${item.keterangan_ng ? '('+item.keterangan_ng+')' : ''}
+    `;
+    document.getElementById("p_nama").innerText = item.nama_pelaksana;
+    document.getElementById("k_nama").innerText = item.nama_koordinator;
+    
+    initCanvas();
+  }
+
+  // -- LOGIKA TANDA TANGAN --
+  const cvs = document.getElementById("canvas");
+  const ctx = cvs.getContext("2d");
+  let drawing = false;
+
+  function initCanvas() {
+    const r = cvs.getBoundingClientRect();
+    cvs.width = r.width; cvs.height = r.height;
+    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#6f42c1";
+  }
+
+  cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+  cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
+  cvs.addEventListener("touchend", () => drawing = false);
+
+  function getXY(e) {
+    const r = cvs.getBoundingClientRect();
+    const t = e.touches[0];
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+
+  // -- 3. FINAL UPDATE: LOCK STATUS TO DONE --
+  async function submitFinal() {
+    const nama = document.getElementById("nama_superintendent").value;
+    const img = cvs.toDataURL();
+    
+    if(!nama || img.length < 2000) return alert("Mohon berikan nama dan paraf approval!");
+
+    const { error } = await sb.from('pelaksana_b')
+      .update({ 
+        nama_superintendent: nama, 
+        paraf_superintendent: img, 
+        status_final: 'DONE' // STATUS AKHIR: TERKUNCI
+      })
+      .eq('id', selectedId);
+
+    if(error) alert("Gagal Approval: " + error.message);
+    else {
+      alert("✅ CHECKLIST SELESAI & TERKUNCI (DONE)");
+      location.reload();
+    }
+  }
+
+  window.onload = loadQueue;
+</script>
+</body>
+</html>
