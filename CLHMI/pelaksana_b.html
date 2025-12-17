@@ -1,181 +1,109 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pelaksana - CLHMI</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <style>
-    :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-    .card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; max-width: 600px; margin: auto; }
-    .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; }
-    
-    /* Login & Scanner Section */
-    #auth-section, #scanner-section { padding: 20px; text-align: center; }
-    #reader { width: 100%; border-radius: 8px; background: #000; }
-    
-    /* Form Section */
-    #form-section { display: none; padding: 20px; }
-    .info-box { background: #eef2f7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px; }
-    
-    input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
-    
-    .canvas-wrapper { border: 2px solid #ddd; border-radius: 8px; background: #fafafa; touch-action: none; }
-    canvas { width: 100%; height: 200px; display: block; }
-    
-    .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-clear { background: #fee2e2; color: #dc2626; font-size: 12px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pelaksana - CLHMI 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; max-width: 600px; margin: auto; }
+        .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; }
+        #auth-section, #scanner-section { padding: 20px; text-align: center; }
+        #reader { width: 100%; border-radius: 8px; background: #000; }
+        #form-section { display: none; padding: 20px; }
+        .info-box { background: #eef2f7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px; word-break: break-word; line-height: 1.4; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        .canvas-wrapper { border: 2px solid #ddd; border-radius: 8px; background: #fafafa; touch-action: none; }
+        canvas { width: 100%; height: 200px; display: block; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+    </style>
 </head>
 <body>
-
 <div class="card">
-  <div class="header">CLHMI - INPUT PELAKSANA</div>
-
-  <div id="auth-section">
-    <h3>Identitas Pelaksana</h3>
-    <input type="text" id="nama_pelaksana" placeholder="Masukkan Nama Anda" required>
-    <button class="btn btn-primary" onclick="startScan()">LANJUT SCAN MESIN</button>
-  </div>
-
-  <div id="scanner-section" style="display:none">
-    <h3>🔍 SCAN QR CODE MESIN</h3>
-    <div id="reader"></div>
-    <p id="scan-status">Arahkan kamera ke QR Code di Mesin Injection</p>
-  </div>
-
-  <div id="form-section">
-    <div class="info-box">
-      <strong>Unit Mesin:</strong> <span id="display_mesin">-</span><br>
-      <strong>Pelaksana:</strong> <span id="display_nama">-</span>
+    <div class="header">CLHMI - INPUT PELAKSANA</div>
+    <div id="auth-section">
+        <h3>Identitas Pelaksana</h3>
+        <input type="text" id="nama_pelaksana" placeholder="Masukkan Nama Lengkap" required>
+        <button class="btn btn-primary" onclick="startScan()">LANJUT SCAN MESIN</button>
     </div>
-
-    <form id="clForm">
-      <table>
-        <tr><th>Item Pengecekan</th><th>Status</th></tr>
-        <tr>
-          <td>Kebersihan Area Mesin<br><small>Std: Bersih & rapi</small></td>
-          <td><select name="item_1" required><option value="OK">OK</option><option value="NG">NG</option></select></td>
-        </tr>
-        <tr>
-          <td>Level Oli Hidrolik<br><small>Std: Di atas batas minimal</small></td>
-          <td><select name="item_2" required><option value="OK">OK</option><option value="NG">NG</option></select></td>
-        </tr>
-      </table>
-
-      <label>Catatan / Keterangan (Jika NG):</label>
-      <textarea name="catatan" placeholder="Tulis kendala jika ada..."></textarea>
-
-      <label><b>Paraf Digital Pelaksana:</b></label>
-      <div class="canvas-wrapper">
-        <canvas id="canvas"></canvas>
-      </div>
-      <button type="button" class="btn btn-clear" onclick="clr()">HAPUS PARAF</button>
-
-      <button type="submit" class="btn btn-primary" style="margin-top:20px">SIMPAN & KIRIM</button>
-    </form>
-  </div>
+    <div id="scanner-section" style="display:none">
+        <h3>🔍 SCAN QR CODE MESIN</h3>
+        <div id="reader"></div>
+        <p id="scan-status" style="font-size: 13px;">Arahkan kamera ke QR Code Mesin (Plain Text)</p>
+    </div>
+    <div id="form-section">
+        <div class="info-box">
+            <strong>Unit Mesin:</strong> <br><span id="display_mesin" style="font-weight: bold; color: #003366;">-</span><br>
+            <strong>Pelaksana:</strong> <span id="display_nama">-</span>
+        </div>
+        <form id="clForm">
+            <table>
+                <tr><th>Item Pengecekan</th><th>Status</th></tr>
+                <tr><td>Kebersihan Area Mesin & Robot</td><td><select name="item_1" required><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Fungsi Emergency Stop</td><td><select name="item_2" required><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+            </table>
+            <textarea name="catatan" placeholder="Tulis catatan jika status NG..."></textarea>
+            <label><b>Paraf Digital:</b></label>
+            <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
+            <button type="submit" class="btn btn-primary">SIMPAN & KIRIM KE KOORDINATOR</button>
+        </form>
+    </div>
 </div>
 
 <script>
-  const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-  const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-  const sb = supabase.createClient(_URL, _KEY);
+    const _URL = "https://duljhawudstjxibhuenv.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+    const sb = supabase.createClient(_URL, _KEY);
+    let html5QrCode, currentMachine = "", drawing = false;
+    const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
-  let html5QrCode;
-  let currentMachine = "";
-
-  // -- ALUR 1: Validasi Nama Pelaksana --
-  function startScan() {
-    const nama = document.getElementById("nama_pelaksana").value;
-    if(!nama) return alert("Isi nama dulu!");
-    
-    document.getElementById("auth-section").style.display = "none";
-    document.getElementById("scanner-section").style.display = "block";
-    
-    html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
-  }
-
-  // -- ALUR 2: Scan & Validasi Nama Mesin Asli --
-  async function onScanSuccess(decodedText) {
-    const status = document.getElementById("scan-status");
-    status.innerHTML = "⌛ Mencari Mesin: " + decodedText;
-
-    const { data, error } = await sb.from('db_mesin_b')
-      .select('*')
-      .eq('id_mesin', decodedText)
-      .eq('status_aktif', true)
-      .single();
-
-    if (error || !data) {
-      status.innerHTML = "❌ MESIN TIDAK TERDAFTAR!";
-      status.style.color = "red";
-      return;
+    function startScan() {
+        if(!document.getElementById("nama_pelaksana").value) return alert("Isi nama dulu!");
+        document.getElementById("auth-section").style.display = "none";
+        document.getElementById("scanner-section").style.display = "block";
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
     }
 
-    // Berhasil Validasi
-    currentMachine = data.id_mesin;
-    html5QrCode.stop();
-    
-    document.getElementById("scanner-section").style.display = "none";
-    document.getElementById("form-section").style.display = "block";
-    document.getElementById("display_mesin").innerText = currentMachine;
-    document.getElementById("display_nama").innerText = document.getElementById("nama_pelaksana").value;
-    
-    initCanvas();
-  }
+    async function onScanSuccess(decodedText) {
+        const cleanID = decodedText.trim();
+        const { data, error } = await sb.from('db_mesin_b').select('*').eq('id_mesin', cleanID).single();
+        if (error || !data) return alert("Mesin Tidak Terdaftar!");
+        currentMachine = data.id_mesin;
+        html5QrCode.stop();
+        document.getElementById("scanner-section").style.display = "none";
+        document.getElementById("form-section").style.display = "block";
+        document.getElementById("display_mesin").innerText = currentMachine;
+        document.getElementById("display_nama").innerText = document.getElementById("nama_pelaksana").value;
+        initCanvas();
+    }
 
-  // -- LOGIKA TANDA TANGAN --
-  const cvs = document.getElementById("canvas");
-  const ctx = cvs.getContext("2d");
-  let drawing = false;
+    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; }
+    cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+    cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
+    cvs.addEventListener("touchend", () => drawing = false);
+    function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
 
-  function initCanvas() {
-    const r = cvs.getBoundingClientRect();
-    cvs.width = r.width; cvs.height = r.height;
-    ctx.lineWidth = 3; ctx.lineCap = "round";
-  }
-
-  cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
-  cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
-  cvs.addEventListener("touchend", () => drawing = false);
-
-  function getXY(e) {
-    const r = cvs.getBoundingClientRect();
-    const t = e.touches[0];
-    return { x: t.clientX - r.left, y: t.clientY - r.top };
-  }
-  function clr() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
-
-  // -- ALUR 3: Simpan ke pelaksana_b --
-  document.getElementById("clForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const img = cvs.toDataURL();
-    if (img.length < 2000) return alert("Paraf wajib diisi!");
-
-    const fd = new FormData(e.target);
-    const payload = {
-      nomor_mesin: currentMachine,
-      nama_pelaksana: document.getElementById("nama_pelaksana").value,
-      kondisi_umum: fd.get("item_1"),
-      keterangan_ng: fd.get("catatan"),
-      paraf_pelaksana: img,
-      status_koordinator: 'Waiting'
+    document.getElementById("clForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const img = cvs.toDataURL();
+        if (img.length < 2000) return alert("Paraf wajib diisi!");
+        const { error } = await sb.from('pelaksana_b').insert([{
+            nomor_mesin: currentMachine,
+            nama_pelaksana: document.getElementById("nama_pelaksana").value,
+            kondisi_umum: new FormData(e.target).get("item_1"),
+            keterangan_ng: new FormData(e.target).get("catatan"),
+            paraf_pelaksana: img,
+            status_koordinator: 'Waiting'
+        }]);
+        if(!error) { alert("Berhasil Terkirim!"); location.reload(); }
     };
-
-    const { error } = await sb.from('pelaksana_b').insert([payload]);
-    if(error) alert("Gagal: " + error.message);
-    else {
-      alert("✅ Data Berhasil Terkirim ke Koordinator!");
-      location.reload();
-    }
-  };
 </script>
 </body>
 </html>
