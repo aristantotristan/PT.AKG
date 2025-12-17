@@ -5,25 +5,25 @@
   <title>CLHMI - Main Menu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
     .container { max-width: 450px; margin: auto; text-align: center; }
-    h1 { color: #003366; margin-bottom: 5px; }
-    p { color: #666; margin-bottom: 30px; font-size: 14px; }
-    .menu-btn { display: block; padding: 18px; margin: 15px 0; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { color: #003366; margin: 0; font-size: 24px; }
+    .desc { color: #666; margin-bottom: 30px; font-size: 13px; }
+    .menu-btn { display: block; padding: 18px; margin: 15px 0; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 15px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
     .pelaksana { background: #003366; color: white; }
     .koordinator { background: #ffcc00; color: #003366; }
     .superintendent { background: #6f42c1; color: white; }
-    .result { background: #28a745; color: white; margin-top: 30px; }
-    /* Tombol Kembali menggunakan ../ untuk keluar folder */
+    .result { background: #28a745; color: white; margin-top: 25px; }
+    /* DETAIL: Tombol kembali keluar folder */
     .btn-back { background: #4b5563; color: white; }
-    .menu-btn:hover { transform: translateY(-3px); opacity: 0.9; }
-    .footer { margin-top: 40px; font-size: 12px; color: #999; }
+    .menu-btn:hover { transform: translateY(-3px); opacity: 0.95; box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
+    .footer { margin-top: 40px; font-size: 11px; color: #999; line-height: 1.6; }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>CLHMI SYSTEM</h1>
-  <p>Checklist Harian Mesin Injection</p>
+  <div class="desc">Checklist Harian Mesin Injection (27 Unit)</div>
   <div class="menu">
     <a href="pelaksana_b.html" class="menu-btn pelaksana">👷 PELAKSANA (Mekanik/Operator)</a>
     <a href="koordinator_b.html" class="menu-btn koordinator">🧑‍💼 KOORDINATOR (Pengecek)</a>
@@ -31,7 +31,10 @@
     <a href="result_b.html" class="menu-btn result">📊 RESULT DATA (History)</a>
     <a href="../center.html" class="menu-btn btn-back">⬅️ KEMBALI KE PUSAT</a>
   </div>
-  <div class="footer">&copy; 2025 CLHMI Management System</div>
+  <div class="footer">
+    &copy; 2025 PT. AKG - CLHMI System<br>
+    Validated for Superhero Machine Series
+  </div>
 </div>
 </body>
 </html>
