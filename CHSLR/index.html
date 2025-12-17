@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f2f2f2; padding: 20px; margin: 0; }
-    h1 { text-align: center; color: #003366; margin-bottom: 30px; }
+    h1 { text-align: center; color: #003366; margin-bottom: 5px; }
+    .sub-title { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
     .menu { max-width: 420px; margin: auto; }
     
     a { 
@@ -25,17 +26,18 @@
     }
     
     a:hover { background: #0055aa; transform: translateY(-2px); }
+    
+    /* Warna khusus untuk Result */
     .btn-result { background: #28a745; }
     .btn-result:hover { background: #218838; }
-
-    /* Tombol Kembali ke Center */
-    .btn-center { 
-      background: #666; 
+    
+    /* Tombol Kembali ke Menu Utama */
+    .btn-back { 
+      background: #4b5563; 
       margin-top: 30px; 
-      font-size: 14px; 
       border: 1px dashed #fff;
     }
-    .btn-center:hover { background: #444; }
+    .btn-back:hover { background: #374151; }
     
     .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
   </style>
@@ -43,6 +45,7 @@
 <body>
 
 <h1>CHSLR SYSTEM</h1>
+<div class="sub-title">Preventive Maintenance Management</div>
 
 <div class="menu">
   <a href="pelaksana.html">👷 Pelaksana / User</a>
@@ -50,7 +53,7 @@
   <a href="superintendent.html">👔 Mechanic Superintendent</a>
   <a href="result.html" class="btn-result">📊 Result Data (History)</a>
   
-  <a href="center.html" class="btn-center">⬅️ Kembali ke Menu Pusat</a>
+  <a href="center.html" class="btn-back">⬅️ KEMBALI KE PUSAT (CENTER)</a>
 </div>
 
 <div class="footer">
