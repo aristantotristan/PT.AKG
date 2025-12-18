@@ -1,12 +1,10 @@
 // post.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-// Supabase initialization
 const supabaseUrl = 'https://duljhawudstjxibhuenv.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-// Function to populate active machines in dropdown
+// Populate machine dropdown — ONLY active machines from db_mesin_b
 async function populateMachines() {
   const { data, error } = await supabase
     .from('db_mesin_b')
@@ -20,140 +18,132 @@ async function populateMachines() {
   }
 
   const select = document.getElementById('machine-select');
-  select.innerHTML = '<option value="">Pilih Mesin</option>'; // Reset
-  data.forEach(machine => {
-    const option = document.createElement('option');
-    option.value = machine.id_mesin;
-    option.textContent = machine.id_mesin;
-    select.appendChild(option);
+  select.innerHTML = '<option value="">Pilih Mesin</option>';
+  data.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id_mesin;
+    opt.textContent = m.id_mesin;
+    select.appendChild(opt);
   });
 }
 
-// Function to populate months (last 12 months including current)
+// Populate month dropdown
 function populateMonths() {
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const select = document.getElementById('month-select');
-  select.innerHTML = '<option value="">Pilih Bulan</option>'; // Reset
-  const currentDate = new Date();
-  for (let i = 0; i < 12; i++) {
-    const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-    const monthValue = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`;
-    const monthLabel = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-    const option = document.createElement('option');
-    option.value = monthValue;
-    option.textContent = monthLabel;
-    select.appendChild(option);
+  const current = new Date().getMonth() + 1;
+  select.innerHTML = '<option value="">Pilih Bulan</option>';
+  months.forEach((name, i) => {
+    const opt = document.createElement('option');
+    opt.value = i + 1;
+    opt.textContent = name;
+    if (i + 1 === current) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+// Populate year dropdown (±3 years)
+function populateYears() {
+  const current = new Date().getFullYear();
+  const select = document.getElementById('year-select');
+  select.innerHTML = '';
+  for (let y = current - 3; y <= current + 3; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === current) opt.selected = true;
+    select.appendChild(opt);
   }
 }
 
-// Function to clear all day cells
+// Clear all day cells
 function clearDayCells() {
-  const cells = document.querySelectorAll('.day-cell');
-  cells.forEach(cell => {
-    cell.textContent = '';
-  });
+  document.querySelectorAll('.day-cell').forEach(c => c.textContent = '');
 }
 
-// Function to clear signatures
+// Clear signatures
 function clearSignatures() {
-  const pelaksanaName = document.querySelector('.sig-pelaksana');
-  const koordinatorName = document.querySelector('.sig-koordinator');
-  const superintendentName = document.querySelector('.sig-superintendent');
-
-  if (pelaksanaName) pelaksanaName.textContent = 'Nama : ________________________';
-  if (koordinatorName) koordinatorName.textContent = 'Nama : ________________________';
-  if (superintendentName) superintendentName.textContent = 'Nama : ________________________';
+  document.getElementById('sig-pelaksana').textContent = '';
+  document.getElementById('sig-koordinator').textContent = '';
+  document.getElementById('sig-superintendent').textContent = '';
 }
 
-// Function to fetch and display data
-async function tampilkanData() {
-  const machineSelect = document.getElementById('machine-select');
-  const monthSelect = document.getElementById('month-select');
+// Main data loader
+async function loadData() {
+  const machine = document.getElementById('machine-select').value;
+  const month = document.getElementById('month-select').value;
+  const year = document.getElementById('year-select').value;
 
-  const selectedMachine = machineSelect.value;
-  const selectedMonth = monthSelect.value;
-
-  if (!selectedMachine || !selectedMonth) {
-    console.warn('Pilih mesin dan bulan terlebih dahulu.');
+  if (!machine || !month || !year) {
+    clearDayCells();
+    clearSignatures();
+    document.getElementById('status-message').textContent = '';
     return;
   }
 
-  // Clear previous data
   clearDayCells();
   clearSignatures();
 
-  const [year, month] = selectedMonth.split('-');
-  const startDate = `${year}-${month}-01`;
-  const endDate = new Date(year, month, 0).toISOString().slice(0, 10); // Last day of month
+  const monthStr = String(month).padStart(2, '0');
+  const start = `${year}-${monthStr}-01`;
+  const end   = `${year}-${monthStr}-31`;
 
   const { data: records, error } = await supabase
     .from('pelaksana_b')
     .select('*')
-    .eq('nomor_mesin', selectedMachine)
-    .gte('tanggal', startDate)
-    .lte('tanggal', endDate)
+    .eq('nomor_mesin', machine)
+    .gte('tanggal', start)
+    .lte('tanggal', end)
     .order('tanggal', { ascending: true });
 
   if (error) {
-    console.error('Error fetching data:', error);
+    console.error('Supabase error:', error);
+    document.getElementById('status-message').textContent = 'Gagal mengambil data';
     return;
   }
 
   if (!records || records.length === 0) {
-    console.warn('No data found for the selected machine and month.');
+    document.getElementById('status-message').textContent = 'Tidak ada data untuk mesin dan periode ini';
     return;
   }
 
-  // Map symbols to all rows for each day
-  records.forEach(record => {
-    const day = new Date(record.tanggal).getDate();
-    let symbol = '';
-    switch (record.kondisi_umum) {
-      case 'OK':
-        symbol = '√';
-        break;
-      case 'NG':
-        symbol = 'x';
-        break;
-      case 'REPAIR':
-        symbol = 'o';
-        break;
-      default:
-        symbol = '';
-    }
+  document.getElementById('status-message').textContent = '';
 
-    // Inject into all rows' day cells
-    const dayCells = document.querySelectorAll(`.day-cell[data-day="${day}"]`);
-    dayCells.forEach(cell => {
-      cell.textContent = symbol;
+  // Render symbols
+  records.forEach(r => {
+    const day = new Date(r.tanggal).getDate();
+    let sym = '';
+    if (r.kondisi_umum === 'OK') sym = 'Check mark';
+    if (r.kondisi_umum === 'NG') sym = 'x';
+    if (r.kondisi_umum === 'REPAIR') sym = 'o';
+
+    document.querySelectorAll(`.day-cell[data-day="${day}"]`).forEach(c => {
+      c.textContent = sym;
     });
   });
 
-  // Use the latest record for signatures
-  const latestRecord = records[records.length - 1];
+  // Latest record for signatures
+  const latest = records[records.length - 1];
+  document.getElementById('sig-pelaksana').textContent = latest.nama_pelaksana || '';
 
-  const pelaksanaName = document.querySelector('.sig-pelaksana');
-  const koordinatorName = document.querySelector('.sig-koordinator');
-  const superintendentName = document.querySelector('.sig-superintendent');
-
-  if (pelaksanaName) {
-    pelaksanaName.textContent = `Nama : ${latestRecord.nama_pelaksana || '________________________'}`;
+  if (latest.status_koordinator === 'Verified') {
+    document.getElementById('sig-koordinator').textContent = latest.nama_koordinator || '';
   }
-
-  if (koordinatorName && latestRecord.status_koordinator === 'Verified') {
-    koordinatorName.textContent = `Nama : ${latestRecord.nama_koordinator || '________________________'}`;
-  }
-
-  if (superintendentName && latestRecord.status_final === 'Approved') {
-    superintendentName.textContent = `Nama : ${latestRecord.nama_superintendent || '________________________'}`;
+  if (latest.status_final === 'Approved') {
+    document.getElementById('sig-superintendent').textContent = latest.nama_superintendent || '';
   }
 }
 
-// Event listeners
+// Init
 document.addEventListener('DOMContentLoaded', () => {
   populateMachines();
   populateMonths();
-  const button = document.getElementById('btnTampilkan');
-  if (button) {
-    button.addEventListener('click', tampilkanData);
-  }
+  populateYears();
+
+  document.getElementById('machine-select').addEventListener('change', loadData);
+  document.getElementById('month-select').addEventListener('change', loadData);
+  document.getElementById('year-select').addEventListener('change', loadData);
+
+  // Auto-load on startup with defaults
+  setTimeout(loadData, 800);
 });
