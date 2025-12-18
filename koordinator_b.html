@@ -2,46 +2,78 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koordinator - CLHMI 2025</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Koordinator - Verifikasi Lapangan CLHMI</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #ffcc00; --dark: #003366; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; margin: 0; }
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
-        .header { background: var(--primary); color: var(--dark); padding: 20px; text-align: center; font-weight: bold; }
-        .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; transition: 0.2s; }
+        :root { --primary: #ffcc00; --dark: #003366; --bg: #f4f7f9; --danger: #d32f2f; --success: #2e7d32; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 10px; margin: 0; color: #333; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
+        .header { background: var(--dark); color: var(--primary); padding: 20px; text-align: center; font-weight: bold; border-bottom: 4px solid var(--primary); }
+        
+        /* List Section */
+        .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .list-item:hover { background: #fff9e6; }
-        .badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #e0e0e0; float: right; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        
+        /* Scanner Section */
+        #scanner-section { display: none; padding: 20px; text-align: center; }
+        #reader { width: 100%; border-radius: 12px; background: #000; }
+
+        /* Detail Section */
         #detail-section { display: none; padding: 20px; }
-        .summary-box { background: #f0f4f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; word-break: break-word; }
-        .canvas-wrapper { border: 2px solid #ccc; border-radius: 8px; background: #fff; touch-action: none; margin-top: 10px; }
-        canvas { width: 100%; height: 180px; display: block; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .summary-box { padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 6px solid #ccc; }
+        .status-ok { background: #e8f5e9; border-color: var(--success); color: var(--success); }
+        .status-ng { background: #ffebee; border-color: var(--danger); color: var(--danger); animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
+
+        .canvas-wrapper { border: 2px dashed #003366; border-radius: 8px; background: #fff; margin: 15px 0; }
+        canvas { width: 100%; height: 180px; touch-action: none; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
         .btn-verify { background: var(--dark); color: white; }
-        .btn-back { background: #666; color: white; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn-scan { background: var(--primary); color: var(--dark); }
+        .btn-back { background: #eceff1; color: #546e7a; }
+        
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        .label-text { font-weight: bold; font-size: 13px; color: #64748b; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header">VERIFIKASI KOORDINATOR</div>
+    <div class="header">📋 VERIFIKASI AKTIF KOORDINATOR</div>
 
     <div id="list-section">
-        <div style="padding: 15px; font-weight: bold; border-bottom: 2px solid var(--primary);">Menunggu Pengecekan:</div>
-        <div id="loading" style="padding:20px; text-align:center;">Memuat data antrian...</div>
+        <div style="padding: 15px; background: #eee; font-size: 12px; font-weight: bold;">ANTRIAN VALIDASI LAPANGAN:</div>
+        <div id="loading" style="padding:40px; text-align:center; color: #999;">Mengecek data antrian...</div>
         <div id="queue-container"></div>
     </div>
 
+    <div id="scanner-section">
+        <h3 id="scan-target-text" style="color: var(--dark);"></h3>
+        <p>Silakan scan QR Code pada mesin ini untuk membuka data verifikasi.</p>
+        <div id="reader"></div>
+        <button class="btn btn-back" onclick="location.reload()">BATAL</button>
+    </div>
+
     <div id="detail-section">
-        <div class="summary-box" id="data-summary"></div>
-        <label><b>Nama Koordinator:</b></label>
-        <input type="text" id="nama_koordinator" placeholder="Ketik Nama Anda">
-        <label><b>Paraf Verifikasi:</b></label>
-        <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
-        <button class="btn btn-verify" onclick="submitVerify()">VERIFIKASI & TERUSKAN</button>
-        <button class="btn btn-back" onclick="location.reload()">KEMBALI</button>
+        <div id="data-summary" class="summary-box">
+            </div>
+
+        <div style="padding-top: 10px;">
+            <span class="label-text">Nama Verifikator:</span>
+            <input type="text" id="nama_koordinator" placeholder="Nama Lengkap Koordinator">
+            
+            <span class="label-text">Paraf Konfirmasi Lapangan:</span>
+            <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
+            <button type="button" onclick="clearCanvas()" style="background:none; border:none; color:red; font-size:12px; cursor:pointer;">Hapus Paraf</button>
+            
+            <button class="btn btn-verify" onclick="submitVerify()">SAYA SUDAH CEK UNIT & VERIFIKASI</button>
+            <button class="btn btn-back" onclick="location.reload()">KEMBALI</button>
+        </div>
     </div>
 </div>
 
@@ -49,44 +81,101 @@
     const _URL = "https://duljhawudstjxibhuenv.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
-    let selectedId = null, drawing = false;
+    
+    let selectedItem = null, html5QrCode, drawing = false;
     const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
+    // Load Antrian
     async function loadQueue() {
         const { data, error } = await sb.from('pelaksana_b').select('*').eq('status_koordinator', 'Waiting').order('id', { ascending: false });
         document.getElementById("loading").style.display = "none";
         const container = document.getElementById("queue-container");
-        if (data.length === 0) { container.innerHTML = "<p style='padding:20px; color:#999'>Tidak ada antrian.</p>"; return; }
+        
+        if (data.length === 0) { container.innerHTML = "<p style='padding:40px; text-align:center; color:#999'>Tidak ada mesin yang menunggu verifikasi.</p>"; return; }
+        
         data.forEach(item => {
+            const isNG = item.kondisi_umum.includes("NG");
             const div = document.createElement("div");
             div.className = "list-item";
-            div.onclick = () => showDetail(item);
-            div.innerHTML = `<span class="badge">Baru</span><div style="word-break:break-word;"><strong>${item.nomor_mesin}</strong></div><small>Pelaksana: ${item.nama_pelaksana}</small>`;
+            div.onclick = () => startVerifyFlow(item);
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:bold; font-size:16px;">${item.nomor_mesin}</div>
+                    <small style="color:#666">Pelaksana: ${item.nama_pelaksana}</small>
+                </div>
+                <div style="text-align:right">
+                    <span style="font-size:10px; font-weight:bold; color:${isNG ? 'red' : 'green'}">${isNG ? '⚠️ TEMUAN NG' : '✅ NORMAL'}</span>
+                </div>
+            `;
             container.appendChild(div);
         });
     }
 
-    function showDetail(item) {
-        selectedId = item.id;
+    // Langkah 1: Scan QR di lokasi
+    function startVerifyFlow(item) {
+        selectedItem = item;
         document.getElementById("list-section").style.display = "none";
+        document.getElementById("scanner-section").style.display = "block";
+        document.getElementById("scan-target-text").innerText = "Scan Unit: " + item.nomor_mesin;
+        
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (decodedText) => {
+            if(decodedText.trim() === selectedItem.nomor_mesin) {
+                html5QrCode.stop();
+                showDetail();
+            } else {
+                alert("QR TIDAK COCOK! Anda harus melakukan verifikasi di unit mesin yang sesuai: " + selectedItem.nomor_mesin);
+            }
+        });
+    }
+
+    // Langkah 2: Tampilkan Ringkasan & Paraf
+    function showDetail() {
+        document.getElementById("scanner-section").style.display = "none";
         document.getElementById("detail-section").style.display = "block";
-        document.getElementById("data-summary").innerHTML = `<b>UNIT:</b> ${item.nomor_mesin}<br><b>PELAKSANA:</b> ${item.nama_pelaksana}<br><b>HASIL:</b> ${item.kondisi_umum}<br><b>CATATAN:</b> ${item.keterangan_ng || '-'}`;
+        
+        const isNG = selectedItem.kondisi_umum.includes("NG");
+        const summary = document.getElementById("data-summary");
+        summary.className = "summary-box " + (isNG ? "status-ng" : "status-ok");
+        
+        summary.innerHTML = `
+            <h3 style="margin-top:0">${isNG ? '⚠️ PERHATIAN: ADA TEMUAN NG' : '✅ UNIT NORMAL'}</h3>
+            <p><strong>MESIN:</strong> ${selectedItem.nomor_mesin}</p>
+            <p><strong>PELAKSANA:</strong> ${selectedItem.nama_pelaksana}</p>
+            <p><strong>DETAIL TEMUAN:</strong><br>${selectedItem.keterangan_ng || 'Tidak ada catatan khusus.'}</p>
+        `;
         initCanvas();
     }
 
-    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; }
+    // Canvas Logic
+    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#003366"; }
+    function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
     cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
     cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
     cvs.addEventListener("touchend", () => drawing = false);
     function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
 
+    // Langkah 3: Submit
     async function submitVerify() {
         const nama = document.getElementById("nama_koordinator").value;
         const img = cvs.toDataURL();
-        if(!nama || img.length < 2000) return alert("Nama dan Paraf wajib diisi!");
-        const { error } = await sb.from('pelaksana_b').update({ nama_koordinator: nama, paraf_koordinator: img, status_koordinator: 'DONE', status_final: 'Waiting' }).eq('id', selectedId);
-        if(!error) { alert("Berhasil Diverifikasi!"); location.reload(); }
+        if(!nama || img.length < 2000) return alert("Mohon lengkapi Nama dan Paraf Verifikasi!");
+
+        const { error } = await sb.from('pelaksana_b').update({ 
+            nama_koordinator: nama, 
+            paraf_koordinator: img, 
+            status_koordinator: 'DONE',
+            status_final: 'Waiting' 
+        }).eq('id', selectedItem.id);
+
+        if(!error) {
+            alert("Verifikasi Unit " + selectedItem.nomor_mesin + " Berhasil!");
+            location.reload();
+        } else {
+            alert("Terjadi kesalahan: " + error.message);
+        }
     }
+
     window.onload = loadQueue;
 </script>
 </body>
