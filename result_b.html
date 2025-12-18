@@ -1,187 +1,167 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<title>AF.SP 05.13 Rev-00 – CHECKLIST HARIAN MESIN INJECTION</title>
+    <meta charset="UTF-8">
+    <title>AF.SP 05.13 Rev-00 – CHECKLIST HARIAN MESIN INJECTION</title>
+    <style>
+        @page { size: A4 portrait; margin: 10mm 12mm; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: black; line-height: 1.25; margin: 0; padding: 0; position: relative; }
+        table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
+        td, th { border: 1px solid black; padding: 3px 4px; vertical-align: middle; }
 
-<style>
-@page { size: A4 portrait; margin: 10mm 12mm; }
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 9.5pt;
-  color: #000;
-  margin: 0;
-}
-table { border-collapse: collapse; width: 100%; }
-td, th { border: 1px solid #000; padding: 3px; text-align: center; }
+        .header td { border: 2.5px solid black; padding: 10px 8px; height: 70px; }
+        .header-left   { width: 20%; text-align: center; }
+        .header-center { width: 60%; text-align: center; font-weight: bold; font-size: 15pt; }
+        .header-right  { width: 20%; font-size: 8.5pt; line-height: 1.35; vertical-align: top; }
 
-.header td { border: 2px solid #000; height: 70px; }
-.header-left { width: 20%; }
-.header-center { width: 60%; font-size: 15pt; font-weight: bold; }
-.header-right { width: 20%; font-size: 8.5pt; text-align: left; }
+        .machine-info td { border: none; padding: 6px 0; }
+        .underline { border-bottom: 1px solid black; width: 160px; display: inline-block; }
 
-.machine-info td { border: none; text-align: left; padding: 4px 2px; }
-.underline { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; }
+        .checklist th, .checklist td { font-size: 8.2pt; text-align: center; height: 22px; }
+        .checklist .no     { width: 3%; font-weight: bold; }
+        .checklist .jenis  { width: 26%; text-align: left; padding-left: 8px; }
+        .checklist .std    { width: 21%; text-align: left; padding-left: 6px; }
+        .checklist .metode { width: 9%; }
+        .checklist .catatan{ width: 9%; }
+        .checklist .day-cell { width: 1.9%; font-size: 7.8pt; }
 
-.selectors {
-  margin: 10px 0;
-  text-align: right;
-}
-.selectors select {
-  padding: 4px;
-  font-size: 9pt;
-}
+        .notes-box { border: 1.8px solid black; padding: 10px; margin-top: 12px; font-size: 9pt; line-height: 1.4; page-break-inside: avoid; }
 
-.checklist th { font-size: 8pt; }
-.day-cell { font-size: 8pt; width: 1.9%; height: 20px; }
+        .signature-area { margin-top: 20px; page-break-inside: avoid; }
+        .signature-table { width: 100%; border: 2.5px solid black; border-collapse: collapse; }
+        .signature-table td { border: 1.5px solid black; width: 33.33%; height: 110px; text-align: center; vertical-align: bottom; padding: 8px; }
+        .sig-role { font-weight: bold; font-size: 10pt; margin-bottom: 8px; }
+        .sig-line { border-bottom: 1px solid black; width: 75%; margin: 18px auto 6px auto; }
+        .sig-label { font-size: 9pt; margin: 4px 0; }
 
-.notes-box {
-  border: 1.5px solid #000;
-  padding: 8px;
-  margin-top: 10px;
-  font-size: 9pt;
-}
+        .selectors { margin: 15px 0; text-align: right; padding: 10px; background: #f8f8f8; border-bottom: 2px solid #000; }
+        #status-message { color: #c00; text-align: center; margin: 10px 0; font-weight: bold; font-size: 11pt; }
 
-.signature-table {
-  margin-top: 15px;
-  border: 2px solid #000;
-}
-.signature-table td {
-  height: 100px;
-  vertical-align: bottom;
-  text-align: center;
-}
-
-.sig-line {
-  border-bottom: 1px solid #000;
-  width: 80%;
-  margin: 10px auto;
-}
-
-#status-message {
-  text-align: center;
-  color: red;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-
-@media print {
-  .selectors, #status-message { display: none; }
-}
-</style>
+        @media print {
+            .selectors, #status-message { display: none !important; }
+            body { margin: 8mm 10mm; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="status-message"></div>
+    <div id="status-message"></div>
 
-<!-- ================= SELECTOR ================= -->
-<div class="selectors">
-  Mesin:
-  <select id="machine-select">
-    <option value="">Pilih Mesin</option>
-  </select>
+    <div class="selectors">
+        <label for="machine-select"><strong>Mesin:</strong></label>
+        <select id="machine-select">
+            <option value="">Pilih Mesin</option>
+        </select>
+        <label for="month-select"><strong>Bulan:</strong></label>
+        <select id="month-select"></select>
+        <label for="year-select"><strong>Tahun:</strong></label>
+        <select id="year-select"></select>
+    </div>
 
-  Bulan:
-  <select id="month-select"></select>
+    <table class="header">
+        <tr>
+            <td class="header-left">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo" style="max-height:68px; max-width:95%;">
+            </td>
+            <td class="header-center">CHECKLIST HARIAN MESIN INJECTION</td>
+            <td class="header-right">
+                No Dokumen       : AF.SP 05.13.Rev-00<br>
+                Tanggal Terbit   : 02 Agustus 2024<br>
+                Halaman          : 1/1<br>
+                Tanggal Revisi   : -
+            </td>
+        </tr>
+    </table>
 
-  Tahun:
-  <select id="year-select"></select>
-</div>
+    <table class="machine-info" style="margin-top:12px; font-size:10pt;">
+        <tr>
+            <td width="14%"><strong>MERK MESIN</strong></td>
+            <td width="26%"><span class="underline">&nbsp;</span></td>
+            <td width="12%"><strong>Serial No</strong></td>
+            <td width="20%"><span class="underline">&nbsp;</span></td>
+        </tr>
+        <tr>
+            <td><strong>TONAGE</strong></td>
+            <td><span class="underline">&nbsp;</span></td>
+            <td><strong>Tahun</strong></td>
+            <td><span class="underline">&nbsp;</span></td>
+            <td><strong>Bulan :</strong> <span class="underline">&nbsp;</span></td>
+        </tr>
+    </table>
 
-<!-- ================= HEADER ================= -->
-<table class="header">
-<tr>
-  <td class="header-left">
-    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" style="max-height:65px;">
-  </td>
-  <td class="header-center">
-    CHECKLIST HARIAN MESIN INJECTION
-  </td>
-  <td class="header-right">
-    No Dokumen : AF.SP 05.13 Rev-00<br>
-    Tgl Terbit : 02 Agustus 2024<br>
-    Halaman : 1 / 1
-  </td>
-</tr>
-</table>
+    <table class="checklist" style="margin-top:10px;">
+        <thead>
+            <tr>
+                <th class="no">No</th>
+                <th class="jenis" colspan="2">Jenis pengecekan</th>
+                <th class="std">Standard</th>
+                <th class="metode">METODE</th>
+                <th class="catatan">CATATAN</th>
+                <th colspan="31">Tanggal</th>
+            </tr>
+            <tr>
+                <th></th><th colspan="2"></th><th></th><th></th><th></th>
+                <th class="day-cell" data-day="1">1</th><th class="day-cell" data-day="2">2</th><th class="day-cell" data-day="3">3</th>
+                <th class="day-cell" data-day="4">4</th><th class="day-cell" data-day="5">5</th><th class="day-cell" data-day="6">6</th>
+                <th class="day-cell" data-day="7">7</th><th class="day-cell" data-day="8">8</th><th class="day-cell" data-day="9">9</th>
+                <th class="day-cell" data-day="10">10</th><th class="day-cell" data-day="11">11</th><th class="day-cell" data-day="12">12</th>
+                <th class="day-cell" data-day="13">13</th><th class="day-cell" data-day="14">14</th><th class="day-cell" data-day="15">15</th>
+                <th class="day-cell" data-day="16">16</th><th class="day-cell" data-day="17">17</th><th class="day-cell" data-day="18">18</th>
+                <th class="day-cell" data-day="19">19</th><th class="day-cell" data-day="20">20</th><th class="day-cell" data-day="21">21</th>
+                <th class="day-cell" data-day="22">22</th><th class="day-cell" data-day="23">23</th><th class="day-cell" data-day="24">24</th>
+                <th class="day-cell" data-day="25">25</th><th class="day-cell" data-day="26">26</th><th class="day-cell" data-day="27">27</th>
+                <th class="day-cell" data-day="28">28</th><th class="day-cell" data-day="29">29</th><th class="day-cell" data-day="30">30</th>
+                <th class="day-cell" data-day="31">31</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Semua baris checklist dengan .day-cell dan data-day="1" sampai "31" -->
+            <tr><td>1</td><td colspan="2"><strong>Mekanikal:</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Nozzle visual</td><td>Radius tidak rusak, tidak ada leleah material meler</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Kebersihan Head Nozzle barrel</td><td>tidak ada material yang menempel</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <!-- (Semua baris checklist lainnya tetap sama dengan class="day-cell" data-day="1" sampai "31") -->
+            <tr><td>4</td><td colspan="2">Paraf Pelaksana</td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+        </tbody>
+    </table>
 
-<!-- ================= MACHINE INFO ================= -->
-<table class="machine-info" style="margin-top:8px">
-<tr>
-  <td>Merk Mesin</td>
-  <td><span class="underline" id="info-mesin"></span></td>
-  <td>Tahun</td>
-  <td><span class="underline" id="info-tahun"></span></td>
-</tr>
-<tr>
-  <td>Bulan</td>
-  <td><span class="underline" id="info-bulan"></span></td>
-</tr>
-</table>
+    <div class="notes-box">
+        <strong>Catatan :</strong><br><br>
+        (*) : Isi kolom laporan ceklist jika unit ini ada dimesin ini<br>
+        (**) : Diisi angka jam kerja mesin / running hour yang ada dimesin<br><br>
+        <strong>Beri tanda :</strong><br>
+        Check mark Bila item yang diperiksa baik, sesuai standar<br>
+        x Bila terjadi penyimpangan / kerusakan pada item yang diperiksa.<br>
+        o Bila mesin dalam proses perbaikan<br><br>
+        <div style="text-align:right;"><strong>DIKETAHUI</strong><br><strong>MECHANIC SUPERINTENDENT</strong></div>
+    </div>
 
-<!-- ================= CHECKLIST ================= -->
-<table class="checklist" style="margin-top:8px">
-<thead>
-<tr>
-  <th>No</th>
-  <th colspan="2">Jenis Pengecekan</th>
-  <th colspan="31">Tanggal</th>
-</tr>
-<tr>
-  <th></th><th colspan="2"></th>
-  <!-- DAY HEADER -->
-  <script>
-    for (let d = 1; d <= 31; d++) {
-      document.write(`<th>${d}</th>`);
-    }
-  </script>
-</tr>
-</thead>
+    <table class="signature-table">
+        <tr>
+            <td>
+                <div class="sig-role">Prepared by (Operator / Pelaksana)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-pelaksana"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+            <td>
+                <div class="sig-role">Checked by (Coordinator)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-koordinator"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+            <td>
+                <div class="sig-role">Approved by (Superintendent)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-superintendent"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+        </tr>
+    </table>
 
-<tbody>
-<!-- BARIS CONTOH (boleh ditambah sesuai kebutuhan) -->
-<tr>
-  <td>1</td>
-  <td colspan="2">Kondisi Umum Mesin</td>
-  <script>
-    for (let d = 1; d <= 31; d++) {
-      document.write(`<td class="day-cell" data-day="${d}"></td>`);
-    }
-  </script>
-</tr>
-</tbody>
-</table>
-
-<!-- ================= NOTES ================= -->
-<div class="notes-box">
-<b>Catatan:</b><br>
-√ = OK &nbsp;&nbsp; x = NG &nbsp;&nbsp; o = Repair
-</div>
-
-<!-- ================= SIGNATURE ================= -->
-<table class="signature-table">
-<tr>
-  <td>
-    Prepared by<br>
-    <div class="sig-line"></div>
-    Nama: <span id="sig-pelaksana"></span>
-  </td>
-  <td>
-    Checked by<br>
-    <div class="sig-line"></div>
-    Nama: <span id="sig-koordinator"></span>
-  </td>
-  <td>
-    Approved by<br>
-    <div class="sig-line"></div>
-    Nama: <span id="sig-superintendent"></span>
-  </td>
-</tr>
-</table>
-
-<!-- ================= MODULE ================= -->
-<script type="module" src="/post.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="post.js"></script>
 </body>
 </html>
