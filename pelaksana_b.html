@@ -7,121 +7,194 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; --section-bg: #e9ecef; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; max-width: 600px; margin: auto; }
-        .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; border-bottom: 4px solid var(--accent); }
-        #auth-section, #scanner-section { padding: 20px; text-align: center; }
-        #reader { width: 100%; border-radius: 8px; background: #000; overflow: hidden; }
-        #form-section { display: none; padding: 15px; }
-        .info-box { background: #eef2f7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 14px; }
+        :root { --primary: #003366; --accent: #ffcc00; --bg: #f4f7f9; }
+        body { font-family: 'Arial', sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 800px; margin: auto; overflow: hidden; }
+        .header { background: var(--primary); color: #fff; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; border-bottom: 4px solid var(--accent); }
         
-        /* Checklist Styling */
-        .section-title { background: var(--section-bg); padding: 8px 12px; font-weight: bold; font-size: 13px; color: var(--primary); margin-top: 15px; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background: white; }
-        th, td { border: 1px solid #dee2e6; padding: 10px; font-size: 13px; }
-        th { background: #f8f9fa; }
-        select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
-        select.ok { color: green; }
-        select.ng { color: red; }
+        #auth-section, #scanner-section { padding: 30px; text-align: center; }
+        #reader { width: 100%; border-radius: 8px; background: #000; margin-bottom: 10px; }
+        
+        #form-section { display: none; padding: 15px; }
+        .info-header { background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; border-left: 4px solid var(--primary); }
+        
+        .catatan-khusus { background: #fff3cd; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin: 10px 0; font-size: 12px; color: #856404; }
 
-        .canvas-wrapper { border: 2px dashed #ccc; border-radius: 8px; background: #fff; margin-top: 10px; }
-        canvas { width: 100%; height: 150px; cursor: crosshair; touch-action: none; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
-        .btn-primary { background: var(--primary); color: white; transition: 0.3s; }
-        .btn-primary:active { transform: scale(0.98); background: #002244; }
+        /* Style Tabel Checklist */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; }
+        th { background: #f8f9fa; color: var(--primary); font-size: 12px; text-transform: uppercase; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .category-row { background: #dee2e6; font-weight: bold; font-size: 14px; }
+        .standard-text { font-size: 11px; color: #666; font-style: italic; display: block; margin-top: 4px; }
+        .metode-tag { font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+
+        select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
+        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: none; }
+        
+        .canvas-wrapper { border: 2px solid #ddd; border-radius: 8px; background: #fff; margin-top: 10px; }
+        canvas { width: 100%; height: 150px; touch-action: none; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+        .btn-primary { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="header">CHECKLIST HARIAN MESIN INJECTION</div>
-    
+
     <div id="auth-section">
-        <h3 style="margin-top:0">👷 Identitas Pelaksana</h3>
-        <input type="text" id="nama_pelaksana" style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;" placeholder="Masukkan Nama Lengkap" required>
-        <button class="btn btn-primary" onclick="startScan()">LANJUT SCAN MESIN</button>
+        <h3>Identitas Pelaksana</h3>
+        <input type="text" id="nama_pelaksana" placeholder="Nama Lengkap" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+        <button class="btn btn-primary" onclick="startScan()">MULAI SCAN QR MESIN</button>
     </div>
 
     <div id="scanner-section" style="display:none">
-        <h3>🔍 SCAN QR CODE MESIN</h3>
         <div id="reader"></div>
-        <p id="scan-status">Arahkan kamera ke label QR Mesin</p>
+        <p>Arahkan kamera ke QR Code Mesin</p>
     </div>
 
     <div id="form-section">
-        <div class="info-box">
-            <strong>Unit Mesin:</strong> <span id="display_mesin" style="color: #d32f2f;">-</span><br>
-            <strong>Pelaksana:</strong> <span id="display_nama">-</span>
+        <div class="info-header">
+            <b>MESIN:</b> <span id="display_mesin">-</span> | <b>USER:</b> <span id="display_nama">-</span>
         </div>
 
         <form id="clForm">
-            <div class="section-title">1. MEKANIKAL</div>
             <table>
-                <tr><td>Nozzle Visual (Radius/Lelah)</td><td><select name="m1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Kebersihan Head Nozzle Barrel</td><td><select name="m2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Check Level Oli Mesin (> Garis)</td><td><select name="m3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Check Pump Central Lubrikasi</td><td><select name="m4"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <thead>
+                    <tr>
+                        <th>Jenis Pengecekan / Standard</th>
+                        <th width="80px">Status</th>
+                    </tr>
+                </thead>
+                
+                <tr class="category-row"><td colspan="2">1. MEKANIKAL</td></tr>
+                <tr>
+                    <td>A. Nozzle visual <span class="metode-tag">Visual</span><br><span class="standard-text">Radius tidak rusak, tidak ada leleh material meler</span></td>
+                    <td><select name="v1"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>B. Kebersihan Head Nozzle barrel <span class="metode-tag">Visual</span><br><span class="standard-text">Tidak ada material yang menempel</span></td>
+                    <td><select name="v2"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>C. Check level oli mesin <span class="metode-tag">Visual</span><br><span class="standard-text">> Level garis tengah</span></td>
+                    <td><select name="v3"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>D. Check pump central lubrikasi <span class="metode-tag">Visual</span><br><span class="standard-text">Berfungsi baik</span></td>
+                    <td><select name="v4"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>E. Purging cover <span class="metode-tag">Visual</span><br><span class="standard-text">Terpasang & baut kencang</span></td>
+                    <td><select name="v5"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>F. Sensor safety gate depan <span class="metode-tag">Fungsi</span><br><span class="standard-text">Berfungsi / Mesin stop saat pintu dibuka</span></td>
+                    <td><select name="v6"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>G. Sensor safety gate belakang <span class="metode-tag">Fungsi</span><br><span class="standard-text">Berfungsi / Mesin stop saat pintu dibuka</span></td>
+                    <td><select name="v7"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>H. Emergency Stop <span class="metode-tag">Fungsi</span><br><span class="standard-text">Berfungsi / Mesin mati total saat ditekan</span></td>
+                    <td><select name="v8"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>I. Fan pendingin Inverter / Servo <span class="metode-tag">Visual</span><br><span class="standard-text">Berfungsi / Berputar</span></td>
+                    <td><select name="v9"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+
+                <tr class="category-row"><td colspan="2">2. KEBERSIHAN DEBU</td></tr>
+                <tr>
+                    <td>A. Kebersihan Panel Control <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Tidak berdebu</span></td>
+                    <td><select name="v10"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>B. Kebersihan Motor servo / inverter <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Tidak berdebu</span></td>
+                    <td><select name="v11"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>C. Kebersihan Hopper <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Tidak berdebu</span></td>
+                    <td><select name="v12"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>D. Kebersihan Magnet Hopper <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Tidak kotor dari gram besi</span></td>
+                    <td><select name="v13"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+
+                <tr class="category-row"><td colspan="2">3. KEBERSIHAN OLI</td></tr>
+                <tr>
+                    <td>A. Area clamping (bawah clamp) <span class="metode-tag">Lap & Busa Spon</span><br><span class="standard-text">Tidak kotor oli</span></td>
+                    <td><select name="v14"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>B. Area injeksi (bawah nozzle) <span class="metode-tag">Lap & Busa Spon</span><br><span class="standard-text">Tidak kotor oli</span></td>
+                    <td><select name="v15"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>C. Bawah inject unit <span class="metode-tag">Lap & Busa Spon</span><br><span class="standard-text">Tidak kotor oli</span></td>
+                    <td><select name="v16"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+
+                <tr class="category-row"><td colspan="2">4. KEBERSIHAN AIR</td></tr>
+                <tr>
+                    <td>A. Pemeriksaan instalasi air <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Fitting / balvalve tidak bocor</span></td>
+                    <td><select name="v17"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>B. Embun pipa chiller <span class="metode-tag">Lap Majun</span><br><span class="standard-text">Dilindungi armaflek</span></td>
+                    <td><select name="v18"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+
+                <tr class="category-row"><td colspan="2">5. KEBERSIHAN AREA MESIN</td></tr>
+                <tr>
+                    <td>A. Pemeriksaan alat kerja/ sparepart <span class="metode-tag">Visual</span><br><span class="standard-text">Area mesin bersih, tidak terdapat ceceran tools</span></td>
+                    <td><select name="v19"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
+                <tr>
+                    <td>B. Kelengkapan selang angin sprial & air gun <span class="metode-tag">Visual</span><br><span class="standard-text">Terpasang rapih, lengkap dan berfungsi</span></td>
+                    <td><select name="v20"><option value="OK">√ (OK)</option><option value="NG">X (NG)</option></select></td>
+                </tr>
             </table>
 
-            <div class="section-title">2. ELEKTRIKAL</div>
-            <table>
-                <tr><td>Fungsi Sensor Safety Gate</td><td><select name="e1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Fungsi Emergency Stop</td><td><select name="e2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Kebersihan Panel Control</td><td><select name="e3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Fan Pendingin (Inverter/Servo)</td><td><select name="e4"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-            </table>
+            <div class="catatan-khusus">
+                <b>PENTING:</b> Jika ada item yang berstatus <b>NG</b>, Anda wajib mengisi detail pada kolom catatan di bawah ini.
+            </div>
+            <textarea name="catatan" placeholder="Tulis rincian kerusakan atau temuan NG di sini..."></textarea>
 
-            <div class="section-title">3. KEBERSIHAN UNIT</div>
-            <table>
-                <tr><td>Area Hopper & Magnet</td><td><select name="u1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Bawah Clamp (Lantai/Oli)</td><td><select name="u2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Bawah Inject Unit (Lantai/Oli)</td><td><select name="u3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-            </table>
-
-            <div class="section-title">4. AIR & AREA KERJA</div>
-            <table>
-                <tr><td>Instalasi Air (Bocor/Fitting)</td><td><select name="a1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Kebersihan Alat Kerja/Sparepart</td><td><select name="area1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-            </table>
-
-            <p style="font-size:12px; font-weight:bold; margin-bottom:5px;">Catatan Tambahan (Wajib jika NG):</p>
-            <textarea name="catatan" style="width:100%; height:60px; border-radius:8px; border:1px solid #ccc; padding:10px; box-sizing:border-box;" placeholder="Contoh: Oli mesin kurang di unit 05..."></textarea>
-
-            <div class="section-title">PARAF DIGITAL PELAKSANA</div>
+            <p style="font-weight:bold; margin-top:20px;">Paraf Digital Pelaksana:</p>
             <div class="canvas-wrapper">
                 <canvas id="canvas"></canvas>
             </div>
-            <button type="button" onclick="clearCanvas()" style="font-size:11px; color:blue; background:none; border:none; text-decoration:underline;">Hapus Paraf</button>
+            <button type="button" onclick="clearCanvas()" style="font-size:11px; background:none; border:none; color:blue; text-decoration:underline;">Hapus Paraf</button>
 
-            <button type="submit" class="btn btn-primary">KIRIM DATA CHECKLIST</button>
+            <button type="submit" class="btn btn-primary">SIMPAN & KIRIM KE KOORDINATOR</button>
         </form>
     </div>
 </div>
 
 <script>
-    // Konfigurasi Supabase Kamu
     const _URL = "https://duljhawudstjxibhuenv.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
-
+    
     let html5QrCode, currentMachine = "", drawing = false;
     const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
     function startScan() {
-        if(!document.getElementById("nama_pelaksana").value) return alert("Silakan isi nama Anda!");
+        if(!document.getElementById("nama_pelaksana").value) return alert("Isi nama pelaksana!");
         document.getElementById("auth-section").style.display = "none";
         document.getElementById("scanner-section").style.display = "block";
         html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
     }
 
     async function onScanSuccess(decodedText) {
         const cleanID = decodedText.trim();
-        // Validasi ke db_mesin_b (Pastikan nama mesin di QR sama dengan di DB)
-        const { data, error } = await sb.from('db_mesin_b').select('id_mesin').eq('id_mesin', cleanID).single();
-        
-        if (error || !data) return alert("Gagal: Mesin '" + cleanID + "' tidak terdaftar di database!");
+        const { data, error } = await sb.from('db_mesin_b').select('*').eq('id_mesin', cleanID).single();
+        if (error || !data) return alert("MESIN TIDAK TERDAFTAR!");
 
         currentMachine = data.id_mesin;
         html5QrCode.stop();
@@ -132,45 +205,38 @@
         initCanvas();
     }
 
-    // Logika Paraf Digital
-    function initCanvas() {
-        const r = cvs.getBoundingClientRect();
-        cvs.width = r.width; cvs.height = r.height;
-        ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
-    }
+    // Logika Signature
+    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; }
     function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
-    
     cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
     cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
     cvs.addEventListener("touchend", () => drawing = false);
     function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
 
-    // Submit ke Supabase
+    // Submit ke Database
     document.getElementById("clForm").onsubmit = async (e) => {
         e.preventDefault();
-        const f = new FormData(e.target);
+        const fd = new FormData(e.target);
         const img = cvs.toDataURL();
+        
+        if (img.length < 2000) return alert("Paraf wajib diisi!");
 
-        if (img.length < 2000) return alert("Silakan tanda tangan (paraf) terlebih dahulu!");
+        // Validasi jika ada NG tapi catatan kosong
+        let hasNG = false;
+        for (let pair of fd.entries()) { if (pair[1] === "NG") hasNG = true; }
+        if (hasNG && !fd.get("catatan")) return alert("Ada item NG! Harap isi catatan detail kerusakannya.");
 
-        // Gabungkan semua hasil checklist menjadi satu string atau kirim ke kolom spesifik
-        // Di sini saya asumsikan tabel pelaksana_b punya kolom untuk menampung data ini
         const { error } = await sb.from('pelaksana_b').insert([{
             nomor_mesin: currentMachine,
             nama_pelaksana: document.getElementById("nama_pelaksana").value,
-            // Simpan status pengecekan (bisa disesuaikan dengan nama kolom di tabel kamu)
-            kondisi_umum: `M:${f.get('m1')},${f.get('m2')}|E:${f.get('e1')},${f.get('e2')}`, 
-            keterangan_ng: f.get("catatan"),
+            kondisi_umum: "Pengecekan Harian Selesai", // Deskripsi singkat
+            keterangan_ng: fd.get("catatan"),
             paraf_pelaksana: img,
             status_koordinator: 'Waiting'
         }]);
 
-        if(!error) {
-            alert("✅ Data Checklist " + currentMachine + " Berhasil Terkirim!");
-            location.reload();
-        } else {
-            alert("❌ Error: " + error.message);
-        }
+        if(!error) { alert("Berhasil Terkirim!"); location.reload(); }
+        else { alert("Error: " + error.message); }
     };
 </script>
 </body>
