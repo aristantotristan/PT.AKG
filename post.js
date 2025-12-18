@@ -1,77 +1,168 @@
-// post.js
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
+/* ===============================
+   SUPABASE CONFIG
+================================ */
 const SUPABASE_URL = "https://duljhawudstjxibhuenv.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-// Ganti sesuai kebutuhan (bisa dibaca dari input mesin nanti)
-const NOMOR_MESIN = "MESIN-001";   // ubah sesuai mesin yang dipilih
+/* ===============================
+   DOM ELEMENTS
+================================ */
+const machineSelect = document.getElementById("machine-select");
+const monthSelect = document.getElementById("month-select");
 
-window.tampilkanData = async function () {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
+/* ===============================
+   INIT
+================================ */
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadMachines();
+  initMonthSelector();
 
-    const startDate = `${year}-${month}-01`;
-    const endDate   = `${year}-${month}-31`;
+  machineSelect.addEventListener("change", loadChecklist);
+  monthSelect.addEventListener("change", loadChecklist);
+});
 
-    const { data: records, error } = await supabase
-        .from("pelaksana_b")
-        .select("tanggal, kondisi_umum, nama_pelaksana, nama_koordinator, nama_superintendent")
-        .eq("nomor_mesin", NOMOR_MESIN)
-        .gte("tanggal", startDate)
-        .lte("tanggal", endDate)
-        .order("tanggal", { ascending: true });
+/* ===============================
+   LOAD MACHINE LIST
+================================ */
+async function loadMachines() {
+  const { data, error } = await supabase
+    .from("db_mesin_b")
+    .select("id_mesin")
+    .eq("status_aktif", true)
+    .order("id_mesin");
 
-    if (error) {
-        alert("Gagal mengambil data dari Supabase");
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error("Machine load error:", error);
+    return;
+  }
 
-    if (!records || records.length === 0) {
-        alert(`Tidak ada data untuk mesin ${NOMOR_MESIN} di bulan ini.`);
-        return;
-    }
+  data.forEach(row => {
+    const opt = document.createElement("option");
+    opt.value = row.id_mesin;
+    opt.textContent = row.id_mesin;
+    machineSelect.appendChild(opt);
+  });
+}
 
-    // Reset semua kolom tanggal
-    document.querySelectorAll(".checklist tbody td").forEach(td => {
-        if (td.cellIndex >= 6) td.textContent = "";
-    });
+/* ===============================
+   MONTH DROPDOWN
+================================ */
+function initMonthSelector() {
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
 
-    // Isi simbol
-    records.forEach(rec => {
-        const day = new Date(rec.tanggal).getDate();
-        const colIndex = 5 + day;
+  const now = new Date();
+  months.forEach((m, i) => {
+    const opt = document.createElement("option");
+    opt.value = i + 1;
+    opt.textContent = m;
+    if (i === now.getMonth()) opt.selected = true;
+    monthSelect.appendChild(opt);
+  });
+}
 
-        let simbol = "";
-        if (rec.kondisi_umum === "OK")     simbol = "Check mark";
-        if (rec.kondisi_umum === "NG")     simbol = "x";
-        if (rec.kondisi_umum === "REPAIR") simbol = "o";
+/* ===============================
+   MAIN LOAD CHECKLIST
+================================ */
+async function loadChecklist() {
+  const mesin = machineSelect.value;
+  const bulan = monthSelect.value;
+  const tahun = new Date().getFullYear();
 
-        document.querySelectorAll(".checklist tbody tr").forEach(row => {
-            const cell = row.cells[colIndex];
-            if (cell) {
-                cell.textContent = simbol;
-                cell.style.fontWeight = "bold";
-                cell.style.color = rec.kondisi_umum === "NG" ? "red" : "black";
-            }
-        });
-    });
+  if (!mesin || !bulan) return;
 
-    // Isi tanda tangan (data terbaru di bulan ini)
-    const latest = records[records.length - 1];
-    if (latest) {
-        const setName = (className, nama) => {
-            const el = document.querySelector(`.sig-${className}`);
-            if (el) el.textContent = `Nama : ${nama || ""}`;
-        };
-        setName("pelaksana", latest.nama_pelaksana);
-        setName("koordinator", latest.nama_koordinator);
-        setName("superintendent", latest.nama_superintendent);
-    }
+  clearTable();
 
-    alert("Data berhasil ditampilkan!");
-};
+  const startDate = `${tahun}-${String(bulan).padStart(2, "0")}-01`;
+  const endDate = `${tahun}-${String(bulan).padStart(2, "0")}-31`;
+
+  const { data, error } = await supabase
+    .from("pelaksana_b")
+    .select("*")
+    .eq("nomor_mesin", mesin)
+    .gte("tanggal", startDate)
+    .lte("tanggal", endDate)
+    .order("tanggal");
+
+  if (error) {
+    console.error("Checklist load error:", error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    console.warn("No data for this machine & month");
+    return;
+  }
+
+  renderChecklist(data);
+}
+
+/* ===============================
+   CLEAR TABLE CELLS
+================================ */
+function clearTable() {
+  document.querySelectorAll(".day-cell").forEach(td => {
+    td.textContent = "";
+    td.style.color = "black";
+  });
+}
+
+/* ===============================
+   RENDER DATA TO MATRIX
+================================ */
+function renderChecklist(rows) {
+  rows.forEach(row => {
+    const day = new Date(row.tanggal).getDate();
+
+    const symbol = mapStatus(row.kondisi_umum);
+
+    document.querySelectorAll(`.day-cell[data-day="${day}"]`)
+      .forEach(cell => {
+        cell.textContent = symbol;
+        if (symbol === "x") cell.style.color = "red";
+      });
+  });
+
+  // Ambil data terakhir untuk tanda tangan
+  const last = rows[rows.length - 1];
+  fillSignatures(last);
+}
+
+/* ===============================
+   STATUS MAPPING
+================================ */
+function mapStatus(value) {
+  if (!value) return "";
+  const v = value.toUpperCase();
+  if (v === "OK") return "√";
+  if (v === "NG") return "x";
+  if (v === "REPAIR") return "o";
+  return "";
+}
+
+/* ===============================
+   SIGNATURE SECTION
+================================ */
+function fillSignatures(row) {
+  if (row.nama_pelaksana) {
+    document.getElementById("sig-pelaksana").textContent =
+      row.nama_pelaksana;
+  }
+
+  if (row.status_koordinator === "Verified") {
+    document.getElementById("sig-koordinator").textContent =
+      row.nama_koordinator || "";
+  }
+
+  if (row.status_final === "Approved") {
+    document.getElementById("sig-superintendent").textContent =
+      row.nama_superintendent || "";
+  }
+}
