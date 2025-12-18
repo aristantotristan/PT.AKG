@@ -1,13 +1,8 @@
-// ===============================
-// SUPABASE CONFIG
-// ===============================
+// post.js
 const supabaseUrl = 'https://duljhawudstjxibhuenv.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ';
 const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-// ===============================
-// FALLBACK MACHINE LIST (WAJIB)
-// ===============================
 const FALLBACK_MACHINES = [
   "LIANXIN 80 T (TOAD)",
   "WIBA 270 T (NEBULA)",
@@ -39,148 +34,159 @@ const FALLBACK_MACHINES = [
   "EXTRUDER"
 ];
 
-// ===============================
-// INIT DROPDOWNS
-// ===============================
-function initMachineDropdown() {
-  const sel = document.getElementById('machine-select');
-  sel.innerHTML = '<option value="">-- Select Machine --</option>';
-
-  FALLBACK_MACHINES.forEach(m => {
+// Populate machine dropdown with fallback
+function populateMachinesFallback() {
+  const select = document.getElementById('machine-select');
+  select.innerHTML = '<option value="">Pilih Mesin</option>';
+  FALLBACK_MACHINES.sort().forEach(machine => {
     const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    sel.appendChild(opt);
+    opt.value = machine;
+    opt.textContent = machine;
+    select.appendChild(opt);
   });
 }
 
-async function overrideMachinesFromDB() {
+// Override with Supabase data if available
+async function loadMachinesFromSupabase() {
   const { data, error } = await supabase
     .from('db_mesin_b')
     .select('id_mesin')
     .eq('status_aktif', true)
-    .order('id_mesin');
+    .order('id_mesin', { ascending: true });
 
-  if (error || !data || data.length === 0) {
-    console.warn('Using fallback machine list');
+  if (error) {
+    console.warn('Failed to load machines from Supabase, using fallback:', error);
     return;
   }
 
-  const sel = document.getElementById('machine-select');
-  sel.innerHTML = '<option value="">-- Select Machine --</option>';
-
-  data.forEach(row => {
-    const opt = document.createElement('option');
-    opt.value = row.id_mesin;
-    opt.textContent = row.id_mesin;
-    sel.appendChild(opt);
-  });
-}
-
-function initMonthDropdown() {
-  const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
-  ];
-  const sel = document.getElementById('month-select');
-  const now = new Date().getMonth();
-
-  sel.innerHTML = '';
-  months.forEach((m, i) => {
-    const opt = document.createElement('option');
-    opt.value = i + 1;
-    opt.textContent = m;
-    if (i === now) opt.selected = true;
-    sel.appendChild(opt);
-  });
-}
-
-function initYearDropdown() {
-  const sel = document.getElementById('year-select');
-  const now = new Date().getFullYear();
-
-  sel.innerHTML = '';
-  for (let y = now - 3; y <= now + 3; y++) {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    if (y === now) opt.selected = true;
-    sel.appendChild(opt);
+  if (data && data.length > 0) {
+    const select = document.getElementById('machine-select');
+    select.innerHTML = '<option value="">Pilih Mesin</option>';
+    data.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id_mesin;
+      opt.textContent = m.id_mesin;
+      select.appendChild(opt);
+    });
   }
 }
 
-// ===============================
-// CLEAR FUNCTIONS
-// ===============================
-function clearChecklist() {
-  document.querySelectorAll('.day-cell').forEach(c => c.textContent = '');
+// Populate month dropdown
+function populateMonths() {
+  const select = document.getElementById('month-select');
+  select.innerHTML = '<option value="">Pilih Bulan</option>';
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  monthNames.forEach((name, index) => {
+    const opt = document.createElement('option');
+    opt.value = index + 1;
+    opt.textContent = name;
+    if (index + 1 === new Date().getMonth() + 1) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+// Populate year dropdown
+function populateYears() {
+  const select = document.getElementById('year-select');
+  const currentYear = new Date().getFullYear();
+  select.innerHTML = '';
+  for (let y = currentYear - 3; y <= currentYear + 3; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === currentYear) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+// Clear day cells
+function clearDayCells() {
+  document.querySelectorAll('.day-cell').forEach(cell => cell.textContent = '');
+}
+
+// Clear signatures
+function clearSignatures() {
   document.getElementById('sig-pelaksana').textContent = '';
   document.getElementById('sig-koordinator').textContent = '';
   document.getElementById('sig-superintendent').textContent = '';
 }
 
-// ===============================
-// LOAD DATA
-// ===============================
-async function loadChecklist() {
-  const mesin = document.getElementById('machine-select').value;
-  const bulan = document.getElementById('month-select').value;
-  const tahun = document.getElementById('year-select').value;
-  const status = document.getElementById('status-message');
+// Load data
+async function loadData() {
+  const machine = document.getElementById('machine-select').value;
+  const month = document.getElementById('month-select').value;
+  const year = document.getElementById('year-select').value;
 
-  clearChecklist();
-  status.textContent = '';
-
-  if (!mesin || !bulan || !tahun) return;
-
-  const start = `${tahun}-${String(bulan).padStart(2, '0')}-01`;
-  const end   = `${tahun}-${String(bulan).padStart(2, '0')}-31`;
-
-  const { data, error } = await supabase
-    .from('pelaksana_b')
-    .select('*')
-    .eq('nomor_mesin', mesin)
-    .gte('tanggal', start)
-    .lte('tanggal', end);
-
-  if (error || !data || data.length === 0) {
-    status.textContent = 'No data found for selected machine and period';
+  if (!machine || !month || !year) {
+    clearDayCells();
+    clearSignatures();
+    document.getElementById('status-message').textContent = '';
     return;
   }
 
-  data.forEach(row => {
-    const day = new Date(row.tanggal).getDate();
+  clearDayCells();
+  clearSignatures();
+  document.getElementById('status-message').textContent = '';
+
+  const monthPadded = String(month).padStart(2, '0');
+  const startDate = `${year}-${monthPadded}-01`;
+  const endDate = `${year}-${monthPadded}-31`;
+
+  const { data: records, error } = await supabase
+    .from('pelaksana_b')
+    .select('*')
+    .eq('nomor_mesin', machine)
+    .gte('tanggal', startDate)
+    .lte('tanggal', endDate)
+    .order('tanggal', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching data:', error);
+    document.getElementById('status-message').textContent = 'Error loading data';
+    return;
+  }
+
+  if (!records || records.length === 0) {
+    document.getElementById('status-message').textContent = 'No data available for selected machine and period';
+    return;
+  }
+
+  records.forEach(record => {
+    const day = new Date(record.tanggal).getDate();
     let symbol = '';
+    if (record.kondisi_umum === 'OK') symbol = '✓';
+    if (record.kondisi_umum === 'NG') symbol = 'x';
+    if (record.kondisi_umum === 'REPAIR') symbol = 'o';
 
-    if (row.kondisi_umum === 'OK') symbol = '✓';
-    if (row.kondisi_umum === 'NG') symbol = 'x';
-    if (row.kondisi_umum === 'REPAIR') symbol = 'o';
-
-    document
-      .querySelectorAll(`.day-cell[data-day="${day}"]`)
-      .forEach(c => c.textContent = symbol);
+    document.querySelectorAll(`.day-cell[data-day="${day}"]`).forEach(cell => {
+      cell.textContent = symbol;
+    });
   });
 
-  const last = data[data.length - 1];
-  document.getElementById('sig-pelaksana').textContent = last.nama_pelaksana || '';
-  if (last.status_koordinator === 'Verified') {
-    document.getElementById('sig-koordinator').textContent = last.nama_koordinator || '';
+  const latest = records[records.length - 1];
+  document.getElementById('sig-pelaksana').textContent = latest.nama_pelaksana || '';
+
+  if (latest.status_koordinator === 'Verified') {
+    document.getElementById('sig-koordinator').textContent = latest.nama_koordinator || '';
   }
-  if (last.status_final === 'Approved') {
-    document.getElementById('sig-superintendent').textContent = last.nama_superintendent || '';
+
+  if (latest.status_final === 'Approved') {
+    document.getElementById('sig-superintendent').textContent = latest.nama_superintendent || '';
   }
 }
 
-// ===============================
-// DOM READY
-// ===============================
 document.addEventListener('DOMContentLoaded', () => {
-  initMachineDropdown();       // HARD GUARANTEE
-  initMonthDropdown();
-  initYearDropdown();
-  overrideMachinesFromDB();    // OPTIONAL DB OVERRIDE
+  populateMachinesFallback();
+  loadMachinesFromSupabase();
+  populateMonths();
+  populateYears();
 
-  document.getElementById('machine-select').addEventListener('change', loadChecklist);
-  document.getElementById('month-select').addEventListener('change', loadChecklist);
-  document.getElementById('year-select').addEventListener('change', loadChecklist);
+  document.getElementById('machine-select').addEventListener('change', loadData);
+  document.getElementById('month-select').addEventListener('change', loadData);
+  document.getElementById('year-select').addEventListener('change', loadData);
+
+  loadData();
 });
