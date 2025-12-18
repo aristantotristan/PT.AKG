@@ -1,245 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLHMI Official Audit Reporting System</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        /* CSS Variables for Professional Audit Tone */
-        :root {
-            --audit-black: #000000;
-            --audit-grey: #f1f5f9;
-            --audit-border: #000000;
-            --status-green: #15803d;
-            --status-amber: #b45309;
-        }
+<meta charset="UTF-8">
+<title>CLHMI – Daily Machine Inspection Audit Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        body { font-family: 'Times New Roman', Times, serif; background: #525659; margin: 0; padding: 0; }
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        /* Utility Controls - Hidden during Print/Export */
-        .no-print-controls {
-            background: #ffffff; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: sticky; top: 0; z-index: 1000; display: flex; gap: 20px;
-            justify-content: center; align-items: flex-end; border-bottom: 2px solid var(--audit-black);
-        }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-family: sans-serif; font-size: 11px; font-weight: bold; color: #444; text-transform: uppercase; }
-        input[type="date"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        
-        .btn { padding: 10px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: 0.2s; }
-        .btn-fetch { background: #1e293b; color: white; }
-        .btn-export { background: #15803d; color: white; }
-        .btn:hover { opacity: 0.9; }
+<!-- PDF EXPORT -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-        /* Document Container */
-        #audit-container { padding: 40px 0; }
+<style>
+/* ======================================================
+   GLOBAL / ISO BASE
+====================================================== */
+:root {
+    --border: #000;
+    --text: #111;
+    --muted: #475569;
+}
 
-        /* Individual A4 Audit Page */
-        .audit-document {
-            width: 210mm; min-height: 297mm; background: #ffffff; margin: 0 auto 40px;
-            padding: 15mm; box-sizing: border-box; border: 1px solid #ddd;
-            position: relative; page-break-after: always; /* Force one report per page */
-        }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    padding: 20px;
+    color: var(--text);
+}
 
-        /* Official Header Block */
-        .header-table { width: 100%; border: 2px solid var(--audit-border); border-collapse: collapse; margin-bottom: 20px; }
-        .header-table td { border: 1px solid var(--audit-border); padding: 10px; vertical-align: middle; }
-        .header-logo { width: 25%; text-align: center; }
-        .header-title { width: 50%; text-align: center; font-size: 16px; font-weight: bold; }
-        .header-meta { width: 25%; font-size: 10px; line-height: 1.4; }
+/* ======================================================
+   CONTROL AREA (NOT PRINTED)
+====================================================== */
+.no-print {
+    max-width: 900px;
+    margin: auto auto 20px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
 
-        /* Document Status Stamp */
-        .status-stamp {
-            border: 3px solid; padding: 5px 15px; font-weight: bold; font-size: 14px;
-            display: inline-block; margin-top: 10px; text-transform: uppercase;
-        }
-        .status-done { color: var(--status-green); border-color: var(--status-green); }
-        .status-wait { color: var(--status-amber); border-color: var(--status-amber); }
+.no-print label {
+    font-size: 12px;
+    font-weight: bold;
+}
 
-        /* Report Body Sections */
-        .section-header { 
-            background: var(--audit-grey); padding: 8px 12px; border: 1px solid var(--audit-border);
-            font-size: 12px; font-weight: bold; text-transform: uppercase; margin-top: -1px;
-        }
-        .section-body { 
-            border: 1px solid var(--audit-border); padding: 15px; font-size: 13px; line-height: 1.6;
-            min-height: 60px; margin-top: -1px;
-        }
-        .label-text { font-weight: bold; color: #333; }
+.no-print input {
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+}
 
-        /* Authorization / Signature Footer */
-        .signature-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        .signature-table td { 
-            border: 1px solid var(--audit-border); width: 33.33%; text-align: center; 
-            padding: 15px 5px; vertical-align: bottom; height: 180px;
-        }
-        .signature-img { max-height: 80px; max-width: 150px; margin-bottom: 5px; }
-        .signature-name { font-weight: bold; text-decoration: underline; text-transform: uppercase; font-size: 12px; display: block; }
-        .signature-role { font-size: 10px; color: #555; display: block; margin-top: 3px; }
+.no-print button {
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        /* Printing Adjustments */
-        @media print {
-            body { background: none; padding: 0; }
-            .no-print-controls { display: none !important; }
-            #audit-container { padding: 0; }
-            .audit-document { margin: 0; border: none; box-shadow: none; }
-        }
-    </style>
+/* ======================================================
+   AUDIT DOCUMENT
+====================================================== */
+#audit-container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.audit-page {
+    background: #fff;
+    border: 2px solid var(--border);
+    margin-bottom: 40px;
+    page-break-inside: avoid;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+.audit-header {
+    display: grid;
+    grid-template-columns: 180px 1fr 220px;
+    border-bottom: 2px solid var(--border);
+}
+
+.header-box {
+    padding: 10px;
+    border-right: 2px solid var(--border);
+    font-size: 11px;
+}
+
+.header-box:last-child {
+    border-right: none;
+}
+
+.header-title {
+    text-align: center;
+}
+
+.header-title h2 {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.status-stamp {
+    display: inline-block;
+    padding: 4px 12px;
+    border: 2px solid;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.stamp-done { color: #166534; border-color: #166534; }
+.stamp-wait { color: #92400e; border-color: #92400e; }
+
+/* ======================================================
+   INFO GRID
+====================================================== */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-cell {
+    padding: 10px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+}
+
+.info-cell:last-child {
+    border-right: none;
+}
+
+/* ======================================================
+   CONTENT SECTIONS
+====================================================== */
+.section {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.section-text {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ======================================================
+   SIGNATURE BLOCK
+====================================================== */
+.signature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 2px solid var(--border);
+    text-align: center;
+}
+
+.sig-col {
+    border-right: 1px solid var(--border);
+    padding: 10px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sig-col:last-child {
+    border-right: none;
+}
+
+.sig-img {
+    max-height: 70px;
+}
+
+.sig-name {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: underline;
+    font-size: 12px;
+}
+
+.sig-role {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* ======================================================
+   PRINT RULES
+====================================================== */
+@media print {
+    body { background: #fff; }
+    .no-print { display: none; }
+}
+</style>
 </head>
+
 <body>
 
-<div class="no-print-controls">
-    <div class="control-group">
-        <label>Audit Date From</label>
-        <input type="date" id="dateFrom">
+<!-- CONTROL -->
+<div class="no-print">
+    <div>
+        <label>From Date</label>
+        <input type="date" id="from">
     </div>
-    <div class="control-group">
-        <label>Audit Date To</label>
-        <input type="date" id="dateTo">
+    <div>
+        <label>To Date</label>
+        <input type="date" id="to">
     </div>
-    <button class="btn btn-fetch" onclick="generateAuditReports()">Generate Reports</button>
-    <button class="btn btn-export" onclick="exportToPDF()">Export Official PDF</button>
+    <button onclick="loadReport()">Generate</button>
+    <button onclick="exportPDF()">Export PDF</button>
 </div>
 
-<div id="audit-container">
-    <div style="text-align:center; color:#fff; padding:100px; font-family:sans-serif;">
-        Select Date Range to Retrieve Records
-    </div>
-</div>
+<!-- REPORT -->
+<div id="audit-container"></div>
 
 <script>
-    const _URL = "https://duljhawudstjxibhuenv.supabase.co";
-    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-    const sb = supabase.createClient(_URL, _KEY);
+const sb = supabase.createClient(
+    "https://duljhawudstjxibhuenv.supabase.co",
+    "YOUR_PUBLIC_ANON_KEY"
+);
 
-    async function generateAuditReports() {
-        const from = document.getElementById("dateFrom").value;
-        const to = document.getElementById("dateTo").value;
-        const container = document.getElementById("audit-container");
+async function loadReport() {
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
 
-        if(!from || !to) return alert("Error: Please define a complete date range.");
+    if (!from || !to) {
+        alert("Date range is mandatory.");
+        return;
+    }
 
-        container.innerHTML = "<div style='text-align:center; color:#fff; font-family:sans-serif;'>Retrieving authoritative records...</div>";
+    const { data } = await sb
+        .from("pelaksana_b")
+        .select("*")
+        .gte("tanggal", from)
+        .lte("tanggal", to)
+        .order("tanggal", { ascending: false });
 
-        const { data, error } = await sb.from('pelaksana_b')
-            .select('*')
-            .gte('tanggal', from)
-            .lte('tanggal', to)
-            .order('tanggal', {ascending: false});
+    const container = document.getElementById("audit-container");
+    container.innerHTML = "";
 
-        if (error || data.length === 0) {
-            container.innerHTML = "<div style='text-align:center; color:#fff; font-family:sans-serif;'>No records found for the selected audit period.</div>";
-            return;
-        }
-
-        container.innerHTML = data.map(record => `
-            <div class="audit-document">
-                <table class="header-table">
-                    <tr>
-                        <td class="header-logo">
-                            <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" style="height:45px;">
-                        </td>
-                        <td class="header-title">
-                            DAILY INJECTION MACHINE INSPECTION REPORT
-                            <br>
-                            <span class="status-stamp ${record.status_final === 'DONE' ? 'status-done' : 'status-wait'}">
-                                ${record.status_final === 'DONE' ? 'Verified & Closed' : 'In Progress / Pending'}
-                            </span>
-                        </td>
-                        <td class="header-meta">
-                            <b>Document No:</b> AF.SP 05.13.Rev-00<br>
-                            <b>Ref ID:</b> #${record.id}<br>
-                            <b>Page:</b> 1 / 1<br>
-                            <b>Print Date:</b> ${new Date().toLocaleDateString('en-GB')}
-                        </td>
-                    </tr>
-                </table>
-
-                <div style="display: flex; border: 1px solid #000; margin-bottom: 20px;">
-                    <div style="flex:1; padding: 10px; border-right: 1px solid #000;">
-                        <span class="label-text">MACHINE / UNIT:</span> ${record.nomor_mesin}
-                    </div>
-                    <div style="flex:1; padding: 10px;">
-                        <span class="label-text">INSPECTION DATE:</span> ${record.tanggal}
+    data.forEach(row => {
+        container.innerHTML += `
+        <div class="audit-page">
+            <div class="audit-header">
+                <div class="header-box">CLHMI SYSTEM</div>
+                <div class="header-box header-title">
+                    <h2>DAILY MACHINE INSPECTION REPORT</h2>
+                    <div class="status-stamp ${row.status_final === 'DONE' ? 'stamp-done' : 'stamp-wait'}">
+                        ${row.status_final === 'DONE' ? 'VERIFIED' : 'IN PROGRESS'}
                     </div>
                 </div>
-
-                <div class="section-header">Section A – Operator Inspection Report (Pelaksana)</div>
-                <div class="section-body">
-                    <span class="label-text">General Operational Condition:</span> ${record.kondisi_umum}<br>
-                    <span class="label-text">Detailed Findings / Deviations:</span><br>
-                    ${record.keterangan_ng || "No operational deviations or NG findings recorded."}
-                </div>
-
-                <div class="section-header">Section B – Field Verification Notes (Coordinator)</div>
-                <div class="section-body" style="background-color: #fdfdfd;">
-                    <span class="label-text">Verification Observation:</span><br>
-                    ${record.catatan_konfirmasi || "<i>PENDING: Field verification not yet documented by Coordinator.</i>"}
-                </div>
-
-                <div class="section-header">Section C – Final Decision and Authorization (Superintendent)</div>
-                <div class="section-body">
-                    <span class="label-text">Management Decision:</span><br>
-                    Based on the initial inspection by the operator and subsequent verification by the coordinator, 
-                    this machine is hereby categorized as: 
-                    <b>${record.status_final === 'DONE' ? 'APPROVED FOR OPERATION / CLOSED' : 'STILL UNDER MONITORING / PENDING RESOLUTION'}</b>.
-                </div>
-
-                <table class="signature-table">
-                    <tr>
-                        <td>
-                            <span class="signature-role">Prepared By (Operator)</span>
-                            <div class="signature-img-container">
-                                <img src="${record.paraf_pelaksana}" class="signature-img">
-                            </div>
-                            <span class="signature-name">${record.nama_pelaksana}</span>
-                            <span class="signature-role">Pelaksana / Technician</span>
-                        </td>
-                        <td>
-                            <span class="signature-role">Verified By (Coordinator)</span>
-                            <div class="signature-img-container">
-                                ${record.paraf_koordinator ? `<img src="${record.paraf_koordinator}" class="signature-img">` : '<div style="height:80px"></div>'}
-                            </div>
-                            <span class="signature-name">${record.nama_koordinator || "—"}</span>
-                            <span class="signature-role">Field Coordinator</span>
-                        </td>
-                        <td>
-                            <span class="signature-role">Approved By (Superintendent)</span>
-                            <div class="signature-img-container">
-                                ${record.paraf_superintendent ? `<img src="${record.paraf_superintendent}" class="signature-img">` : '<div style="height:80px"></div>'}
-                            </div>
-                            <span class="signature-name">${record.nama_superintendent || "—"}</span>
-                            <span class="signature-role">Superintendent</span>
-                        </td>
-                    </tr>
-                </table>
-                
-                <div style="font-size: 8px; color: #888; margin-top: 10px; text-align: center;">
-                    This is a system-generated official document. Traceable to Ref ID #${record.id} in the CLHMI Management System.
+                <div class="header-box">
+                    Doc No: AF.SP 05.13.Rev-00<br>
+                    Record ID: ${row.id}<br>
+                    Print Date: ${new Date().toLocaleDateString()}
                 </div>
             </div>
-        `).join('');
-    }
 
-    function exportToPDF() {
-        const element = document.getElementById('audit-container');
-        const from = document.getElementById("dateFrom").value;
-        const to = document.getElementById("dateTo").value;
+            <div class="info-grid">
+                <div class="info-cell"><b>Machine / Unit</b><br>${row.nomor_mesin}</div>
+                <div class="info-cell"><b>Inspection Date</b><br>${row.tanggal}</div>
+            </div>
 
-        if(!from) return alert("Generate data before exporting.");
+            <div class="section">
+                <div class="section-title">A. Operator Inspection</div>
+                <div class="section-text">
+                    Condition: ${row.kondisi_umum}<br>
+                    Notes: ${row.keterangan_ng || 'No abnormality detected.'}
+                </div>
+            </div>
 
-        const opt = {
-            margin:       0,
-            filename:     `CLHMI_Audit_Report_${from}_to_${to}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+            <div class="section">
+                <div class="section-title">B. Field Verification (Coordinator)</div>
+                <div class="section-text">
+                    ${row.catatan_konfirmasi || 'Field verification has not been completed.'}
+                </div>
+            </div>
 
-        html2pdf().set(opt).from(element).save();
-    }
+            <div class="section">
+                <div class="section-title">C. Final Decision (Superintendent)</div>
+                <div class="section-text">
+                    Based on the inspection and verification results, the unit is declared
+                    <b>${row.status_final === 'DONE' ? 'FIT FOR OPERATION' : 'UNDER MONITORING'}</b>.
+                </div>
+            </div>
+
+            <div class="signature-row">
+                <div class="sig-col">
+                    <div>Prepared by</div>
+                    <img class="sig-img" src="${row.paraf_pelaksana}">
+                    <div>
+                        <div class="sig-name">${row.nama_pelaksana}</div>
+                        <div class="sig-role">Operator</div>
+                    </div>
+                </div>
+                <div class="sig-col">
+                    <div>Verified by</div>
+                    ${row.paraf_koordinator ? `<img class="sig-img" src="${row.paraf_koordinator}">` : ''}
+                    <div>
+                        <div class="sig-name">${row.nama_koordinator || '-'}</div>
+                        <div class="sig-role">Coordinator</div>
+                    </div>
+                </div>
+                <div class="sig-col">
+                    <div>Approved by</div>
+                    ${row.paraf_superintendent ? `<img class="sig-img" src="${row.paraf_superintendent}">` : ''}
+                    <div>
+                        <div class="sig-name">${row.nama_superintendent || '-'}</div>
+                        <div class="sig-role">Superintendent</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+}
+
+function exportPDF() {
+    html2pdf().from(document.getElementById("audit-container")).save();
+}
 </script>
+
 </body>
 </html>
