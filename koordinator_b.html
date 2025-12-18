@@ -7,72 +7,96 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #ffcc00; --dark: #003366; --bg: #f4f7f9; --danger: #d32f2f; --success: #2e7d32; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 10px; margin: 0; color: #333; }
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 600px; margin: auto; overflow: hidden; }
-        .header { background: var(--dark); color: var(--primary); padding: 20px; text-align: center; font-weight: bold; border-bottom: 4px solid var(--primary); }
+        :root { --primary: #ffcc00; --dark: #003366; --bg: #f0f2f5; --danger: #dc3545; --success: #28a745; --warning: #fd7e14; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #1a1a1a; }
+        .card { background: #fff; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); max-width: 600px; margin: auto; overflow: hidden; border: 1px solid #e0e0e0; }
         
+        /* Header Profesional */
+        .header { background: var(--dark); color: var(--primary); padding: 25px 15px; text-align: center; border-bottom: 5px solid var(--primary); }
+        .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { margin: 5px 0 0; font-size: 12px; opacity: 0.8; color: #fff; }
+
         /* List Section */
-        .list-item { border-bottom: 1px solid #eee; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .list-item:hover { background: #fff9e6; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        
+        .section-title { padding: 15px; background: #f8f9fa; font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; border-bottom: 1px solid #eee; }
+        .list-item { padding: 18px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+        .list-item:active { background: #f1f5f9; }
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .bg-ok { background: #e8f5e9; color: var(--success); }
+        .bg-ng { background: #fbe9e7; color: var(--danger); }
+
         /* Scanner Section */
-        #scanner-section { display: none; padding: 20px; text-align: center; }
-        #reader { width: 100%; border-radius: 12px; background: #000; }
+        #scanner-section { display: none; padding: 25px; text-align: center; }
+        #reader { width: 100%; border-radius: 12px; background: #000; overflow: hidden; margin: 15px 0; }
+        .target-box { background: #fff9db; border: 2px dashed #fab005; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
 
         /* Detail Section */
-        #detail-section { display: none; padding: 20px; }
-        .summary-box { padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 6px solid #ccc; }
-        .status-ok { background: #e8f5e9; border-color: var(--success); color: var(--success); }
-        .status-ng { background: #ffebee; border-color: var(--danger); color: var(--danger); animation: pulse 2s infinite; }
+        #detail-section { display: none; padding: 15px; }
         
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
+        /* Box Ringkasan (Point 3.3 SOP) */
+        .summary-card { padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
+        .status-ok-box { background: #f8fafc; border: 2px solid #e2e8f0; }
+        .status-ng-box { background: #fff5f5; border: 2px solid var(--danger); animation: alertPulse 2s infinite; }
+        @keyframes alertPulse { 0% { border-color: #feb2b2; } 50% { border-color: var(--danger); } 100% { border-color: #feb2b2; } }
 
-        .canvas-wrapper { border: 2px dashed #003366; border-radius: 8px; background: #fff; margin: 15px 0; }
-        canvas { width: 100%; height: 180px; touch-action: none; }
+        /* Form Konfirmasi (Point 4 SOP) */
+        .confirmation-area { background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #dee2e6; margin-top: 20px; }
+        .label-pro { font-weight: 700; font-size: 12px; color: var(--dark); display: block; margin-bottom: 8px; text-transform: uppercase; }
         
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .btn-verify { background: var(--dark); color: white; }
-        .btn-scan { background: var(--primary); color: var(--dark); }
-        .btn-back { background: #eceff1; color: #546e7a; }
+        textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; resize: none; margin-bottom: 15px; box-sizing: border-box; }
+        .ng-warning-text { color: var(--danger); font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; }
+
+        .canvas-wrapper { border: 2px solid #adb5bd; border-radius: 10px; background: #fff; margin-bottom: 10px; }
+        canvas { width: 100%; height: 180px; touch-action: none; display: block; }
         
-        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
-        .label-text { font-weight: bold; font-size: 13px; color: #64748b; text-transform: uppercase; }
+        /* Buttons */
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .btn-main { background: var(--dark); color: #fff; }
+        .btn-main:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-back { background: transparent; color: #64748b; margin-top: 10px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header">📋 VERIFIKASI AKTIF KOORDINATOR</div>
+    <div class="header">
+        <h1>VERIFIKASI KOORDINATOR</h1>
+        <p>SOP Check Harian Mesin - Rev 2025</p>
+    </div>
 
     <div id="list-section">
-        <div style="padding: 15px; background: #eee; font-size: 12px; font-weight: bold;">ANTRIAN VALIDASI LAPANGAN:</div>
-        <div id="loading" style="padding:40px; text-align:center; color: #999;">Mengecek data antrian...</div>
+        <div class="section-title">Antrian Menunggu Verifikasi Lapangan</div>
+        <div id="loading" style="padding:50px; text-align:center; color:#adb5bd;">Mencari data...</div>
         <div id="queue-container"></div>
     </div>
 
     <div id="scanner-section">
-        <h3 id="scan-target-text" style="color: var(--dark);"></h3>
-        <p>Silakan scan QR Code pada mesin ini untuk membuka data verifikasi.</p>
+        <div class="target-box">
+            <span class="label-pro">Wajib Verifikasi Fisik:</span>
+            <div id="target-machine-name" style="font-size: 24px; font-weight: 900; color: var(--dark);"></div>
+        </div>
         <div id="reader"></div>
-        <button class="btn btn-back" onclick="location.reload()">BATAL</button>
+        <p style="font-size: 13px; color: #666;">Scan QR Code di mesin untuk membuka ringkasan.</p>
+        <button class="btn btn-back" onclick="location.reload()">KEMBALI KE ANTRIAN</button>
     </div>
 
     <div id="detail-section">
-        <div id="data-summary" class="summary-box">
+        <div id="summary-area" class="summary-card">
             </div>
 
-        <div style="padding-top: 10px;">
-            <span class="label-text">Nama Verifikator:</span>
-            <input type="text" id="nama_koordinator" placeholder="Nama Lengkap Koordinator">
+        <div class="confirmation-area">
+            <label class="label-pro">Nama Lengkap Koordinator:</label>
+            <input type="text" id="nama_koordinator" oninput="validateForm()" placeholder="Masukkan Nama Lengkap" style="width:100%; padding:14px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; margin-bottom:15px;">
             
-            <span class="label-text">Paraf Konfirmasi Lapangan:</span>
+            <label class="label-pro">Catatan Konfirmasi Verifikasi Lapangan:</label>
+            <span id="ng-mandatory-hint" class="ng-warning-text" style="display:none;">⚠️ WAJIB DIISI: Jelaskan tindak lanjut untuk temuan NG.</span>
+            <textarea id="catatan_koordinator" oninput="validateForm()" placeholder="Tulis hasil tinjauan fisik Anda di sini..."></textarea>
+
+            <label class="label-pro">Paraf Digital Persetujuan:</label>
             <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
-            <button type="button" onclick="clearCanvas()" style="background:none; border:none; color:red; font-size:12px; cursor:pointer;">Hapus Paraf</button>
-            
-            <button class="btn btn-verify" onclick="submitVerify()">SAYA SUDAH CEK UNIT & VERIFIKASI</button>
-            <button class="btn btn-back" onclick="location.reload()">KEMBALI</button>
+            <button type="button" onclick="clearCanvas()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:bold; cursor:pointer; margin-bottom:15px;">HAPUS & ULANG PARAF</button>
+
+            <button id="btn-submit" class="btn btn-main" onclick="submitFinal()" disabled>SAYA TELAH MELAKUKAN VERIFIKASI LAPANGAN</button>
+            <button class="btn btn-back" onclick="location.reload()">BATAL</button>
         </div>
     </div>
 </div>
@@ -82,97 +106,126 @@
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
     
-    let selectedItem = null, html5QrCode, drawing = false;
+    let activeItem = null, html5QrCode, isNG = false;
     const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
-    // Load Antrian
     async function loadQueue() {
         const { data, error } = await sb.from('pelaksana_b').select('*').eq('status_koordinator', 'Waiting').order('id', { ascending: false });
         document.getElementById("loading").style.display = "none";
         const container = document.getElementById("queue-container");
         
-        if (data.length === 0) { container.innerHTML = "<p style='padding:40px; text-align:center; color:#999'>Tidak ada mesin yang menunggu verifikasi.</p>"; return; }
+        if (data.length === 0) { 
+            container.innerHTML = "<div style='padding:50px; text-align:center; color:#999; font-size:14px;'>Tidak ada laporan menunggu verifikasi.</div>"; 
+            return; 
+        }
         
         data.forEach(item => {
-            const isNG = item.kondisi_umum.includes("NG");
+            const hasNG = item.kondisi_umum.includes("NG");
             const div = document.createElement("div");
             div.className = "list-item";
-            div.onclick = () => startVerifyFlow(item);
+            div.onclick = () => initScanFlow(item);
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:bold; font-size:16px;">${item.nomor_mesin}</div>
-                    <small style="color:#666">Pelaksana: ${item.nama_pelaksana}</small>
+                    <div style="font-weight:bold; font-size:15px; color:var(--dark);">${item.nomor_mesin}</div>
+                    <div style="font-size:12px; color:#666; margin-top:3px;">Oleh: ${item.nama_pelaksana}</div>
                 </div>
-                <div style="text-align:right">
-                    <span style="font-size:10px; font-weight:bold; color:${isNG ? 'red' : 'green'}">${isNG ? '⚠️ TEMUAN NG' : '✅ NORMAL'}</span>
-                </div>
+                <span class="badge-status ${hasNG ? 'bg-ng' : 'bg-ok'}">${hasNG ? 'TEMUAN NG' : 'NORMAL (OK)'}</span>
             `;
             container.appendChild(div);
         });
     }
 
-    // Langkah 1: Scan QR di lokasi
-    function startVerifyFlow(item) {
-        selectedItem = item;
+    function initScanFlow(item) {
+        activeItem = item;
         document.getElementById("list-section").style.display = "none";
         document.getElementById("scanner-section").style.display = "block";
-        document.getElementById("scan-target-text").innerText = "Scan Unit: " + item.nomor_mesin;
+        document.getElementById("target-machine-name").innerText = item.nomor_mesin;
         
         html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (decodedText) => {
-            if(decodedText.trim() === selectedItem.nomor_mesin) {
+        html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, (text) => {
+            if(text.trim() === activeItem.nomor_mesin) {
                 html5QrCode.stop();
-                showDetail();
+                renderDetail();
             } else {
-                alert("QR TIDAK COCOK! Anda harus melakukan verifikasi di unit mesin yang sesuai: " + selectedItem.nomor_mesin);
+                alert("QR TIDAK SESUAI! Anda harus berada di lokasi mesin: " + activeItem.nomor_mesin);
             }
         });
     }
 
-    // Langkah 2: Tampilkan Ringkasan & Paraf
-    function showDetail() {
+    function renderDetail() {
         document.getElementById("scanner-section").style.display = "none";
         document.getElementById("detail-section").style.display = "block";
         
-        const isNG = selectedItem.kondisi_umum.includes("NG");
-        const summary = document.getElementById("data-summary");
-        summary.className = "summary-box " + (isNG ? "status-ng" : "status-ok");
+        isNG = activeItem.kondisi_umum.includes("NG");
+        const area = document.getElementById("summary-area");
+        area.className = "summary-card " + (isNG ? "status-ng-box" : "status-ok-box");
         
-        summary.innerHTML = `
-            <h3 style="margin-top:0">${isNG ? '⚠️ PERHATIAN: ADA TEMUAN NG' : '✅ UNIT NORMAL'}</h3>
-            <p><strong>MESIN:</strong> ${selectedItem.nomor_mesin}</p>
-            <p><strong>PELAKSANA:</strong> ${selectedItem.nama_pelaksana}</p>
-            <p><strong>DETAIL TEMUAN:</strong><br>${selectedItem.keterangan_ng || 'Tidak ada catatan khusus.'}</p>
+        area.innerHTML = `
+            <div style="margin-bottom:15px;">
+                <span class="label-pro">Identitas Mesin:</span>
+                <div style="font-size:20px; font-weight:bold;">${activeItem.nomor_mesin}</div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div><span class="label-pro">Pelaksana:</span><div style="font-size:14px;">${activeItem.nama_pelaksana}</div></div>
+                <div><span class="label-pro">Status Unit:</span><div style="font-size:14px; font-weight:bold; color:${isNG ? 'red' : 'green'}">${isNG ? '⚠️ TEMUAN NG' : '✅ NORMAL'}</div></div>
+            </div>
+            <div>
+                <span class="label-pro">Ringkasan Temuan:</span>
+                <div style="font-size:13px; color:#444; background:#fff; padding:10px; border-radius:6px; border:1px solid #eee; min-height:40px;">
+                    ${activeItem.keterangan_ng || 'Semua item dalam kondisi standar (OK).'}
+                </div>
+            </div>
         `;
+
+        if(isNG) document.getElementById("ng-mandatory-hint").style.display = "block";
         initCanvas();
     }
 
-    // Canvas Logic
-    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#003366"; }
-    function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
-    cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
-    cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
-    cvs.addEventListener("touchend", () => drawing = false);
+    // FORM VALIDATION (Point 4.9 SOP)
+    function validateForm() {
+        const nama = document.getElementById("nama_koordinator").value.trim();
+        const catatan = document.getElementById("catatan_koordinator").value.trim();
+        const submitBtn = document.getElementById("btn-submit");
+        
+        let valid = (nama.length > 2);
+        if(isNG && catatan.length < 5) valid = false; // NG wajib isi catatan
+
+        submitBtn.disabled = !valid;
+    }
+
+    // Signature Logic
+    function initCanvas() { 
+        const r = cvs.getBoundingClientRect(); 
+        cvs.width = r.width; cvs.height = r.height; 
+        ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#003366";
+        
+        // Listeners for drawing
+        cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive: false});
+        cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); validateForm(); e.preventDefault(); }, {passive: false});
+        cvs.addEventListener("touchend", () => { drawing = false; validateForm(); });
+    }
+    function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); validateForm(); }
     function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
 
-    // Langkah 3: Submit
-    async function submitVerify() {
+    async function submitFinal() {
         const nama = document.getElementById("nama_koordinator").value;
+        const catatan = document.getElementById("catatan_koordinator").value;
         const img = cvs.toDataURL();
-        if(!nama || img.length < 2000) return alert("Mohon lengkapi Nama dan Paraf Verifikasi!");
+        
+        if(img.length < 2000) return alert("Wajib membubuhkan paraf digital sebagai tanda persetujuan resmi!");
 
         const { error } = await sb.from('pelaksana_b').update({ 
             nama_koordinator: nama, 
+            catatan_konfirmasi: catatan, // Kolom baru untuk konfirmasi koordinator
             paraf_koordinator: img, 
-            status_koordinator: 'DONE',
-            status_final: 'Waiting' 
-        }).eq('id', selectedItem.id);
+            status_koordinator: 'DONE'
+        }).eq('id', activeItem.id);
 
         if(!error) {
-            alert("Verifikasi Unit " + selectedItem.nomor_mesin + " Berhasil!");
+            alert("VERIFIKASI BERHASIL. Data telah dicatat ke dalam rekaman mutu.");
             location.reload();
         } else {
-            alert("Terjadi kesalahan: " + error.message);
+            alert("Error: " + error.message);
         }
     }
 
