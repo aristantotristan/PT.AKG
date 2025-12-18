@@ -3,70 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLHMI Dashboard & Reporting</title>
+    <title>Reporting System CLHMI - Official Document</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #003366; --accent: #6f42c1; --bg: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        :root { --primary: #003366; --secondary: #475569; --border: #e2e8f0; --bg-audit: #ffffff; }
         
-        .container { max-width: 1200px; margin: auto; }
-        .no-print { display: flex; gap: 15px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; align-items: flex-end; }
+        body { font-family: 'Arial', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; color: #1e293b; }
         
-        .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 12px; font-weight: bold; color: #64748b; }
-        input[type="date"] { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+        /* Area Kontrol (Tidak akan masuk ke PDF) */
+        .no-print-area { max-width: 900px; margin: 0 auto 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-end; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        input[type="date"] { padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; }
         
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-filter { background: var(--primary); color: white; }
-        .btn-export { background: #10b981; color: white; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-fetch { background: var(--primary); color: white; }
+        .btn-pdf { background: #059669; color: white; }
+        .btn:hover { opacity: 0.8; }
 
-        /* Style Laporan (Format Audit) */
-        #report-content { background: #fff; padding: 0; border-radius: 8px; }
-        .report-card { border: 1px solid #e2e8f0; margin-bottom: 30px; page-break-inside: avoid; border-radius: 8px; overflow: hidden; }
-        
-        .report-header { background: #f1f5f9; padding: 15px; border-bottom: 2px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; }
-        .report-header h3 { margin: 0; color: var(--primary); font-size: 18px; }
-        
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #e2e8f0; border-bottom: 1px solid #e2e8f0; }
-        .grid-item { background: #fff; padding: 15px; }
-        .item-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: bold; margin-bottom: 5px; display: block; }
-        .item-value { font-size: 13px; line-height: 1.5; }
+        /* Container Laporan Utama */
+        #audit-report-container { max-width: 900px; margin: auto; }
 
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .status-done { background: #dcfce7; color: #166534; }
-        .status-wait { background: #fef9c3; color: #854d0e; }
+        /* Kartu Laporan per Unit (Satu Lembar Audit) */
+        .report-card { 
+            background: var(--bg-audit); 
+            border: 2px solid #000; 
+            margin-bottom: 40px; 
+            padding: 0;
+            page-break-inside: avoid; /* Mencegah laporan terpotong saat print */
+        }
 
-        /* Tanda Tangan Footer */
-        .signature-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; background: #fff; border-top: 1px solid #e2e8f0; text-align: center; }
-        .sig-box { padding: 15px; border-right: 1px solid #e2e8f0; }
-        .sig-box:last-child { border-right: none; }
-        .sig-img { height: 60px; object-fit: contain; margin: 10px 0; border: none; }
-        .sig-name { font-weight: bold; font-size: 12px; border-top: 1px solid #eee; padding-top: 5px; display: block; }
+        .doc-header { 
+            display: flex; 
+            border-bottom: 2px solid #000;
+            background: #f8fafc;
+        }
+        .doc-header-logo { width: 150px; padding: 15px; border-right: 2px solid #000; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .doc-header-title { flex: 1; padding: 10px; text-align: center; }
+        .doc-header-meta { width: 200px; padding: 10px; border-left: 2px solid #000; font-size: 10px; line-height: 1.6; }
+
+        /* Konten Laporan */
+        .audit-info-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #000; }
+        .info-item { padding: 10px; border-right: 1px solid #000; border-bottom: 1px solid #000; font-size: 12px; }
+        .info-item:last-child { border-right: none; }
+        
+        .content-section { padding: 15px; border-bottom: 1px solid #000; }
+        .section-label { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .section-text { font-size: 13px; line-height: 1.5; min-height: 40px; }
+
+        /* Footer Tanda Tangan (Horizontal & Sejajar) */
+        .signature-section { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; background: #fff; }
+        .sig-column { border-right: 1px solid #000; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; height: 160px; }
+        .sig-column:last-child { border-right: none; }
+        .sig-space { height: 80px; display: flex; align-items: center; justify-content: center; }
+        .sig-img { max-height: 70px; max-width: 100%; object-fit: contain; }
+        .sig-name { font-weight: bold; font-size: 13px; text-decoration: underline; text-transform: uppercase; }
+        .sig-title { font-size: 11px; color: #475569; }
+
+        .status-stamp { 
+            display: inline-block; padding: 4px 12px; border: 2px solid; border-radius: 4px; 
+            font-weight: 900; font-size: 14px; transform: rotate(-5deg); margin-top: 5px;
+        }
+        .stamp-done { border-color: #059669; color: #059669; }
+        .stamp-wait { border-color: #d97706; color: #d97706; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="no-print">
-        <div class="filter-group">
-            <label>Dari Tanggal:</label>
-            <input type="date" id="date-from">
-        </div>
-        <div class="filter-group">
-            <label>Sampai Tanggal:</label>
-            <input type="date" id="date-to">
-        </div>
-        <button class="btn btn-filter" onclick="loadResults()">Tampilkan Data</button>
-        <button class="btn btn-export" onclick="exportPDF()">Ekspor PDF (Audit)</button>
+<div class="no-print-area">
+    <div class="input-group">
+        <label>Mulai Tanggal:</label>
+        <input type="date" id="date-from">
     </div>
+    <div class="input-group">
+        <label>Sampai Tanggal:</label>
+        <input type="date" id="date-to">
+    </div>
+    <button class="btn btn-fetch" onclick="generateReport()">Tampilkan Laporan</button>
+    <button class="btn btn-pdf" onclick="exportToPDF()">Ekspor PDF Resmi</button>
+</div>
 
-    <div id="report-content">
-        <div id="loading-state" style="text-align:center; padding:50px; color:#94a3b8;">
-            Silakan pilih rentang tanggal dan klik Tampilkan Data.
-        </div>
-        <div id="res-list"></div>
+<div id="audit-report-container">
+    <div id="empty-state" style="text-align: center; padding: 100px; color: #94a3b8;">
+        <p>Silakan pilih rentang tanggal untuk generate dokumen laporan.</p>
     </div>
 </div>
 
@@ -75,98 +94,124 @@
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
 
-    async function loadResults() {
+    async function generateReport() {
         const from = document.getElementById("date-from").value;
         const to = document.getElementById("date-to").value;
-        const listContainer = document.getElementById("res-list");
-        const loader = document.getElementById("loading-state");
+        const container = document.getElementById("audit-report-container");
 
-        loader.innerText = "⚡ Menarik data dari server...";
-        
-        let query = sb.from('pelaksana_b').select('*').order('tanggal', {ascending: false});
-        
-        if(from && to) {
-            query = query.gte('tanggal', from).lte('tanggal', to);
-        }
+        if(!from || !to) return alert("Pilih rentang tanggal!");
 
-        const { data, error } = await query;
-        loader.style.display = "none";
+        container.innerHTML = "<div style='text-align:center; padding:50px;'>Memproses Dokumen Audit...</div>";
 
-        if (error || !data || data.length === 0) {
-            listContainer.innerHTML = `<div style="padding:40px; text-align:center; color:red;">Data tidak ditemukan untuk rentang tanggal tersebut.</div>`;
+        const { data, error } = await sb.from('pelaksana_b')
+            .select('*')
+            .gte('tanggal', from)
+            .lte('tanggal', to)
+            .order('tanggal', {ascending: false});
+
+        if (error || data.length === 0) {
+            container.innerHTML = "<div style='text-align:center; color:red; padding:50px;'>Data tidak ditemukan.</div>";
             return;
         }
 
-        listContainer.innerHTML = data.map(row => `
+        container.innerHTML = data.map(row => `
             <div class="report-card">
-                <div class="report-header">
-                    <div>
-                        <h3>UNIT: ${row.nomor_mesin}</h3>
-                        <small style="color:#64748b">ID Referensi: #${row.id} | Tanggal: ${row.tanggal}</small>
+                <div class="doc-header">
+                    <div class="doc-header-logo">CLHMI SYSTEM</div>
+                    <div class="doc-header-title">
+                        <h2 style="margin:5px 0; font-size:16px;">LAPORAN PENGECEKAN HARIAN MESIN</h2>
+                        <span class="status-stamp ${row.status_final === 'DONE' ? 'stamp-done' : 'stamp-wait'}">
+                            ${row.status_final === 'DONE' ? 'VERIFIED' : 'IN PROGRESS'}
+                        </span>
                     </div>
-                    <span class="status-badge ${row.status_final === 'DONE' ? 'status-done' : 'status-wait'}">
-                        STATUS: ${row.status_final}
-                    </span>
-                </div>
-                
-                <div class="report-grid">
-                    <div class="grid-item">
-                        <span class="item-label">Laporan Pelaksana</span>
-                        <div class="item-value">
-                            <b>Kondisi:</b> ${row.kondisi_umum}<br>
-                            <b>Catatan:</b> ${row.keterangan_ng || 'Normal'}
-                        </div>
-                    </div>
-                    <div class="grid-item">
-                        <span class="item-label">Verifikasi Koordinator</span>
-                        <div class="item-value">
-                            ${row.catatan_konfirmasi || '<i style="color:#94a3b8">Belum ada verifikasi lapangan</i>'}
-                        </div>
-                    </div>
-                    <div class="grid-item">
-                        <span class="item-label">Final Approval Superintendent</span>
-                        <div class="item-value">
-                            ${row.nama_superintendent ? `Persetujuan final diberikan untuk unit ini sesuai standar operasional.` : '<i style="color:#94a3b8">Menunggu approval final</i>'}
-                        </div>
+                    <div class="doc-header-meta">
+                        No Dok: AF.SP 05.13.Rev-00<br>
+                        Ref ID: #${row.id}<br>
+                        Tgl Cetak: ${new Date().toLocaleDateString('id-ID')}
                     </div>
                 </div>
 
-                <div class="signature-row">
-                    <div class="sig-box">
-                        <span class="item-label">Dibuat Oleh (Pelaksana)</span>
-                        <img class="sig-img" src="${row.paraf_pelaksana}">
-                        <span class="sig-name">${row.nama_pelaksana}</span>
+                <div class="audit-info-grid">
+                    <div class="info-item"><b>MESIN/UNIT:</b> ${row.nomor_mesin}</div>
+                    <div class="info-item"><b>TANGGAL CHECK:</b> ${row.tanggal}</div>
+                </div>
+
+                <div class="content-section">
+                    <span class="section-label">A. Laporan Kondisi (Pelaksana)</span>
+                    <div class="section-text">
+                        <b>Kondisi Umum:</b> ${row.kondisi_umum}<br>
+                        <b>Temuan/Catatan:</b> ${row.keterangan_ng || 'Mesin dalam kondisi normal, tidak ditemukan penyimpangan.'}
                     </div>
-                    <div class="sig-box">
-                        <span class="item-label">Diverifikasi (Koordinator)</span>
-                        ${row.paraf_koordinator ? `<img class="sig-img" src="${row.paraf_koordinator}">` : '<div style="height:60px; margin:10px 0;">-</div>'}
-                        <span class="sig-name">${row.nama_koordinator || '(Belum Paraf)'}</span>
+                </div>
+
+                <div class="content-section" style="background: #fffdf5;">
+                    <span class="section-label">B. Verifikasi Lapangan (Koordinator)</span>
+                    <div class="section-text">
+                        ${row.catatan_konfirmasi || 'Belum ada catatan verifikasi dari koordinator.'}
                     </div>
-                    <div class="sig-box">
-                        <span class="item-label">Disetujui (Superintendent)</span>
-                        ${row.paraf_superintendent ? `<img class="sig-img" src="${row.paraf_superintendent}">` : '<div style="height:60px; margin:10px 0;">-</div>'}
-                        <span class="sig-name">${row.nama_superintendent || '(Belum Paraf)'}</span>
+                </div>
+
+                <div class="content-section">
+                    <span class="section-label">C. Keputusan & Otoritas (Superintendent)</span>
+                    <div class="section-text">
+                        Berdasarkan hasil pengecekan pelaksana dan verifikasi lapangan oleh koordinator, unit dinyatakan 
+                        <b>${row.status_final === 'DONE' ? 'LAYAK OPERASI / CLOSED' : 'DALAM PEMANTAUAN'}</b>.
+                    </div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="sig-column">
+                        <span class="sig-title">Dibuat Oleh,</span>
+                        <div class="sig-space">
+                            <img src="${row.paraf_pelaksana}" class="sig-img">
+                        </div>
+                        <div>
+                            <span class="sig-name">${row.nama_pelaksana}</span>
+                            <div class="sig-title">Pelaksana/Mekanik</div>
+                        </div>
+                    </div>
+                    <div class="sig-column">
+                        <span class="sig-title">Diperiksa Oleh,</span>
+                        <div class="sig-space">
+                            ${row.paraf_koordinator ? `<img src="${row.paraf_koordinator}" class="sig-img">` : '-'}
+                        </div>
+                        <div>
+                            <span class="sig-name">${row.nama_koordinator || '-'}</span>
+                            <div class="sig-title">Koordinator</div>
+                        </div>
+                    </div>
+                    <div class="sig-column">
+                        <span class="sig-title">Disetujui Oleh,</span>
+                        <div class="sig-space">
+                            ${row.paraf_superintendent ? `<img src="${row.paraf_superintendent}" class="sig-img">` : '-'}
+                        </div>
+                        <div>
+                            <span class="sig-name">${row.nama_superintendent || '-'}</span>
+                            <div class="sig-title">Superintendent</div>
+                        </div>
                     </div>
                 </div>
             </div>
         `).join('');
     }
 
-    function exportPDF() {
-        const element = document.getElementById('report-content');
-        const from = document.getElementById("date-from").value || 'All';
-        const to = document.getElementById("date-to").value || 'Data';
-        
-        const opt = {
-            margin:       [10, 10],
-            filename:     `CLHMI_Report_${from}_to_${to}.pdf`,
+    function exportToPDF() {
+        const element = document.getElementById('audit-report-container');
+        const from = document.getElementById("date-from").value;
+        const to = document.getElementById("date-to").value;
+
+        if(!from) return alert("Generate laporan dulu sebelum ekspor!");
+
+        const options = {
+            margin:       [10, 5, 10, 5],
+            filename:     `Laporan_Audit_CLHMI_${from}_to_${to}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        alert("Memproses PDF... Mohon tunggu sebentar.");
-        html2pdf().set(opt).from(element).save();
+        html2pdf().set(options).from(element).save();
     }
 </script>
 </body>
