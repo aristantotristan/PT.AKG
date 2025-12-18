@@ -7,74 +7,122 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; }
+        :root { --primary: #003366; --accent: #ffcc00; --bg: #f2f5f8; --section-bg: #e9ecef; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
         .card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); overflow: hidden; max-width: 600px; margin: auto; }
-        .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; }
+        .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; border-bottom: 4px solid var(--accent); }
         #auth-section, #scanner-section { padding: 20px; text-align: center; }
-        #reader { width: 100%; border-radius: 8px; background: #000; }
-        #form-section { display: none; padding: 20px; }
-        .info-box { background: #eef2f7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px; word-break: break-word; line-height: 1.4; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        .canvas-wrapper { border: 2px solid #ddd; border-radius: 8px; background: #fafafa; touch-action: none; }
-        canvas { width: 100%; height: 200px; display: block; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-primary { background: var(--primary); color: white; }
+        #reader { width: 100%; border-radius: 8px; background: #000; overflow: hidden; }
+        #form-section { display: none; padding: 15px; }
+        .info-box { background: #eef2f7; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px; font-size: 14px; }
+        
+        /* Checklist Styling */
+        .section-title { background: var(--section-bg); padding: 8px 12px; font-weight: bold; font-size: 13px; color: var(--primary); margin-top: 15px; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background: white; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; font-size: 13px; }
+        th { background: #f8f9fa; }
+        select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
+        select.ok { color: green; }
+        select.ng { color: red; }
+
+        .canvas-wrapper { border: 2px dashed #ccc; border-radius: 8px; background: #fff; margin-top: 10px; }
+        canvas { width: 100%; height: 150px; cursor: crosshair; touch-action: none; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        .btn-primary { background: var(--primary); color: white; transition: 0.3s; }
+        .btn-primary:active { transform: scale(0.98); background: #002244; }
     </style>
 </head>
 <body>
+
 <div class="card">
-    <div class="header">CLHMI - INPUT PELAKSANA</div>
+    <div class="header">CHECKLIST HARIAN MESIN INJECTION</div>
+    
     <div id="auth-section">
-        <h3>Identitas Pelaksana</h3>
-        <input type="text" id="nama_pelaksana" placeholder="Masukkan Nama Lengkap" required>
+        <h3 style="margin-top:0">👷 Identitas Pelaksana</h3>
+        <input type="text" id="nama_pelaksana" style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;" placeholder="Masukkan Nama Lengkap" required>
         <button class="btn btn-primary" onclick="startScan()">LANJUT SCAN MESIN</button>
     </div>
+
     <div id="scanner-section" style="display:none">
         <h3>🔍 SCAN QR CODE MESIN</h3>
         <div id="reader"></div>
-        <p id="scan-status" style="font-size: 13px;">Arahkan kamera ke QR Code Mesin (Plain Text)</p>
+        <p id="scan-status">Arahkan kamera ke label QR Mesin</p>
     </div>
+
     <div id="form-section">
         <div class="info-box">
-            <strong>Unit Mesin:</strong> <br><span id="display_mesin" style="font-weight: bold; color: #003366;">-</span><br>
+            <strong>Unit Mesin:</strong> <span id="display_mesin" style="color: #d32f2f;">-</span><br>
             <strong>Pelaksana:</strong> <span id="display_nama">-</span>
         </div>
+
         <form id="clForm">
+            <div class="section-title">1. MEKANIKAL</div>
             <table>
-                <tr><th>Item Pengecekan</th><th>Status</th></tr>
-                <tr><td>Kebersihan Area Mesin & Robot</td><td><select name="item_1" required><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
-                <tr><td>Fungsi Emergency Stop</td><td><select name="item_2" required><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Nozzle Visual (Radius/Lelah)</td><td><select name="m1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Kebersihan Head Nozzle Barrel</td><td><select name="m2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Check Level Oli Mesin (> Garis)</td><td><select name="m3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Check Pump Central Lubrikasi</td><td><select name="m4"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
             </table>
-            <textarea name="catatan" placeholder="Tulis catatan jika status NG..."></textarea>
-            <label><b>Paraf Digital:</b></label>
-            <div class="canvas-wrapper"><canvas id="canvas"></canvas></div>
-            <button type="submit" class="btn btn-primary">SIMPAN & KIRIM KE KOORDINATOR</button>
+
+            <div class="section-title">2. ELEKTRIKAL</div>
+            <table>
+                <tr><td>Fungsi Sensor Safety Gate</td><td><select name="e1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Fungsi Emergency Stop</td><td><select name="e2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Kebersihan Panel Control</td><td><select name="e3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Fan Pendingin (Inverter/Servo)</td><td><select name="e4"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+            </table>
+
+            <div class="section-title">3. KEBERSIHAN UNIT</div>
+            <table>
+                <tr><td>Area Hopper & Magnet</td><td><select name="u1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Bawah Clamp (Lantai/Oli)</td><td><select name="u2"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Bawah Inject Unit (Lantai/Oli)</td><td><select name="u3"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+            </table>
+
+            <div class="section-title">4. AIR & AREA KERJA</div>
+            <table>
+                <tr><td>Instalasi Air (Bocor/Fitting)</td><td><select name="a1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+                <tr><td>Kebersihan Alat Kerja/Sparepart</td><td><select name="area1"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>
+            </table>
+
+            <p style="font-size:12px; font-weight:bold; margin-bottom:5px;">Catatan Tambahan (Wajib jika NG):</p>
+            <textarea name="catatan" style="width:100%; height:60px; border-radius:8px; border:1px solid #ccc; padding:10px; box-sizing:border-box;" placeholder="Contoh: Oli mesin kurang di unit 05..."></textarea>
+
+            <div class="section-title">PARAF DIGITAL PELAKSANA</div>
+            <div class="canvas-wrapper">
+                <canvas id="canvas"></canvas>
+            </div>
+            <button type="button" onclick="clearCanvas()" style="font-size:11px; color:blue; background:none; border:none; text-decoration:underline;">Hapus Paraf</button>
+
+            <button type="submit" class="btn btn-primary">KIRIM DATA CHECKLIST</button>
         </form>
     </div>
 </div>
 
 <script>
+    // Konfigurasi Supabase Kamu
     const _URL = "https://duljhawudstjxibhuenv.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
+
     let html5QrCode, currentMachine = "", drawing = false;
     const cvs = document.getElementById("canvas"), ctx = cvs.getContext("2d");
 
     function startScan() {
-        if(!document.getElementById("nama_pelaksana").value) return alert("Isi nama dulu!");
+        if(!document.getElementById("nama_pelaksana").value) return alert("Silakan isi nama Anda!");
         document.getElementById("auth-section").style.display = "none";
         document.getElementById("scanner-section").style.display = "block";
         html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
+        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
     }
 
     async function onScanSuccess(decodedText) {
         const cleanID = decodedText.trim();
-        const { data, error } = await sb.from('db_mesin_b').select('*').eq('id_mesin', cleanID).single();
-        if (error || !data) return alert("Mesin Tidak Terdaftar!");
+        // Validasi ke db_mesin_b (Pastikan nama mesin di QR sama dengan di DB)
+        const { data, error } = await sb.from('db_mesin_b').select('id_mesin').eq('id_mesin', cleanID).single();
+        
+        if (error || !data) return alert("Gagal: Mesin '" + cleanID + "' tidak terdaftar di database!");
+
         currentMachine = data.id_mesin;
         html5QrCode.stop();
         document.getElementById("scanner-section").style.display = "none";
@@ -84,25 +132,45 @@
         initCanvas();
     }
 
-    function initCanvas() { const r = cvs.getBoundingClientRect(); cvs.width = r.width; cvs.height = r.height; ctx.lineWidth = 3; ctx.lineCap = "round"; }
+    // Logika Paraf Digital
+    function initCanvas() {
+        const r = cvs.getBoundingClientRect();
+        cvs.width = r.width; cvs.height = r.height;
+        ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    }
+    function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
+    
     cvs.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
     cvs.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
     cvs.addEventListener("touchend", () => drawing = false);
     function getXY(e) { const r = cvs.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
 
+    // Submit ke Supabase
     document.getElementById("clForm").onsubmit = async (e) => {
         e.preventDefault();
+        const f = new FormData(e.target);
         const img = cvs.toDataURL();
-        if (img.length < 2000) return alert("Paraf wajib diisi!");
+
+        if (img.length < 2000) return alert("Silakan tanda tangan (paraf) terlebih dahulu!");
+
+        // Gabungkan semua hasil checklist menjadi satu string atau kirim ke kolom spesifik
+        // Di sini saya asumsikan tabel pelaksana_b punya kolom untuk menampung data ini
         const { error } = await sb.from('pelaksana_b').insert([{
             nomor_mesin: currentMachine,
             nama_pelaksana: document.getElementById("nama_pelaksana").value,
-            kondisi_umum: new FormData(e.target).get("item_1"),
-            keterangan_ng: new FormData(e.target).get("catatan"),
+            // Simpan status pengecekan (bisa disesuaikan dengan nama kolom di tabel kamu)
+            kondisi_umum: `M:${f.get('m1')},${f.get('m2')}|E:${f.get('e1')},${f.get('e2')}`, 
+            keterangan_ng: f.get("catatan"),
             paraf_pelaksana: img,
             status_koordinator: 'Waiting'
         }]);
-        if(!error) { alert("Berhasil Terkirim!"); location.reload(); }
+
+        if(!error) {
+            alert("✅ Data Checklist " + currentMachine + " Berhasil Terkirim!");
+            location.reload();
+        } else {
+            alert("❌ Error: " + error.message);
+        }
     };
 </script>
 </body>
