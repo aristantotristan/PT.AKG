@@ -5,33 +5,21 @@
     <title>AF.SP 05.13 Rev-00 – CHECKLIST HARIAN MESIN INJECTION</title>
     <style>
         @page { size: A4 portrait; margin: 10mm 12mm; }
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: black; line-height: 1.25; margin: 0; padding: 0; position: relative; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: black; line-height: 1.25; margin: 0; padding: 0; }
         table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
         td, th { border: 1px solid black; padding: 3px 4px; vertical-align: middle; }
 
         /* HEADER */
-        .header { position: relative; }
         .header td { border: 2.5px solid black; padding: 10px 8px; height: 70px; }
         .header-left   { width: 20%; text-align: center; }
         .header-center { width: 60%; text-align: center; font-weight: bold; font-size: 15pt; }
         .header-right  { width: 20%; font-size: 8.5pt; line-height: 1.35; vertical-align: top; }
 
-        /* Tombol hanya muncul di layar */
-        #btnTampilkan {
-            position: absolute;
-            top: 10px;
-            right: 14px;
-            padding: 6px 12px;
-            font-size: 9pt;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 100;
-        }
-        @media print { #btnTampilkan { display: none !important; } }
+        /* MESIN INFO */
+        .machine-info td { border: none; padding: 6px 0; }
+        .underline { border-bottom: 1px solid black; width: 160px; display: inline-block; }
 
+        /* CHECKLIST TABLE */
         .checklist th, .checklist td { font-size: 8.2pt; text-align: center; height: 22px; }
         .checklist .no     { width: 3%; font-weight: bold; }
         .checklist .jenis  { width: 26%; text-align: left; padding-left: 8px; }
@@ -40,8 +28,11 @@
         .checklist .catatan{ width: 9%; }
         .checklist .date   { width: 1.9%; font-size: 7.8pt; }
 
+        /* NOTES BOX */
         .notes-box { border: 1.8px solid black; padding: 10px; margin-top: 12px; font-size: 9pt; line-height: 1.4; page-break-inside: avoid; }
+        .notes-box strong { font-size: 9.5pt; }
 
+        /* SIGNATURE TABLE */
         .signature-area { margin-top: 20px; page-break-inside: avoid; }
         .signature-table { width: 100%; border: 2.5px solid black; border-collapse: collapse; }
         .signature-table td { border: 1.5px solid black; width: 33.33%; height: 110px; text-align: center; vertical-align: bottom; padding: 8px; }
@@ -49,49 +40,66 @@
         .sig-line { border-bottom: 1px solid black; width: 75%; margin: 18px auto 6px auto; }
         .sig-label { font-size: 9pt; margin: 4px 0; }
 
-        @media print { body { margin: 8mm 10mm; } }
+        /* Selectors (hidden on print) */
+        .selectors { margin: 10px 0; text-align: right; }
+        @media print { .selectors { display: none; } }
+
+        @media print { body { margin: 8mm 10mm; } table, .notes-box, .signature-area { page-break-inside: avoid; } }
     </style>
 </head>
 <body>
 
-    <!-- HEADER + TOMBOL -->
-    <div class="header">
-        <table style="width:100%; border:2.5px solid black; border-collapse:collapse;">
-            <tr>
-                <td class="header-left">
-                    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo" style="max-height:68px; max-width:95%;">
-                </td>
-                <td class="header-center">CHECKLIST HARIAN MESIN INJECTION</td>
-                <td class="header-right">
-                    No Dokumen       : AF.SP 05.13.Rev-00<br>
-                    Tanggal Terbit   : 02 Agustus 2024<br>
-                    Halaman          : 1/1<br>
-                    Tanggal Revisi   : -
-                </td>
-            </tr>
-        </table>
-        <button id="btnTampilkan" onclick="tampilkanData()">Tampilkan Data</button>
+    <!-- HEADER -->
+    <table class="header">
+        <tr>
+            <td class="header-left">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo" style="max-height: 68px; max-width: 95%;">
+            </td>
+            <td class="header-center">
+                CHECKLIST HARIAN MESIN INJECTION
+            </td>
+            <td class="header-right">
+                No Dokumen       : AF.SP 05.13.Rev-00<br>
+                Tanggal Terbit   : 02 Agustus 2024<br>
+                Halaman          : 1/1<br>
+                Tanggal Revisi   : -
+            </td>
+        </tr>
+    </table>
+
+    <!-- SELECTORS (Machine and Month) -->
+    <div class="selectors">
+        <label for="machine-select">Mesin: </label>
+        <select id="machine-select">
+            <option value="">Pilih Mesin</option>
+        </select>
+        <label for="month-select">Bulan: </label>
+        <select id="month-select">
+            <option value="">Pilih Bulan</option>
+            <!-- JS will populate -->
+        </select>
     </div>
 
-    <!-- MESIN INFO (contoh) -->
-    <table style="margin-top:12px; font-size:10pt;">
+    <!-- MESIN INFO -->
+    <table class="machine-info" style="margin-top: 12px; font-size: 10pt;">
         <tr>
             <td width="14%"><strong>MERK MESIN</strong></td>
-            <td width="26%"><span style="border-bottom:1px solid black; display:inline-block; width:160px;">&nbsp;</span></td>
+            <td width="26%"><span class="underline">&nbsp;</span></td>
             <td width="12%"><strong>Serial No</strong></td>
-            <td width="20%"><span style="border-bottom:1px solid black; display:inline-block; width:160px;">&nbsp;</span></td>
+            <td width="20%"><span class="underline">&nbsp;</span></td>
+            <td width="28%"></td>
         </tr>
         <tr>
             <td><strong>TONAGE</strong></td>
-            <td><span style="border-bottom:1px solid black; display:inline-block; width:160px;">&nbsp;</span></td>
+            <td><span class="underline">&nbsp;</span></td>
             <td><strong>Tahun</strong></td>
-            <td><span style="border-bottom:1px solid black; display:inline-block; width:80px;">&nbsp;</span></td>
-            <td><strong>Bulan :</strong> <span style="border-bottom:1px solid black; display:inline-block; width:80px;">&nbsp;</span></td>
+            <td><span class="underline">&nbsp;</span></td>
+            <td><strong>Bulan :</strong> <span class="underline">&nbsp;</span></td>
         </tr>
     </table>
 
     <!-- CHECKLIST TABLE -->
-    <table class="checklist" style="margin-top:10px;">
+    <table class="checklist" style="margin-top: 10px;">
         <thead>
             <tr>
                 <th class="no">No</th>
@@ -99,71 +107,1076 @@
                 <th class="std">Standard</th>
                 <th class="metode">METODE</th>
                 <th class="catatan">CATATAN</th>
-                <th colspan="31">Tanggal</th>
+                <th colspan="31" style="text-align: center;">Tanggal</th>
             </tr>
             <tr>
-                <th></th><th colspan="2"></th><th></th><th></th><th></th>
-                <th class="date">1</th><th class="date">2</th><th class="date">3</th><th class="date">4</th><th class="date">5</th>
-                <th class="date">6</th><th class="date">7</th><th class="date">8</th><th class="date">9</th><th class="date">10</th>
-                <th class="date">11</th><th class="date">12</th><th class="date">13</th><th class="date">14</th><th class="date">15</th>
-                <th class="date">16</th><th class="date">17</th><th class="date">18</th><th class="date">19</th><th class="date">20</th>
-                <th class="date">21</th><th class="date">22</th><th class="date">23</th><th class="date">24</th><th class="date">25</th>
-                <th class="date">26</th><th class="date">27</th><th class="date">28</th><th class="date">29</th><th class="date">30</th><th class="date">31</th>
+                <th></th>
+                <th colspan="2"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th class="date day-cell" data-day="1">1</th>
+                <th class="date day-cell" data-day="2">2</th>
+                <th class="date day-cell" data-day="3">3</th>
+                <th class="date day-cell" data-day="4">4</th>
+                <th class="date day-cell" data-day="5">5</th>
+                <th class="date day-cell" data-day="6">6</th>
+                <th class="date day-cell" data-day="7">7</th>
+                <th class="date day-cell" data-day="8">8</th>
+                <th class="date day-cell" data-day="9">9</th>
+                <th class="date day-cell" data-day="10">10</th>
+                <th class="date day-cell" data-day="11">11</th>
+                <th class="date day-cell" data-day="12">12</th>
+                <th class="date day-cell" data-day="13">13</th>
+                <th class="date day-cell" data-day="14">14</th>
+                <th class="date day-cell" data-day="15">15</th>
+                <th class="date day-cell" data-day="16">16</th>
+                <th class="date day-cell" data-day="17">17</th>
+                <th class="date day-cell" data-day="18">18</th>
+                <th class="date day-cell" data-day="19">19</th>
+                <th class="date day-cell" data-day="20">20</th>
+                <th class="date day-cell" data-day="21">21</th>
+                <th class="date day-cell" data-day="22">22</th>
+                <th class="date day-cell" data-day="23">23</th>
+                <th class="date day-cell" data-day="24">24</th>
+                <th class="date day-cell" data-day="25">25</th>
+                <th class="date day-cell" data-day="26">26</th>
+                <th class="date day-cell" data-day="27">27</th>
+                <th class="date day-cell" data-day="28">28</th>
+                <th class="date day-cell" data-day="29">29</th>
+                <th class="date day-cell" data-day="30">30</th>
+                <th class="date day-cell" data-day="31">31</th>
             </tr>
         </thead>
         <tbody>
-            <!-- semua baris checklist Anda tetap 100% sama -->
-            <tr><td>1</td><td colspan="2"><strong>Mekanikal:</strong></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>a</td><td colspan="2">Nozzle visual</td><td>Radius tidak rusak, tidak ada leleah material meler</td><td>Visual</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <!-- ... (semua baris lain tetap sama) ... -->
-            <tr><td>4</td><td colspan="2">Paraf Pelaksana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr>
+                <td>1</td>
+                <td colspan="2">Mekanikal:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>a</td>
+                <td colspan="2">Nozzle visual</td>
+                <td>Radius tidak rusak, tidak ada leleah material meler</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td colspan="2">Kebersihan Head Nozzle barrel</td>
+                <td>tidak ada material yang menempel</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>c</td>
+                <td colspan="2">Check level oli mesin</td>
+                <td>&gt; Level garis tengah</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>d</td>
+                <td colspan="2">Check pump central lubrikasi</td>
+                <td>berfungsi baik</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>e</td>
+                <td colspan="2">Check keseluruhan kondisi mesin</td>
+                <td>Lengkap dan bersih</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>f</td>
+                <td colspan="2">Check kondisi lampu indicator</td>
+                <td>Nyala sesuai fungsi</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>g</td>
+                <td colspan="2">Pastikan pintu panel kontrol tertutup</td>
+                <td>Tertutup</td>
+                <td>Tangan</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>h</td>
+                <td colspan="2">Check temperatur oli</td>
+                <td>40 - 50°C</td>
+                <td>Display control</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>i</td>
+                <td colspan="2">Running hour (jam)(**)</td>
+                <td>Sesuai aktual mesin</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td colspan="2">Kebersihan debu :</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>a</td>
+                <td colspan="2">Pintu Mesin (kaca/acrilric)</td>
+                <td>Bersih tidak berdebu</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td colspan="2">Kap mesin</td>
+                <td>Bersih tidak berdebu</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>c</td>
+                <td colspan="2">Kap inject unit</td>
+                <td>Bersih tidak berdebu</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>d</td>
+                <td colspan="2">Panel mesin</td>
+                <td>Bersih tidak berdebu</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td colspan="2">Kebersihan Oli:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>a</td>
+                <td colspan="2">Lantai area mesin</td>
+                <td>Tidak kotor oli</td>
+                <td>Lap & busa spon</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td colspan="2">Bawah mesin</td>
+                <td>Tidak kotor oli</td>
+                <td>Lap & busa spon</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>c</td>
+                <td colspan="2">Bawah inject unit</td>
+                <td>Tidak kotor oli</td>
+                <td>Lap & busa spon</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td colspan="2">Kebersihan Air :</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>a</td>
+                <td colspan="2">Pemeriksaan instalasi air</td>
+                <td>Fitting / balvalve tidak bocor</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td colspan="2">Embun pipa chiller</td>
+                <td>Dilindungi armaflek</td>
+                <td>Lap majun</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td colspan="2">Kebersihan Area Mesin</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>a</td>
+                <td colspan="2">Pemeriksaan alat kerja/ sparepart setelah perbaikan</td>
+                <td>Area mesin bersih, tidak terdapat ceceran tools & sparepart</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td colspan="2">Kelengkapan selang angin sprial & air gun</td>
+                <td>Terpasang rapih,lengkap dan berfungsi</td>
+                <td>Visual</td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td colspan="2">Paraf Pelaksana</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="day-cell" data-day="1"></td>
+                <td class="day-cell" data-day="2"></td>
+                <td class="day-cell" data-day="3"></td>
+                <td class="day-cell" data-day="4"></td>
+                <td class="day-cell" data-day="5"></td>
+                <td class="day-cell" data-day="6"></td>
+                <td class="day-cell" data-day="7"></td>
+                <td class="day-cell" data-day="8"></td>
+                <td class="day-cell" data-day="9"></td>
+                <td class="day-cell" data-day="10"></td>
+                <td class="day-cell" data-day="11"></td>
+                <td class="day-cell" data-day="12"></td>
+                <td class="day-cell" data-day="13"></td>
+                <td class="day-cell" data-day="14"></td>
+                <td class="day-cell" data-day="15"></td>
+                <td class="day-cell" data-day="16"></td>
+                <td class="day-cell" data-day="17"></td>
+                <td class="day-cell" data-day="18"></td>
+                <td class="day-cell" data-day="19"></td>
+                <td class="day-cell" data-day="20"></td>
+                <td class="day-cell" data-day="21"></td>
+                <td class="day-cell" data-day="22"></td>
+                <td class="day-cell" data-day="23"></td>
+                <td class="day-cell" data-day="24"></td>
+                <td class="day-cell" data-day="25"></td>
+                <td class="day-cell" data-day="26"></td>
+                <td class="day-cell" data-day="27"></td>
+                <td class="day-cell" data-day="28"></td>
+                <td class="day-cell" data-day="29"></td>
+                <td class="day-cell" data-day="30"></td>
+                <td class="day-cell" data-day="31"></td>
+            </tr>
         </tbody>
     </table>
 
-    <!-- CATATAN -->
-    <div class="notes-box">
-        <strong>Catatan :</strong><br><br>
-        (*) : Isi kolom laporan ceklist jika unit ini ada dimesin ini<br>
-        (**) : Diisi angka jam kerja mesin / running hour yang ada dimesin<br><br>
-        <strong>Beri tanda :</strong><br>
-        Check mark Bila item yang diperiksa baik, sesuai standar<br>
-        x Bila terjadi penyimpangan / kerusakan pada item yang diperiksa.<br>
-        o Bila mesin dalam proses perbaikan<br><br>
-        <div style="text-align:right;"><strong>DIKETAHUI</strong><br><strong>MECHANIC SUPERINTENDENT</strong></div>
+    <!-- NOTES -->
+    <div class="notes-section no-break">
+        <p><strong>Catatan :</strong></p>
+        <p>(*) : Isi kolom laporan ceklist jika unit ini ada dimesin ini</p>
+        <p>(**) : Diisi angka jam kerja mesin / running hour yang ada dimesin</p>
+        <p><strong>Beri tanda :</strong></p>
+        <p>√ Bila item yang diperiksa baik, sesuai standar</p>
+        <p>x Bila terjadi penyimpangan / kerusakan pada item yang diperiksa.</p>
+        <p>o Bila mesin dalam proses perbaikan</p>
+        <p style="text-align: right;"><strong>DIKETAHUI</strong><br>MECHANIC SUPERINTENDENT</p>
     </div>
 
-    <!-- TANDA TANGAN (dengan class untuk JS) -->
-    <div class="signature-area">
-        <table class="signature-table">
-            <tr>
-                <td>
-                    <div class="sig-role">Prepared by (Operator / Pelaksana)</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label sig-pelaksana">Nama : ________________</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label">Tanggal : ________________</div>
-                    <div class="sig-line"></div>
-                </td>
-                <td>
-                    <div class="sig-role">Checked by (Coordinator)</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label sig-koordinator">Nama : ________________</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label">Tanggal : ________________</div>
-                    <div class="sig-line"></div>
-                </td>
-                <td>
-                    <div class="sig-role">Approved by (Superintendent)</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label sig-superintendent">Nama : ________________</div>
-                    <div class="sig-line"></div>
-                    <div class="sig-label">Tanggal : ________________</div>
-                    <div class="sig-line"></div>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- SIGNATURE -->
+    <table class="signature-table no-break">
+        <tr>
+            <td>
+                <div>Prepared by (Operator/Pelaksana)</div>
+                <div class="signature-line" id="sig-pelaksana"></div>
+                <div>Name: ________________________</div>
+                <div>Date: ________________________</div>
+            </td>
+            <td>
+                <div>Checked by (Coordinator)</div>
+                <div class="signature-line" id="sig-koordinator"></div>
+                <div>Name: ________________________</div>
+                <div>Date: ________________________</div>
+            </td>
+            <td>
+                <div>Approved by (Superintendent)</div>
+                <div class="signature-line" id="sig-superintendent"></div>
+                <div>Name: ________________________</div>
+                <div>Date: ________________________</div>
+            </td>
+        </tr>
+    </table>
 
-    <script type="module" src="post.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="post.js"></script>
 </body>
 </html>
