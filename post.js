@@ -1,14 +1,40 @@
-// ===============================
-// SUPABASE CONFIG
-// ===============================
-const supabaseUrl = 'https://duljhawudstjxibhuenv.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ';
-const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+/* ===============================
+   POST.JS – FINAL VERCEL SAFE
+   =============================== */
+
+console.log("post.js loaded");
 
 // ===============================
-// FALLBACK MACHINE LIST (WAJIB)
+// 1. IMPORT SUPABASE (V2 - ESM)
 // ===============================
-const FALLBACK_MACHINES = [
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+// ===============================
+// 2. SUPABASE CONFIG
+// ===============================
+const SUPABASE_URL = "https://duljhawudstjxibhuenv.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===============================
+// 3. ELEMENT SELECTOR (HARUS ADA)
+// ===============================
+const machineSelect = document.getElementById("machine-select");
+const monthSelect   = document.getElementById("month-select");
+const yearSelect    = document.getElementById("year-select");
+const statusMessage = document.getElementById("status-message");
+
+if (!machineSelect || !monthSelect || !yearSelect) {
+  console.error("Selector not found in HTML");
+  alert("ERROR: selector missing in HTML");
+}
+
+// ===============================
+// 4. STATIC MACHINE LIST
+// (sesuai permintaan kamu)
+// ===============================
+const MACHINE_LIST = [
   "LIANXIN 80 T (TOAD)",
   "WIBA 270 T (NEBULA)",
   "WIBA 240 T (SPIDERMAN)",
@@ -40,147 +66,121 @@ const FALLBACK_MACHINES = [
 ];
 
 // ===============================
-// INIT DROPDOWNS
+// 5. INIT DROPDOWNS
 // ===============================
-function initMachineDropdown() {
-  const sel = document.getElementById('machine-select');
-  sel.innerHTML = '<option value="">-- Select Machine --</option>';
-
-  FALLBACK_MACHINES.forEach(m => {
-    const opt = document.createElement('option');
+function initSelectors() {
+  // Mesin
+  machineSelect.innerHTML = `<option value="">-- Select Machine --</option>`;
+  MACHINE_LIST.forEach(m => {
+    const opt = document.createElement("option");
     opt.value = m;
     opt.textContent = m;
-    sel.appendChild(opt);
+    machineSelect.appendChild(opt);
   });
-}
 
-async function overrideMachinesFromDB() {
-  const { data, error } = await supabase
-    .from('db_mesin_b')
-    .select('id_mesin')
-    .eq('status_aktif', true)
-    .order('id_mesin');
-
-  if (error || !data || data.length === 0) {
-    console.warn('Using fallback machine list');
-    return;
-  }
-
-  const sel = document.getElementById('machine-select');
-  sel.innerHTML = '<option value="">-- Select Machine --</option>';
-
-  data.forEach(row => {
-    const opt = document.createElement('option');
-    opt.value = row.id_mesin;
-    opt.textContent = row.id_mesin;
-    sel.appendChild(opt);
-  });
-}
-
-function initMonthDropdown() {
+  // Bulan
   const months = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
   ];
-  const sel = document.getElementById('month-select');
-  const now = new Date().getMonth();
-
-  sel.innerHTML = '';
+  monthSelect.innerHTML = "";
   months.forEach((m, i) => {
-    const opt = document.createElement('option');
+    const opt = document.createElement("option");
     opt.value = i + 1;
     opt.textContent = m;
-    if (i === now) opt.selected = true;
-    sel.appendChild(opt);
+    monthSelect.appendChild(opt);
   });
-}
 
-function initYearDropdown() {
-  const sel = document.getElementById('year-select');
-  const now = new Date().getFullYear();
-
-  sel.innerHTML = '';
-  for (let y = now - 3; y <= now + 3; y++) {
-    const opt = document.createElement('option');
+  // Tahun (±5 tahun)
+  const currentYear = new Date().getFullYear();
+  yearSelect.innerHTML = "";
+  for (let y = currentYear - 5; y <= currentYear + 1; y++) {
+    const opt = document.createElement("option");
     opt.value = y;
     opt.textContent = y;
-    if (y === now) opt.selected = true;
-    sel.appendChild(opt);
+    yearSelect.appendChild(opt);
   }
+
+  // Default ke sekarang
+  monthSelect.value = new Date().getMonth() + 1;
+  yearSelect.value = currentYear;
 }
 
-// ===============================
-// CLEAR FUNCTIONS
-// ===============================
-function clearChecklist() {
-  document.querySelectorAll('.day-cell').forEach(c => c.textContent = '');
-  document.getElementById('sig-pelaksana').textContent = '';
-  document.getElementById('sig-koordinator').textContent = '';
-  document.getElementById('sig-superintendent').textContent = '';
-}
+initSelectors();
 
 // ===============================
-// LOAD DATA
+// 6. EVENT LISTENER
+// ===============================
+machineSelect.addEventListener("change", loadChecklist);
+monthSelect.addEventListener("change", loadChecklist);
+yearSelect.addEventListener("change", loadChecklist);
+
+// ===============================
+// 7. LOAD CHECKLIST DATA
 // ===============================
 async function loadChecklist() {
-  const mesin = document.getElementById('machine-select').value;
-  const bulan = document.getElementById('month-select').value;
-  const tahun = document.getElementById('year-select').value;
-  const status = document.getElementById('status-message');
+  const machine = machineSelect.value;
+  const month   = monthSelect.value;
+  const year    = yearSelect.value;
 
-  clearChecklist();
-  status.textContent = '';
+  if (!machine || !month || !year) return;
 
-  if (!mesin || !bulan || !tahun) return;
+  statusMessage.textContent = "Loading data...";
 
-  const start = `${tahun}-${String(bulan).padStart(2, '0')}-01`;
-  const end   = `${tahun}-${String(bulan).padStart(2, '0')}-31`;
+  console.log("Request:", { machine, month, year });
 
-  const { data, error } = await supabase
-    .from('pelaksana_b')
-    .select('*')
-    .eq('nomor_mesin', mesin)
-    .gte('tanggal', start)
-    .lte('tanggal', end);
+  try {
+    const { data, error } = await supabase
+      .from("pelaksana_b")
+      .select("*")
+      .eq("nomor_mesin", machine)
+      .gte("tanggal", `${year}-${month}-01`)
+      .lte("tanggal", `${year}-${month}-31`);
 
-  if (error || !data || data.length === 0) {
-    status.textContent = 'No data found for selected machine and period';
-    return;
-  }
+    if (error) throw error;
 
-  data.forEach(row => {
-    const day = new Date(row.tanggal).getDate();
-    let symbol = '';
+    console.log("DB result:", data);
 
-    if (row.kondisi_umum === 'OK') symbol = '✓';
-    if (row.kondisi_umum === 'NG') symbol = 'x';
-    if (row.kondisi_umum === 'REPAIR') symbol = 'o';
+    clearChecklist();
 
-    document
-      .querySelectorAll(`.day-cell[data-day="${day}"]`)
-      .forEach(c => c.textContent = symbol);
-  });
+    if (!data || data.length === 0) {
+      statusMessage.textContent = "No data found.";
+      return;
+    }
 
-  const last = data[data.length - 1];
-  document.getElementById('sig-pelaksana').textContent = last.nama_pelaksana || '';
-  if (last.status_koordinator === 'Verified') {
-    document.getElementById('sig-koordinator').textContent = last.nama_koordinator || '';
-  }
-  if (last.status_final === 'Approved') {
-    document.getElementById('sig-superintendent').textContent = last.nama_superintendent || '';
+    fillChecklist(data);
+    statusMessage.textContent = "";
+
+  } catch (err) {
+    console.error(err);
+    statusMessage.textContent = "ERROR loading data";
   }
 }
 
 // ===============================
-// DOM READY
+// 8. CLEAR TABLE
 // ===============================
-document.addEventListener('DOMContentLoaded', () => {
-  initMachineDropdown();       // HARD GUARANTEE
-  initMonthDropdown();
-  initYearDropdown();
-  overrideMachinesFromDB();    // OPTIONAL DB OVERRIDE
+function clearChecklist() {
+  document.querySelectorAll(".day-cell").forEach(td => {
+    td.textContent = "";
+  });
+}
 
-  document.getElementById('machine-select').addEventListener('change', loadChecklist);
-  document.getElementById('month-select').addEventListener('change', loadChecklist);
-  document.getElementById('year-select').addEventListener('change', loadChecklist);
-});
+// ===============================
+// 9. FILL TABLE (BASIC)
+// ===============================
+function fillChecklist(rows) {
+  rows.forEach(row => {
+    const day = new Date(row.tanggal).getDate();
+    document
+      .querySelectorAll(`.day-cell[data-day="${day}"]`)
+      .forEach(td => {
+        td.textContent = "√";
+      });
+  });
+}
+
+// ===============================
+// 10. AUTO LOAD FIRST TIME
+// ===============================
+loadChecklist();
