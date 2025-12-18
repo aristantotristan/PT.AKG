@@ -1,155 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Checklist Harian Mesin Injection</title>
+    <meta charset="UTF-8">
+    <title>AF.SP 05.13 Rev-00 – CHECKLIST HARIAN MESIN INJECTION</title>
+    <style>
+        @page { size: A4 portrait; margin: 10mm 12mm; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: black; line-height: 1.25; margin: 0; padding: 0; position: relative; }
+        table { border-collapse: collapse; width: 100%; page-break-inside: avoid; }
+        td, th { border: 1px solid black; padding: 3px 4px; vertical-align: middle; }
 
-<style>
-@page { size: A4 portrait; margin: 1cm; }
-body { font-family: Arial, sans-serif; font-size: 10pt; }
-table { width: 100%; border-collapse: collapse; }
-th, td { border: 1px solid black; padding: 4px; }
-.no-border td { border: none; }
-.header-table td { border: 2px solid black; }
-.center { text-align: center; }
-.bold { font-weight: bold; }
-select, input { padding: 4px; width: 100%; }
-.control-box { margin-bottom: 12px; border: 2px solid black; padding: 8px; }
-@media print { .control-box { display: none; } }
-</style>
+        .header td { border: 2.5px solid black; padding: 10px 8px; height: 70px; }
+        .header-left   { width: 20%; text-align: center; }
+        .header-center { width: 60%; text-align: center; font-weight: bold; font-size: 15pt; }
+        .header-right  { width: 20%; font-size: 8.5pt; line-height: 1.35; vertical-align: top; }
 
+        .machine-info td { border: none; padding: 6px 0; }
+        .underline { border-bottom: 1px solid black; width: 160px; display: inline-block; }
+
+        .checklist th, .checklist td { font-size: 8.2pt; text-align: center; height: 22px; }
+        .checklist .no     { width: 3%; font-weight: bold; }
+        .checklist .jenis  { width: 26%; text-align: left; padding-left: 8px; }
+        .checklist .std    { width: 21%; text-align: left; padding-left: 6px; }
+        .checklist .metode { width: 9%; }
+        .checklist .catatan{ width: 9%; }
+        .checklist .day-cell { width: 1.9%; font-size: 7.8pt; }
+
+        .notes-box { border: 1.8px solid black; padding: 10px; margin-top: 12px; font-size: 9pt; line-height: 1.4; page-break-inside: avoid; }
+
+        .signature-table { width: 100%; border: 2.5px solid black; border-collapse: collapse; margin-top: 20px; }
+        .signature-table td { border: 1.5px solid black; width: 33.33%; height: 110px; text-align: center; vertical-align: bottom; padding: 8px; }
+        .sig-role { font-weight: bold; font-size: 10pt; margin-bottom: 8px; }
+        .sig-line { border-bottom: 1px solid black; width: 75%; margin: 18px auto 6px auto; }
+        .sig-label { font-size: 9pt; margin: 4px 0; }
+
+        .selectors { margin: 15px 0; text-align: right; padding: 10px; background: #f0f8ff; border-bottom: 2px solid #000; }
+        #status-message { color: #d00; text-align: center; margin: 10px 0; font-weight: bold; font-size: 11pt; }
+
+        @media print {
+            .selectors, #status-message { display: none !important; }
+            body { margin: 8mm 10mm; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- ================= CONTROL PANEL ================= -->
-<div class="control-box">
-  <table class="no-border">
-    <tr>
-      <td width="20%" class="bold">Pilih Mesin</td>
-      <td width="40%">
-        <select id="mesinSelect">
-          <option value="">-- PILIH MESIN --</option>
-          <option>LIANXIN 80 T (TOAD)</option>
-          <option>WIBA 270 T (NEBULA)</option>
-          <option>WIBA 240 T (SPIDERMAN)</option>
-          <option>WIBA 210 T (THOR)</option>
-          <option>WIBA 350 T (IRON MAN)</option>
-          <option>ARBURG 320 T (STAR LORD)</option>
-          <option>WIBA 500 T (STEVE ROGERS)</option>
-          <option>WIBA 500 T (THANOS)</option>
-          <option>FCS 220 T (BLACKWIDOW)</option>
-          <option>ENGEL 220 T (DEADPOOL)</option>
-          <option>ARBURG 200 T (WOLVERINE)</option>
-          <option>FCS 380 T (LOKI)</option>
-          <option>ENGEL 380 T (INHUMANS)</option>
-          <option>ENGEL 380 T (HULK)</option>
-          <option>NPC 400 T (WANDA)</option>
-          <option>ENGEL 280 T (DOCTOR STRANGE)</option>
-          <option>FCS 100 T (ANTMAN)</option>
-          <option>NPC 160 T (WASP)</option>
-          <option>NPC 160 T (WONG)</option>
-          <option>FCS 150 T (ROCKET)</option>
-          <option>FCS 150 T (MANTIS)</option>
-          <option>NPC 160 T (SHANCHI)</option>
-          <option>NPC 260 T (VISION)</option>
-          <option>NPC 200 T (MAGNETO)</option>
-          <option>FCS 100 T (NICK FURRY)</option>
-          <option>FCS 250 T (CYCLOPS)</option>
-          <option>NPC 260 T (HAWKEYE)</option>
-          <option>EXTRUDER</option>
+    <div id="status-message"></div>
+
+    <div class="selectors">
+        <label><strong>Mesin:</strong></label>
+        <select id="machine-select">
+            <option value="">Pilih Mesin</option>
         </select>
-      </td>
-      <td width="15%" class="bold">Bulan</td>
-      <td width="15%">
-        <select id="bulanSelect">
-          <option value="">-- BULAN --</option>
-          <option>Januari</option><option>Februari</option><option>Maret</option>
-          <option>April</option><option>Mei</option><option>Juni</option>
-          <option>Juli</option><option>Agustus</option><option>September</option>
-          <option>Oktober</option><option>November</option><option>Desember</option>
+        <label><strong>Bulan:</strong></label>
+        <select id="month-select">
+            <option value="">Pilih Bulan</option>
         </select>
-      </td>
-      <td width="10%">
-        <input type="number" id="tahunInput" placeholder="Tahun" value="2025">
-      </td>
-    </tr>
-  </table>
-</div>
+        <label><strong>Tahun:</strong></label>
+        <select id="year-select"></select>
+    </div>
 
-<!-- ================= HEADER ================= -->
-<table class="header-table">
-<tr>
-  <td width="20%" class="center">
-    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" style="max-width:100%;">
-  </td>
-  <td width="60%" class="center bold" style="font-size:14pt;">
-    CHECKLIST HARIAN MESIN INJECTION
-  </td>
-  <td width="20%">
-    No Dokumen : AF.SP 05.13<br>
-    Rev : 00<br>
-    Halaman : 1/1
-  </td>
-</tr>
-</table>
+    <table class="header">
+        <tr>
+            <td class="header-left">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo" style="max-height:68px; max-width:95%;">
+            </td>
+            <td class="header-center">CHECKLIST HARIAN MESIN INJECTION</td>
+            <td class="header-right">
+                No Dokumen       : AF.SP 05.13.Rev-00<br>
+                Tanggal Terbit   : 02 Agustus 2024<br>
+                Halaman          : 1/1<br>
+                Tanggal Revisi   : -
+            </td>
+        </tr>
+    </table>
 
-<!-- ================= MACHINE INFO ================= -->
-<table class="no-border" style="margin-top:8px;">
-<tr>
-  <td class="bold" width="15%">MERK MESIN</td>
-  <td width="20%" id="merkMesin">-</td>
-  <td class="bold" width="15%">TONAGE</td>
-  <td width="20%" id="tonage">-</td>
-  <td class="bold" width="15%">MESIN</td>
-  <td width="15%" id="namaMesin">-</td>
-</tr>
-<tr>
-  <td class="bold">BULAN</td>
-  <td id="bulanText">-</td>
-  <td class="bold">TAHUN</td>
-  <td id="tahunText">-</td>
-</tr>
-</table>
+    <table class="machine-info" style="margin-top:12px; font-size:10pt;">
+        <tr>
+            <td width="14%"><strong>MERK MESIN</strong></td>
+            <td width="26%"><span class="underline" id="merk-mesin">&nbsp;</span></td>
+            <td width="12%"><strong>Serial No</strong></td>
+            <td width="20%"><span class="underline">&nbsp;</span></td>
+        </tr>
+        <tr>
+            <td><strong>TONAGE</strong></td>
+            <td><span class="underline" id="tonage">&nbsp;</span></td>
+            <td><strong>Tahun</strong></td>
+            <td><span class="underline" id="tahun-display">&nbsp;</span></td>
+            <td><strong>Bulan :</strong> <span class="underline" id="bulan-display">&nbsp;</span></td>
+        </tr>
+    </table>
 
-<hr>
+    <table class="checklist" style="margin-top:10px;">
+        <thead>
+            <tr>
+                <th class="no">No</th>
+                <th class="jenis" colspan="2">Jenis pengecekan</th>
+                <th class="std">Standard</th>
+                <th class="metode">METODE</th>
+                <th class="catatan">CATATAN</th>
+                <th colspan="31">Tanggal</th>
+            </tr>
+            <tr>
+                <th></th><th colspan="2"></th><th></th><th></th><th></th>
+                <th class="day-cell" data-day="1">1</th><th class="day-cell" data-day="2">2</th><th class="day-cell" data-day="3">3</th>
+                <th class="day-cell" data-day="4">4</th><th class="day-cell" data-day="5">5</th><th class="day-cell" data-day="6">6</th>
+                <th class="day-cell" data-day="7">7</th><th class="day-cell" data-day="8">8</th><th class="day-cell" data-day="9">9</th>
+                <th class="day-cell" data-day="10">10</th><th class="day-cell" data-day="11">11</th><th class="day-cell" data-day="12">12</th>
+                <th class="day-cell" data-day="13">13</th><th class="day-cell" data-day="14">14</th><th class="day-cell" data-day="15">15</th>
+                <th class="day-cell" data-day="16">16</th><th class="day-cell" data-day="17">17</th><th class="day-cell" data-day="18">18</th>
+                <th class="day-cell" data-day="19">19</th><th class="day-cell" data-day="20">20</th><th class="day-cell" data-day="21">21</th>
+                <th class="day-cell" data-day="22">22</th><th class="day-cell" data-day="23">23</th><th class="day-cell" data-day="24">24</th>
+                <th class="day-cell" data-day="25">25</th><th class="day-cell" data-day="26">26</th><th class="day-cell" data-day="27">27</th>
+                <th class="day-cell" data-day="28">28</th><th class="day-cell" data-day="29">29</th><th class="day-cell" data-day="30">30</th>
+                <th class="day-cell" data-day="31">31</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td colspan="2"><strong>Mekanikal:</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Nozzle visual</td><td>Radius tidak rusak, tidak ada leleah material meler</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Kebersihan Head Nozzle barrel</td><td>tidak ada material yang menempel</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>c</td><td colspan="2">Check level oli mesin</td><td>> Level garis tengah</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>d</td><td colspan="2">Check pump central lubrikasi</td><td>berfungsi baik</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>e</td><td colspan="2">Check keseluruhan kondisi mesin</td><td>Lengkap dan bersih</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>f</td><td colspan="2">Check kondisi lampu indicator</td><td>Nyala sesuai fungsi</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>g</td><td colspan="2">Pastikan pintu panel kontrol tertutup</td><td>Tertutup</td><td>Tangan</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>h</td><td colspan="2">Check temperatur oli</td><td>40 - 50°C</td><td>Display control</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>i</td><td colspan="2">Running hour (jam)(**)</td><td>Sesuai aktual mesin</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>2</td><td colspan="2"><strong>Kebersihan debu :</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Pintu Mesin (kaca/acrilric)</td><td>Bersih tidak berdebu</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Kap mesin</td><td>Bersih tidak berdebu</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>c</td><td colspan="2">Kap inject unit</td><td>Bersih tidak berdebu</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>d</td><td colspan="2">Panel mesin</td><td>Bersih tidak berdebu</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>3</td><td colspan="2"><strong>Kebersihan Oli:</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Lantai area mesin</td><td>Tidak kotor oli</td><td>Lap & busa spon</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Bawah mesin</td><td>Tidak kotor oli</td><td>Lap & busa spon</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>c</td><td colspan="2">Bawah inject unit</td><td>Tidak kotor oli</td><td>Lap & busa spon</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>4</td><td colspan="2"><strong>Kebersihan Air :</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Pemeriksaan instalasi air</td><td>Fitting / balvalve tidak bocor</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Embun pipa chiller</td><td>Dilindungi armaflek</td><td>Lap majun</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>5</td><td colspan="2"><strong>Kebersihan Area Mesin</strong></td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>a</td><td colspan="2">Pemeriksaan alat kerja/ sparepart setelah perbaikan</td><td>Area mesin bersih, tidak terdapat ceceran tools & sparepart</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>b</td><td colspan="2">Kelengkapan selang angin sprial & air gun</td><td>Terpasang rapih,lengkap dan berfungsi</td><td>Visual</td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+            <tr><td>4</td><td colspan="2">Paraf Pelaksana</td><td></td><td></td><td></td><td class="day-cell" data-day="1"></td><td class="day-cell" data-day="2"></td><td class="day-cell" data-day="3"></td><td class="day-cell" data-day="4"></td><td class="day-cell" data-day="5"></td><td class="day-cell" data-day="6"></td><td class="day-cell" data-day="7"></td><td class="day-cell" data-day="8"></td><td class="day-cell" data-day="9"></td><td class="day-cell" data-day="10"></td><td class="day-cell" data-day="11"></td><td class="day-cell" data-day="12"></td><td class="day-cell" data-day="13"></td><td class="day-cell" data-day="14"></td><td class="day-cell" data-day="15"></td><td class="day-cell" data-day="16"></td><td class="day-cell" data-day="17"></td><td class="day-cell" data-day="18"></td><td class="day-cell" data-day="19"></td><td class="day-cell" data-day="20"></td><td class="day-cell" data-day="21"></td><td class="day-cell" data-day="22"></td><td class="day-cell" data-day="23"></td><td class="day-cell" data-day="24"></td><td class="day-cell" data-day="25"></td><td class="day-cell" data-day="26"></td><td class="day-cell" data-day="27"></td><td class="day-cell" data-day="28"></td><td class="day-cell" data-day="29"></td><td class="day-cell" data-day="30"></td><td class="day-cell" data-day="31"></td></tr>
+        </tbody>
+    </table>
 
-<p class="center"><em>(Checklist table tetap seperti yang kamu punya – tidak diubah)</em></p>
+    <div class="notes-box">
+        <strong>Catatan :</strong><br><br>
+        (*) : Isi kolom laporan ceklist jika unit ini ada dimesin ini<br>
+        (**) : Diisi angka jam kerja mesin / running hour yang ada dimesin<br><br>
+        <strong>Beri tanda :</strong><br>
+        Check mark Bila item yang diperiksa baik, sesuai standar<br>
+        x Bila terjadi penyimpangan / kerusakan pada item yang diperiksa.<br>
+        o Bila mesin dalam proses perbaikan<br><br>
+        <div style="text-align:right;"><strong>DIKETAHUI</strong><br><strong>MECHANIC SUPERINTENDENT</strong></div>
+    </div>
 
-<!-- ================= SCRIPT ================= -->
-<script>
-const mesinSelect = document.getElementById("mesinSelect");
-const bulanSelect = document.getElementById("bulanSelect");
-const tahunInput  = document.getElementById("tahunInput");
+    <table class="signature-table">
+        <tr>
+            <td>
+                <div class="sig-role">Prepared by (Operator / Pelaksana)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-pelaksana"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+            <td>
+                <div class="sig-role">Checked by (Coordinator)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-koordinator"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+            <td>
+                <div class="sig-role">Approved by (Superintendent)</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Nama : <span id="sig-superintendent"></span></div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Tanggal : ________________</div>
+            </td>
+        </tr>
+    </table>
 
-mesinSelect.onchange = () => {
-  const val = mesinSelect.value;
-  if (!val) return;
+    <script>
+        const FALLBACK_MACHINES = [
+            "LIANXIN 80 T (TOAD)","WIBA 270 T (NEBULA)","WIBA 240 T (SPIDERMAN)","WIBA 210 T (THOR)","WIBA 350 T (IRON MAN)",
+            "ARBURG 320 T (STAR LORD)","WIBA 500 T (STEVE ROGERS)","WIBA 500 T (THANOS)","FCS 220 T (BLACKWIDOW)","ENGEL 220 T (DEADPOOL)",
+            "ARBURG 200 T (WOLVERINE)","FCS 380 T (LOKI)","ENGEL 380 T (INHUMANS)","ENGEL 380 T (HULK)","NPC 400 T (WANDA)",
+            "ENGEL 280 T (DOCTOR STRANGE)","FCS 100 T (ANTMAN)","NPC 160 T (WASP)","NPC 160 T (WONG)","FCS 150 T (ROCKET)",
+            "FCS 150 T (MANTIS)","NPC 160 T (SHANGCHI)","NPC 260 T (VISION)","NPC 200 T (MAGNETO)","FCS 100 T (NICK FURY)",
+            "FCS 250 T (CYCLOPS)","NPC 260 T (HAWKEYE)","EXTRUDER"
+        ];
 
-  if (val === "EXTRUDER") {
-    document.getElementById("merkMesin").innerText = "EXTRUDER";
-    document.getElementById("tonage").innerText = "-";
-    document.getElementById("namaMesin").innerText = "-";
-    return;
-  }
+        function initMachines() {
+            const sel = document.getElementById('machine-select');
+            sel.innerHTML = '<option value="">Pilih Mesin</option>';
+            FALLBACK_MACHINES.sort().forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                sel.appendChild(opt);
+            });
+        }
 
-  // contoh: WIBA 270 T (NEBULA)
-  const merk = val.split(" ")[0];
-  const tonage = val.match(/(\d+)\sT/)?.[1] + " T";
-  const nama = val.match(/\((.*?)\)/)?.[1];
+        function initMonthYear() {
+            const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            const now = new Date();
+            const curMonth = now.getMonth() + 1;
+            const curYear = now.getFullYear();
 
-  document.getElementById("merkMesin").innerText = merk;
-  document.getElementById("tonage").innerText = tonage || "-";
-  document.getElementById("namaMesin").innerText = nama || "-";
-};
+            const mSel = document.getElementById('month-select');
+            mSel.innerHTML = '<option value="">Pilih Bulan</option>';
+            months.forEach((n,i) => {
+                const opt = document.createElement('option');
+                opt.value = i+1;
+                opt.textContent = n;
+                if (i+1 === curMonth) opt.selected = true;
+                mSel.appendChild(opt);
+            });
 
-bulanSelect.onchange = () => {
-  document.getElementById("bulanText").innerText = bulanSelect.value || "-";
-};
+            const ySel = document.getElementById('year-select');
+            ySel.innerHTML = '';
+            for (let y = curYear - 3; y <= curYear + 3; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === curYear) opt.selected = true;
+                ySel.appendChild(opt);
+            }
+        }
 
-tahunInput.oninput = () => {
-  document.getElementById("tahunText").innerText = tahunInput.value || "-";
-};
+        function updateHeader(month, year) {
+            const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            document.getElementById('bulan-display').textContent = month ? months[parseInt(month) - 1] : '';
+            document.getElementById('tahun-display').textContent = year ? year : '';
+        }
+
+        function clearAll() {
+            document.querySelectorAll('.day-cell').forEach(c => c.textContent = '');
+            document.getElementById('sig-pelaksana').textContent = '';
+            document.getElementById('sig-koordinator').textContent = '';
+            document.getElementById('sig-superintendent').textContent = '';
+            document.getElementById('status-message').textContent = '';
+        }
+
+        function loadData() {
+            const machine = document.getElementById('machine-select').value;
+            const month = document.getElementById('month-select').value;
+            const year = document.getElementById('year-select').value;
+
+            if (!machine || !month || !year) {
+                console.warn('Pilih mesin, bulan, dan tahun terlebih dahulu.');
+                clearAll();
+                updateHeader(null, null);
+                return;
+            }
+
+            updateHeader(month, year);
+            clearAll();
+
+            // Kode Supabase dihilangkan sementara sesuai permintaan
+            // Contoh data dummy untuk demonstrasi frontend
+            const dummyRecords = [
+                { tanggal: `${year}-${String(month).padStart(2, '0')}-01`, kondisi_umum: 'OK', nama_pelaksana: 'Pelaksana Dummy', status_koordinator: 'Verified', nama_koordinator: 'Koordinator Dummy', status_final: 'Approved', nama_superintendent: 'Superintendent Dummy' },
+                { tanggal: `${year}-${String(month).padStart(2, '0')}-02`, kondisi_umum: 'NG' },
+                // Tambahkan dummy data lain jika diperlukan
+            ];
+
+            dummyRecords.forEach(r => {
+                const day = new Date(r.tanggal).getDate();
+                let sym = '';
+                if (r.kondisi_umum === 'OK') sym = '√';
+                if (r.kondisi_umum === 'NG') sym = 'x';
+                if (r.kondisi_umum === 'REPAIR') sym = 'o';
+
+                document.querySelectorAll(`.day-cell[data-day="${day}"]`).forEach(c => {
+                    c.textContent = sym;
+                });
+            });
+
+            const latest = dummyRecords[dummyRecords.length - 1];
+            document.getElementById('sig-pelaksana').textContent = latest.nama_pelaksana || '';
+            if (latest.status_koordinator === 'Verified') {
+                document.getElementById('sig-koordinator').textContent = latest.nama_koordinator || '';
+            }
+            if (latest.status_final === 'Approved') {
+                document.getElementById('sig-superintendent').textContent = latest.nama_superintendent || '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initMachines();
+            initMonthYear();
+
+            const machineSelect = document.getElementById('machine-select');
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
+
+            machineSelect.addEventListener('change', () => {
+                const val = machineSelect.value;
+                if (val) {
+                    const parts = val.match(/(\w+) (\d+ T) \((.+)\)/) || [];
+                    document.getElementById('merk-mesin').textContent = parts[1] || '';
+                    document.getElementById('tonage').textContent = parts[2] || '';
+                } else {
+                    document.getElementById('merk-mesin').textContent = '';
+                    document.getElementById('tonage').textContent = '';
+                }
+                loadData();
+            });
+
+            monthSelect.addEventListener('change', loadData);
+            yearSelect.addEventListener('change', loadData);
+
+            setTimeout(loadData, 800);
+        });
 </script>
-
 </body>
 </html>
