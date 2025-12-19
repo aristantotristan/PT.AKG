@@ -2,30 +2,27 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>AF.SP 05.13 Rev-00 – HASIL CHECKLIST HARIAN MESIN</title>
+    <title>AF.SP 05.13 Rev-00 – PENYEMPURNAAN PARAF HARIAN</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @page { size: A4 landscape; margin: 5mm; }
         body { font-family: 'Arial Narrow', Arial, sans-serif; font-size: 8pt; margin: 0; padding: 10px; background: #f0f0f0; }
-        .sheet { background: white; padding: 10mm; margin: auto; width: 277mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .sheet { background: white; padding: 8mm; margin: auto; width: 280mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        td, th { border: 1px solid black; padding: 2px; text-align: center; font-size: 7.5pt; }
+        td, th { border: 1px solid black; padding: 2px; text-align: center; font-size: 7.5pt; word-wrap: break-word; }
         
-        /* Header Style */
         .header-table td { border: 2px solid black; height: 50px; font-weight: bold; }
-        .logo-img { height: 40px; object-fit: contain; }
+        .logo-img { height: 40px; }
         
-        /* Layout Info */
-        .info-table { border: none; margin: 5px 0; }
         .info-table td { border: none; text-align: left; padding: 1px 0; }
-        
-        /* Matrix Style */
-        .bg-gray { background-color: #e2e8f0; font-weight: bold; text-align: left; padding-left: 5px; text-transform: uppercase; }
-        .col-nama { text-align: left; width: 150px; padding-left: 3px; font-size: 7pt; }
-        .col-std { width: 110px; text-align: left; font-size: 6.5pt; color: #444; }
+        .bg-gray { background-color: #e2e8f0; font-weight: bold; text-align: left; padding-left: 5px; }
         
         .st-ok { color: green; font-weight: bold; }
         .st-ng { color: white; font-weight: bold; background: #dc3545; }
+        
+        /* Style khusus Paraf Harian */
+        .row-paraf { height: 35px; background: #fafafa; }
+        .paraf-img { height: 25px; width: auto; mix-blend-mode: multiply; }
         
         .no-print { background: #003366; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
         @media print { .no-print { display: none; } body { background: white; padding: 0; } .sheet { box-shadow: none; padding: 0; margin: 0; width: 100%; } }
@@ -34,19 +31,19 @@
 <body>
 
 <div class="no-print">
-    <b>REPORT VIEWER:</b>
+    <b>STRUKTUR PARAF HARIAN:</b>
     <select id="machine-select"><option value="">Pilih Mesin...</option></select>
     <select id="month-select"></select>
     <select id="year-select"></select>
-    <button onclick="loadData()" style="cursor:pointer">TAMPILKAN</button>
-    <button onclick="window.print()" style="background: #28a745; color: white; cursor:pointer">PRINT PDF</button>
+    <button onclick="loadData()">TAMPILKAN LAPORAN</button>
+    <button onclick="window.print()" style="background: #28a745; color: white;">CETAK PDF</button>
 </div>
 
 <div class="sheet">
     <table class="header-table">
         <tr>
-            <td width="20%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO" class="logo-img"></td>
-            <td width="55%" style="font-size: 14pt;">CHECKLIST HARIAN MESIN INJECTION</td>
+            <td width="15%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
+            <td width="60%" style="font-size: 14pt;">CHECKLIST HARIAN MESIN INJECTION</td>
             <td width="25%" style="text-align: left; font-size: 7pt; font-weight: normal; padding-left: 10px;">
                 No Dokumen : AF.SP 05.13.Rev-00<br>
                 Tgl Terbit : 02 Agustus 2024<br>
@@ -55,167 +52,125 @@
         </tr>
     </table>
 
-    <table class="info-table">
+    <table class="info-table" style="margin-top: 5px;">
         <tr>
             <td width="8%">MERK MESIN</td><td width="1%">:</td><td width="20%" id="out-merk" style="border-bottom: 1px solid #000">-</td>
             <td width="8%">SERIAL NO</td><td width="1%">:</td><td width="20%" id="out-sn" style="border-bottom: 1px solid #000">-</td>
             <td width="10%">BULAN / THN</td><td width="1%">:</td><td width="15%" id="out-periode" style="border-bottom: 1px solid #000">-</td>
         </tr>
-        <tr>
-            <td>TONAGE</td><td>:</td><td id="out-ton" style="border-bottom: 1px solid #000">-</td>
-        </tr>
     </table>
 
     <table>
         <thead>
-            <tr style="background: #f8fafc">
+            <tr>
                 <th rowspan="2" width="20">No</th>
-                <th rowspan="2" class="col-nama">Jenis Pengecekan</th>
-                <th rowspan="2" class="col-std">Standard / Metode</th>
+                <th rowspan="2" width="150">Jenis Pengecekan</th>
+                <th rowspan="2" width="100">Standard / Metode</th>
                 <th colspan="31">Tanggal</th>
             </tr>
             <tr id="date-row"></tr>
         </thead>
-        <tbody id="main-body">
-            </tbody>
+        <tbody id="main-body"></tbody>
         <tfoot>
-            <tr>
-                <td colspan="3" style="text-align: right; font-weight: bold; height: 40px;">PARAF PELAKSANA</td>
-                <td colspan="31" id="sig-area-pelaksana" style="text-align: left; position: relative;"></td>
+            <tr class="row-paraf">
+                <td colspan="3" style="text-align: right; font-weight: bold; background: #eee;">PARAF PELAKSANA</td>
+                <td id="daily-sig-pelaksana" colspan="31" style="padding:0; text-align: left;">
+                    <div style="display: flex; width: 100%; justify-content: space-around;" id="row-paraf-pelaksana"></div>
+                </td>
+            </tr>
+            <tr class="row-paraf">
+                <td colspan="3" style="text-align: right; font-weight: bold; background: #eee;">PARAF KOORDINATOR</td>
+                <td id="daily-sig-koordinator" colspan="31" style="padding:0; text-align: left;">
+                    <div style="display: flex; width: 100%; justify-content: space-around;" id="row-paraf-koordinator"></div>
+                </td>
             </tr>
             <tr>
-                <td colspan="3" style="text-align: left; font-size: 7pt;">
-                    <b>Catatan:</b> √: OK | X: NG | -: N/A
+                <td colspan="3" style="text-align: left; font-size: 7pt; vertical-align: top;">
+                    <b>Catatan:</b><br>√: OK | X: NG | -: N/A
                 </td>
-                <td colspan="15" style="height: 60px; vertical-align: top;">
-                    DISETUJUI (KOORDINATOR)<br><br>
-                    <b id="out-coord">-</b>
+                <td colspan="15" style="height: 70px; vertical-align: top; text-align: center;">
+                    <br>CATATAN LAINNYA:<br>
+                    <div id="out-catatan" style="font-style: italic; color: #555;"></div>
                 </td>
-                <td colspan="16" style="height: 60px; vertical-align: top;">
-                    DIKETAHUI (SUPERINTENDENT)<br><br>
-                    <b id="out-super">-</b>
+                <td colspan="16" style="vertical-align: top; padding: 5px;">
+                    <div style="border: 1px solid black; height: 100%; position: relative;">
+                        DIKETAHUI (SUPERINTENDENT)<br><br>
+                        <div id="sig-super-final" style="font-weight: bold; margin-top: 10px;">-</div>
+                        <div id="status-lock" style="font-size: 6pt; color: #999; margin-top: 5px;"></div>
+                    </div>
                 </td>
             </tr>
         </tfoot>
     </table>
 </div>
 
+
+
 <script>
     const _URL = "https://duljhawudstjxibhuenv.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
 
-    async function initFilter() {
-        const { data: machines } = await sb.from('clhmi_machine').select('*').order('merk_mesin');
-        machines.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m.id;
-            opt.textContent = `${m.merk_mesin} (${m.serial_no})`;
-            document.getElementById('machine-select').appendChild(opt);
-        });
-
-        const months = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-        months.forEach((m, i) => {
-            const opt = document.createElement('option');
-            opt.value = i + 1;
-            opt.textContent = m;
-            if(i === new Date().getMonth()) opt.selected = true;
-            document.getElementById('month-select').appendChild(opt);
-        });
-
-        const year = new Date().getFullYear();
-        for(let y=year; y>=year-2; y--) {
-            const opt = document.createElement('option');
-            opt.value = y; opt.textContent = y;
-            document.getElementById('year-select').appendChild(opt);
-        }
-
-        // Generate tgl 1-31 di header
-        let h = "";
-        for(let i=1; i<=31; i++) h += `<th width="22">${i}</th>`;
-        document.getElementById('date-row').innerHTML = h;
-    }
-
     async function loadData() {
         const mId = document.getElementById('machine-select').value;
         const bln = document.getElementById('month-select').value;
         const thn = document.getElementById('year-select').value;
-        if(!mId) return alert("Pilih Mesin!");
-
-        // 1. Ambil Header
-        const { data: header } = await sb.from('clhmi').select('*')
-            .eq('machine_id', mId).eq('bulan', bln).eq('tahun', thn).single();
-
-        // 2. Ambil Master Items (AF.SP 05.13)
-        const { data: master } = await sb.from('clhmi_items').select('*').order('urutan');
-
-        if(!header) {
-            alert("Data periode ini belum ada.");
-            renderEmpty(master);
-            return;
-        }
-
-        // 3. Ambil Hasil Pengecekan
-        const { data: results } = await sb.from('clhmi_results').select('*').eq('clhmi_id', header.id);
-
-        // Update Info Header
-        document.getElementById('out-merk').innerText = header.merk_mesin;
-        document.getElementById('out-sn').innerText = header.serial_no;
-        document.getElementById('out-ton').innerText = header.tonage;
-        document.getElementById('out-periode').innerText = document.getElementById('month-select').options[bln-1].text + " " + thn;
-        document.getElementById('out-coord').innerText = header.approved_by || "-";
-        document.getElementById('out-super').innerText = header.status_form === 'finalized' ? header.approved_by : "PENDING";
         
-        // Render Matriks
+        // Load Header & Results
+        const { data: header } = await sb.from('clhmi').select('*').eq('machine_id', mId).eq('bulan', bln).eq('tahun', thn).single();
+        const { data: master } = await sb.from('clhmi_items').select('*').order('urutan');
+        const { data: results } = header ? await sb.from('clhmi_results').select('*').eq('clhmi_id', header.id) : {data:[]};
+
+        // Render Matrix Items
         const tbody = document.getElementById('main-body');
         tbody.innerHTML = "";
         let currentCat = "";
-
+        
         master.forEach(m => {
             if(m.kategori !== currentCat) {
                 tbody.innerHTML += `<tr><td colspan="34" class="bg-gray">${m.kategori}</td></tr>`;
                 currentCat = m.kategori;
             }
-
-            let row = `<tr>
-                <td>${m.item_kode || ''}</td>
-                <td class="col-nama">${m.nama_pengecekan}</td>
-                <td class="col-std">${m.standar || 'Visual'}</td>`;
-            
+            let rowHtml = `<tr><td>${m.item_kode||''}</td><td style="text-align:left">${m.nama_pengecekan}</td><td>${m.standar||'-'}</td>`;
             for(let d=1; d<=31; d++) {
-                // LOGIKA KRUSIAL: Cari hasil yang item_id-nya sama DAN tanggal_cek-nya sesuai kolom
                 const find = results.find(r => r.item_id === m.id && parseInt(r.tanggal_cek.split('-')[2]) === d);
-                
-                let icon = "";
-                let cls = "";
-                if(find) {
-                    icon = find.status === 'OK' ? '√' : (find.status === 'NG' ? 'X' : '-');
-                    cls = find.status === 'NG' ? 'st-ng' : 'st-ok';
-                }
-                row += `<td class="${cls}">${icon}</td>`;
+                rowHtml += `<td class="${find?.status==='NG'?'st-ng':''}">${find ? (find.status==='OK'?'√':'X') : ''}</td>`;
             }
-            row += `</tr>`;
-            tbody.innerHTML += row;
+            tbody.innerHTML += rowHtml + "</tr>";
         });
 
-        // Paraf
-        if(header.paraf) {
-            document.getElementById('sig-area-pelaksana').innerHTML = `<img src="${header.paraf}" style="height:45px; mix-blend-mode: multiply; margin-left:20px">`;
+        // RENDER PARAF HARIAN (PELAKSANA & KOORDINATOR)
+        const rowPelaksana = document.getElementById('row-paraf-pelaksana');
+        const rowKoordinator = document.getElementById('row-paraf-koordinator');
+        rowPelaksana.innerHTML = ""; rowKoordinator.innerHTML = "";
+
+        for(let d=1; d<=31; d++) {
+            // Kita cari apakah ada hasil input di tanggal tersebut
+            const dayData = results.find(r => parseInt(r.tanggal_cek.split('-')[2]) === d);
+            
+            // Kolom Pelaksana
+            let cellP = `<div style="width:22px; text-align:center;">${dayData && header.paraf ? `<img src="${header.paraf}" class="paraf-img">` : ''}</div>`;
+            rowPelaksana.innerHTML += cellP;
+
+            // Kolom Koordinator (Hanya muncul jika koordinator sudah verifikasi)
+            let cellK = `<div style="width:22px; text-align:center;">${dayData && header.status_form !== 'submitted' ? `<span style="font-size:10pt; color:blue">✓</span>` : ''}</div>`;
+            rowKoordinator.innerHTML += cellK;
+        }
+
+        // Update Footer Superintendent
+        if(header) {
+            document.getElementById('out-merk').innerText = header.merk_mesin;
+            document.getElementById('out-sn').innerText = header.serial_no;
+            document.getElementById('out-periode').innerText = document.getElementById('month-select').options[bln-1].text + " " + thn;
+            document.getElementById('out-catatan').innerText = header.catatan_umum || "-";
+            
+            if(header.status_form === 'finalized') {
+                document.getElementById('sig-super-final').innerText = "APPROVED BY SUPERINTENDENT";
+                document.getElementById('status-lock').innerText = "Locked at: " + new Date(header.updated_at).toLocaleDateString();
+            }
         }
     }
-
-    function renderEmpty(master) {
-        const tbody = document.getElementById('main-body');
-        tbody.innerHTML = "";
-        master.forEach(m => {
-            let row = `<tr><td>${m.item_kode}</td><td class="col-nama">${m.nama_pengecekan}</td><td class="col-std">-</td>`;
-            for(let d=1; d<=31; d++) row += `<td></td>`;
-            row += `</tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    window.onload = initFilter;
+    
+    // Fungsi inisialisasi filter (sama seperti sebelumnya)
+    // ... (kode initFilter Anda)
 </script>
-</body>
-</html>
