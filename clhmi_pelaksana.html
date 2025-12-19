@@ -18,26 +18,20 @@
         .card { max-width: 600px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,.1); }
         .header { background: var(--primary); color: #fff; padding: 20px; text-align: center; font-weight: bold; font-size: 1.1rem; position: sticky; top: 0; z-index: 100; }
         .section { padding: 20px; }
-        
         input, select, textarea { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:active { transform: scale(0.98); background: #002244; }
-        
         #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
         .category { background: #003366; color: #fff; font-weight: 800; font-size: 13px; text-transform: uppercase; }
         .item-text { font-size: 14px; font-weight: 600; color: #1e293b; }
         .item-std { font-size: 11px; color: #64748b; display: block; margin-top: 4px; line-height: 1.4; }
-        
         .note { display: none; margin-top: 8px; background: #fff5f5; border: 1px solid #feb2b2; font-size: 13px; height: 60px; }
-        
         .canvas-box { position: relative; border: 2px solid #cbd5e1; border-radius: 10px; background: #fff; margin-top: 10px; overflow: hidden; }
         canvas { display: block; width: 100%; height: 200px; touch-action: none; background-color: #fcfcfc; }
         .canvas-label { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 5px 0; }
-        
         .info-box { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; line-height: 1.5; border-left: 4px solid var(--primary); }
     </style>
 </head>
@@ -86,7 +80,6 @@
 </div>
 
 <script>
-/* KONFIGURASI SUPABASE */
 const supabaseUrl = "https://duljhawudstjxibhuenv.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
@@ -94,11 +87,10 @@ const sb = supabase.createClient(supabaseUrl, supabaseKey);
 let html5QrCode;
 let machine = null;
 
-/* ITEM DATA SESUAI FILE CSV */
 const items = [
     {cat:"1. MEKANIKAL", list:[
-        {id:"mek_a",txt:"Nozzle visual",std:"Radius tidak rusak, tidak ada lelehan material meler"},
-        {id:"mek_b",txt:"Kebersihan Head Nozzle barrel",std:"Tidak ada material yang menempel"},
+        {id:"mek_a",txt:"Nozzle visual",std:"Radius tidak rusak, tidak meler"},
+        {id:"mek_b",txt:"Kebersihan Head Nozzle barrel",std:"Tidak ada material menempel"},
         {id:"mek_c",txt:"Check level oli mesin",std:"> Level garis tengah"},
         {id:"mek_d",txt:"Check pump central lubrikasi",std:"Berfungsi baik"},
         {id:"mek_e",txt:"Check keseluruhan kondisi mesin",std:"Lengkap dan bersih"},
@@ -128,10 +120,9 @@ const items = [
     ]}
 ];
 
-/* SCANNER LOGIC */
 function startScan(){
-    const pelaksana = document.getElementById("nama_pelaksana").value;
-    if(!pelaksana) return alert("Isi nama pelaksana!");
+    const p = document.getElementById("nama_pelaksana").value;
+    if(!p) return alert("Isi nama pelaksana!");
     document.getElementById("login").style.display = "none";
     document.getElementById("scan").style.display = "block";
     html5QrCode = new Html5Qrcode("reader");
@@ -150,7 +141,6 @@ async function onScanSuccess(decodedText) {
     showForm();
 }
 
-/* FORM BUILDER */
 function showForm() {
     document.getElementById("scan").style.display = "none";
     document.getElementById("form").style.display = "block";
@@ -164,86 +154,72 @@ function showForm() {
     items.forEach(g => {
         h += `<tr class="category"><td colspan="2">${g.cat}</td></tr>`;
         g.list.forEach(i => {
-            h += `<tr>
-                <td><span class="item-text">${i.txt}</span><br><span class="item-std">${i.std}</span>
-                <textarea class="note" id="note_${i.id}" placeholder="Jelaskan temuan NG..."></textarea></td>
-                <td><select id="st_${i.id}" onchange="chg('${i.id}',this)"><option value="OK">OK</option><option value="NG">NG</option></select></td>
-            </tr>`;
+            h += `<tr><td><span class="item-text">${i.txt}</span><br><span class="item-std">${i.std}</span><textarea class="note" id="note_${i.id}" placeholder="Temuan NG..."></textarea></td><td><select id="st_${i.id}" onchange="chg('${i.id}',this)"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>`;
         });
     });
     tb.innerHTML = h;
     initCanvas();
 }
 
-function chg(id, el){
-    document.getElementById("note_"+id).style.display = (el.value === "NG") ? "block" : "none";
-}
+function chg(id, el){ document.getElementById("note_"+id).style.display = (el.value === "NG") ? "block" : "none"; }
 
-/* IMPROVED PARAF LOGIC */
+/* CANVAS PARAF */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let isDrawing = false;
-
 function initCanvas() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    ctx.strokeStyle = "#003366";
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#003366"; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.lineJoin = "round";
 }
-
 function getCoords(e) {
     const rect = canvas.getBoundingClientRect();
     const cx = e.touches ? e.touches[0].clientX : e.clientX;
     const cy = e.touches ? e.touches[0].clientY : e.clientY;
     return { x: cx - rect.left, y: cy - rect.top };
 }
-
-function startDraw(e) {
-    isDrawing = true;
-    const p = getCoords(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    if(e.type==='touchstart') e.preventDefault();
-}
-
-function draw(e) {
-    if(!isDrawing) return;
-    const p = getCoords(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    if(e.type==='touchmove') e.preventDefault();
-}
-
-function stopDraw() { isDrawing = false; }
-
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mousemove", draw);
-window.addEventListener("mouseup", stopDraw);
-canvas.addEventListener("touchstart", startDraw, {passive: false});
-canvas.addEventListener("touchmove", draw, {passive: false});
-canvas.addEventListener("touchend", stopDraw);
-
+canvas.addEventListener("mousedown", (e) => { isDrawing = true; const p = getCoords(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener("mousemove", (e) => { if(!isDrawing) return; const p = getCoords(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+window.addEventListener("mouseup", () => isDrawing = false);
+canvas.addEventListener("touchstart", (e) => { isDrawing = true; const p = getCoords(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive:false});
+canvas.addEventListener("touchmove", (e) => { if(!isDrawing) return; const p = getCoords(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive:false});
 function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-/* SUBMIT */
+/* SUBMIT REVISI - UPSERT MODE */
 document.getElementById("clForm").onsubmit = async (e) => {
     e.preventDefault();
     const sig = canvas.toDataURL();
-    if(sig.length < 3000) return alert("Mohon isi paraf pelaksana!");
+    if(sig.length < 3000) return alert("Mohon isi paraf!");
 
     const btn = document.getElementById("btnSimpan");
     btn.disabled = true;
     btn.innerText = "MENYIMPAN...";
 
-    const { data: hdr, error: e1 } = await sb.from("clhmi").insert([{
+    const now = new Date();
+    const payload = {
         machine_id: machine.id,
-        pelaksana: document.getElementById("nama_pelaksana").value,
-        paraf: sig
-    }]).select().single();
+        merk_mesin: machine.merk_mesin,
+        tonage: machine.tonage,
+        serial_no: machine.serial_no,
+        tahun: now.getFullYear(),
+        bulan: now.getMonth() + 1,
+        paraf: sig,
+        created_by: document.getElementById("nama_pelaksana").value,
+        status_form: "submitted"
+    };
 
-    if(e1) { alert(e1.message); btn.disabled = false; return; }
+    const { data: hdr, error: e1 } = await sb
+        .from("clhmi")
+        .upsert(payload, { onConflict: "machine_id,bulan,tahun" })
+        .select()
+        .single();
+
+    if (e1) {
+        alert("Error Header: " + e1.message);
+        btn.disabled = false;
+        btn.innerText = "SIMPAN CHECKLIST";
+        return;
+    }
 
     const rows = [];
     items.forEach(g => {
@@ -257,10 +233,14 @@ document.getElementById("clForm").onsubmit = async (e) => {
         });
     });
 
+    // Jika UPSERT, sebaiknya hapus result lama dulu atau DB akan duplikat detail
+    await sb.from("clhmi_results").delete().eq("clhmi_id", hdr.id);
+    
     const { error: e2 } = await sb.from("clhmi_results").insert(rows);
-    if(e2) alert(e2.message);
+    
+    if(e2) alert("Error Detail: " + e2.message);
     else {
-        alert("✅ Berhasil! Data checklist tersimpan.");
+        alert("✅ Checklist Berhasil Disimpan!");
         location.reload();
     }
 };
