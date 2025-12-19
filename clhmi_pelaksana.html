@@ -24,45 +24,37 @@
         .note { display: none; margin-top: 8px; background: #fff5f5; border: 1px solid #feb2b2; font-size: 13px; height: 60px; }
         .canvas-box { position: relative; border: 2px solid #cbd5e1; border-radius: 10px; background: #fff; margin-top: 10px; overflow: hidden; }
         canvas { display: block; width: 100%; height: 200px; touch-action: none; background-color: #fcfcfc; }
-        .info-box { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; line-height: 1.5; border-left: 4px solid var(--primary); }
+        .info-box { background: #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; border-left: 4px solid var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="header">CHECKLIST HARIAN MESIN INJECTION (CLHMI)</div>
-
     <div class="section" id="login">
         <h3>👷 Nama Pelaksana</h3>
         <input id="nama_pelaksana" type="text" placeholder="Masukkan nama lengkap...">
         <button class="btn btn-primary" onclick="startScan()">SCAN QR MESIN</button>
     </div>
-
     <div class="section" id="scan" style="display:none">
         <div id="reader"></div>
-        <p style="text-align:center; color:#64748b">Arahkan kamera ke QR Code Mesin</p>
-        <button class="btn" onclick="location.reload()" style="background:#ef4444; color:white">BATAL</button>
+        <button class="btn" onclick="location.reload()" style="background:#ef4444; color:white; margin-top:10px">BATAL</button>
     </div>
-
     <div class="section" id="form" style="display:none">
         <div class="info-box">
             <b>UNIT:</b> <span id="m_name"></span><br>
             <b>SERIAL:</b> <span id="m_serial"></span> | <b>TONNAGE:</b> <span id="m_ton"></span><br>
             <b>PELAKSANA:</b> <span id="m_user"></span>
         </div>
-
         <form id="clForm">
             <table><tbody id="tbody"></tbody></table>
-
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px">
                 <b>✍️ Paraf Digital:</b>
                 <button type="button" onclick="clearCanvas()" style="color:red; background:none; border:none; font-weight:bold;">HAPUS</button>
             </div>
             <div class="canvas-box"><canvas id="canvas"></canvas></div>
-
-            <br><br>
+            <br>
             <button class="btn btn-primary" type="submit" id="btnSimpan">SIMPAN CHECKLIST</button>
-            <div style="height: 50px;"></div>
         </form>
     </div>
 </div>
@@ -73,7 +65,6 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
 let html5QrCode, machine = null;
-
 const items = [
     {cat:"1. MEKANIKAL", list:[
         {id:"mek_a",txt:"Nozzle visual",std:"Radius tidak rusak, tidak meler"},
@@ -127,7 +118,7 @@ async function onScan(t){
     items.forEach(g => {
         h += `<tr class="category"><td colspan="2">${g.cat}</td></tr>`;
         g.list.forEach(i => {
-            h += `<tr><td><span class="item-text">${i.txt}</span><br><small class="item-std">${i.std}</small><textarea class="note" id="note_${i.id}" placeholder="Catatan NG..."></textarea></td>
+            h += `<tr><td><span class="item-text">${i.txt}</span><br><small class="item-std">${i.std}</small><textarea class="note" id="note_${i.id}" placeholder="Catatan..."></textarea></td>
             <td><select id="st_${i.id}" onchange="chg('${i.id}',this)"><option value="OK">OK</option><option value="NG">NG</option></select></td></tr>`;
         });
     });
@@ -157,7 +148,6 @@ canvas.addEventListener("touchstart", (e) => { drawing = true; const p = getPos(
 canvas.addEventListener("touchmove", (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive:false});
 function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-/* SUBMIT FINAL - PERBAIKAN KOLOM item_code */
 clForm.onsubmit = async (e) => {
     e.preventDefault();
     const sig = canvas.toDataURL();
@@ -183,15 +173,14 @@ clForm.onsubmit = async (e) => {
         .upsert(payloadHeader, { onConflict: "machine_id,bulan,tahun" })
         .select().single();
 
-    if (e1) { alert("Header: "+e1.message); btn.disabled = false; return; }
+    if (e1) { alert("Error Simpan Header: " + e1.message); btn.disabled = false; return; }
 
-    // PERHATIKAN: Saya ganti 'item_code' menjadi 'item' sesuai standar error cache
     const rows = [];
     items.forEach(g => {
         g.list.forEach(i => {
             rows.push({
                 clhmi_id: hdr.id,
-                item: i.id, // KOLOM INI SAYA SESUAIKAN JADI 'item'
+                item_code: i.id, // SINKRON DENGAN QUERY SQL DI ATAS
                 status: document.getElementById("st_"+i.id).value,
                 note: document.getElementById("note_"+i.id).value || null
             });
@@ -201,8 +190,14 @@ clForm.onsubmit = async (e) => {
     await sb.from("clhmi_results").delete().eq("clhmi_id", hdr.id);
     const { error: e2 } = await sb.from("clhmi_results").insert(rows);
     
-    if(e2) alert("Detail Error: " + e2.message);
-    else { alert("✅ Berhasil Disimpan!"); location.reload(); }
+    if(e2) {
+        alert("Error Simpan Detail: " + e2.message);
+        console.log("Detail Payload:", rows);
+        btn.disabled = false;
+    } else { 
+        alert("✅ Checklist Berhasil Disimpan!"); 
+        location.reload(); 
+    }
 };
 </script>
 </body>
