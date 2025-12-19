@@ -29,8 +29,6 @@ table{width:100%;border-collapse:collapse}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb}
 th{background:#f1f5f9}
 .category{background:#003366;color:#fff;font-weight:bold}
-.status.ok{color:var(--ok);font-weight:bold}
-.status.ng{color:var(--ng);font-weight:bold}
 .note{display:none;margin-top:8px}
 canvas{width:100%;height:160px;border:2px dashed #cbd5e1;border-radius:10px}
 .info-box{background:#f1f5f9;padding:12px;border-radius:10px;margin-bottom:15px;font-size:14px}
@@ -75,7 +73,9 @@ canvas{width:100%;height:160px;border:2px dashed #cbd5e1;border-radius:10px}
 
 <h4>✍️ Paraf Digital</h4>
 <canvas id="canvas"></canvas>
-<button type="button" onclick="clearCanvas()" style="background:none;border:none;color:red">Hapus Paraf</button>
+<button type="button" onclick="clearCanvas()" style="background:none;border:none;color:red">
+Hapus Paraf
+</button>
 
 <br><br>
 <button class="btn btn-primary">SIMPAN CHECKLIST</button>
@@ -85,6 +85,7 @@ canvas{width:100%;height:160px;border:2px dashed #cbd5e1;border-radius:10px}
 </div>
 
 <script>
+/* SUPABASE */
 const supabaseUrl = "https://duljhawudstjxibhuenv.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
 const sb = supabase.createClient(supabaseUrl, supabaseKey);
@@ -93,7 +94,7 @@ let html5QrCode;
 let machine = null;
 let clhmi_id = null;
 
-/* ITEM LIST */
+/* ITEM CHECKLIST */
 const items = [
  {cat:"MEKANIKAL", list:[
   {id:"m1",txt:"Nozzle visual",std:"Tidak rusak"},
@@ -138,27 +139,36 @@ function startScan(){
  login.style.display="none";
  scan.style.display="block";
  html5QrCode=new Html5Qrcode("reader");
- html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},onScan);
+ html5QrCode.start(
+  {facingMode:"environment"},
+  {fps:10,qrbox:250},
+  onScan
+ );
 }
 
 async function onScan(text){
  html5QrCode.stop();
- const {data,error}=await sb
+
+ const qrValue = text.trim();
+
+ const {data,error} = await sb
   .from("clhmi_machine")
   .select("*")
-  .eq("qr_code",text.trim())
+  .eq("merk_mesin", qrValue)
+  .eq("aktif", true)
   .single();
- if(error) return alert("MESIN TIDAK TERDAFTAR");
 
- machine=data;
+ if(error || !data) return alert("MESIN TIDAK TERDAFTAR");
 
- document.getElementById("scan").style.display="none";
- document.getElementById("form").style.display="block";
+ machine = data;
 
- m_name.innerText=data.machine_name;
- m_serial.innerText=data.serial_no;
- m_ton.innerText=data.tonnage;
- m_user.innerText=nama_pelaksana.value;
+ scan.style.display="none";
+ form.style.display="block";
+
+ m_name.innerText = data.merk_mesin;
+ m_serial.innerText = data.serial_no;
+ m_ton.innerText = data.tonage;
+ m_user.innerText = nama_pelaksana.value;
 
  buildItems();
  initCanvas();
@@ -171,42 +181,56 @@ let draw=false;
 function initCanvas(){
  canvas.width=canvas.offsetWidth;
  canvas.height=canvas.offsetHeight;
- ctx.lineWidth=3;ctx.lineCap="round";
+ ctx.lineWidth=3;
+ ctx.lineCap="round";
 }
-canvas.addEventListener("mousedown",e=>{draw=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)});
-canvas.addEventListener("mousemove",e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}});
+canvas.addEventListener("mousedown",e=>{
+ draw=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)
+});
+canvas.addEventListener("mousemove",e=>{
+ if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}
+});
 canvas.addEventListener("mouseup",()=>draw=false);
-function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height)}
+function clearCanvas(){
+ ctx.clearRect(0,0,canvas.width,canvas.height)
+}
 
 /* SUBMIT */
-clForm.onsubmit=async(e)=>{
+clForm.onsubmit = async (e)=>{
  e.preventDefault();
- const img=canvas.toDataURL();
- if(img.length<2000) return alert("Paraf wajib");
 
- // HEADER
- const {data:hdr, error:e1}=await sb.from("clhmi").insert([{
-  machine_id:machine.id,
-  pelaksana:nama_pelaksana.value,
-  paraf:img
- }]).select().single();
+ const img = canvas.toDataURL();
+ if(img.length < 2000) return alert("Paraf wajib");
+
+ /* HEADER */
+ const {data:hdr,error:e1} = await sb
+  .from("clhmi")
+  .insert([{
+    machine_id: machine.id,
+    pelaksana: nama_pelaksana.value,
+    paraf: img
+  }])
+  .select()
+  .single();
+
  if(e1) return alert(e1.message);
 
- clhmi_id=hdr.id;
+ clhmi_id = hdr.id;
 
- // DETAIL
+ /* DETAIL */
  let rows=[];
  items.forEach(g=>{
   g.list.forEach(i=>{
    rows.push({
     clhmi_id,
-    item_code:i.id,
-    status:document.getElementById("st_"+i.id).value,
-    note:document.getElementById("note_"+i.id).value || null
+    item_code: i.id,
+    status: document.getElementById("st_"+i.id).value,
+    note: document.getElementById("note_"+i.id).value || null
    });
   });
  });
- const {error:e2}=await sb.from("clhmi_results").insert(rows);
+
+ const {error:e2} = await sb.from("clhmi_results").insert(rows);
  if(e2) return alert(e2.message);
 
  alert("Checklist berhasil disimpan");
