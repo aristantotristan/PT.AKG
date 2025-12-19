@@ -11,76 +11,81 @@
   --primary:#003366;
   --accent:#ffcc00;
   --bg:#f4f7f9;
-  --ok:#2e7d32;
-  --ng:#d32f2f;
 }
-body{margin:0;font-family:Segoe UI,Arial;background:var(--bg)}
-.card{max-width:900px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.header{background:var(--primary);color:#fff;padding:20px;text-align:center;font-weight:bold}
+body{margin:0;font-family:Segoe UI,Arial;background:var(--bg);touch-action: none;}
+.card{max-width:900px;margin:20px auto;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);overflow:hidden}
+.header{background:var(--primary);color:#fff;padding:20px;text-align:center;font-size:1.4em;font-weight:bold}
 .section{padding:20px}
-input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #cbd5e1}
-.btn{padding:14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:#002244}
-#reader{width:100%;background:#000;border-radius:12px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #e5e7eb}
+input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #cbd5e1;margin:8px 0}
+.btn{padding:14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;margin-top:15px}
+.btn-primary{background:var(--primary);color:#fff;font-size:1.1em}
+#reader{width:100%;height:300px;background:#000;border-radius:12px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left}
 th{background:#f1f5f9}
 .category{background:#003366;color:#fff;font-weight:bold}
 .note{display:none;margin-top:8px}
-canvas{width:100%;height:160px;border:2px dashed #cbd5e1;border-radius:10px}
-.info-box{background:#f1f5f9;padding:12px;border-radius:10px;margin-bottom:15px;font-size:14px}
+.info-box{background:#f1f5f9;padding:15px;border-radius:10px;margin-bottom:20px;font-size:15px}
+#signature-pad{border:2px dashed #999;border-radius:12px;background:#fafafa;width:100%;height:200px}
+#clearSig{color:red;background:none;border:none;font-size:1em;margin-top:8px}
 </style>
 </head>
 <body>
+
 <div class="card">
-<div class="header">CHECKLIST HARIAN MESIN INJECTION (CLHMI)</div>
-<!-- LOGIN -->
-<div class="section" id="login">
-  <h3>👷 Nama Pelaksana</h3>
-  <input id="nama_pelaksana" placeholder="Nama lengkap">
-  <br><br>
-  <button class="btn btn-primary" onclick="startScan()">SCAN QR MESIN</button>
+  <div class="header">CHECKLIST HARIAN MESIN INJECTION (CLHMI)</div>
+
+  <!-- LOGIN -->
+  <div class="section" id="login">
+    <h3>Nama Pelaksana</h3>
+    <input id="nama_pelaksana" placeholder="Masukkan nama lengkap">
+    <button class="btn btn-primary" onclick="startScan()">SCAN QR MESIN</button>
+  </div>
+
+  <!-- SCANNER -->
+  <div class="section" id="scan" style="display:none;padding:10px">
+    <div id="reader"></div>
+    <p style="text-align:center;margin:10px 0;color:#555">Arahkan kamera ke QR Code mesin</p>
+  </div>
+
+  <!-- FORM CHECKLIST -->
+  <div class="section" id="form" style="display:none">
+    <div class="info-box">
+      <b>UNIT :</b> <span id="m_name"></span><br>
+      <b>SERIAL :</b> <span id="m_serial"></span><br>
+      <b>TONNAGE :</b> <span id="m_ton"></span><br>
+      <b>PELKS :</b> <span id="m_user"></span>
+    </div>
+
+    <form id="clForm">
+      <table>
+        <thead>
+          <tr><th>Item & Standar</th><th>Status</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+      <h4>Paraf Digital / Tanda Tangan</h4>
+      <canvas id="signature-pad"></canvas>
+      <button type="button" id="clearSig">Hapus Tanda Tangan</button>
+
+      <button type="submit" class="btn btn-primary" style="margin-top:25px">
+        SIMPAN CHECKLIST
+      </button>
+    </form>
+  </div>
 </div>
-<!-- SCANNER -->
-<div class="section" id="scan" style="display:none">
-  <div id="reader"></div>
-  <p style="text-align:center;color:#64748b">Arahkan kamera ke QR Code mesin</p>
-</div>
-<!-- FORM -->
-<div class="section" id="form" style="display:none">
-<div class="info-box">
-  <b>UNIT :</b> <span id="m_name"></span><br>
-  <b>SERIAL :</b> <span id="m_serial"></span><br>
-  <b>TONNAGE :</b> <span id="m_ton"></span><br>
-  <b>PELKS :</b> <span id="m_user"></span>
-</div>
-<form id="clForm">
-<table>
-<thead>
-<tr><th>Item & Standar</th><th>Status</th></tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-<h4>✍️ Paraf Digital</h4>
-<canvas id="canvas"></canvas>
-<button type="button" onclick="clearCanvas()" style="background:none;border:none;color:red">
-Hapus Paraf
-</button>
-<br><br>
-<button class="btn btn-primary">SIMPAN CHECKLIST</button>
-</form>
-</div>
-</div>
+
 <script>
-/* SUPABASE */
-const supabaseUrl = "https://duljhawudstjxibhuenv.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
-const sb = supabase.createClient(supabaseUrl, supabaseKey);
-let html5QrCode;
-let machine = null;
-let clhmi_id = null;
-/* ITEM CHECKLIST */
+// === SUPABASE ===
+const sb = supabase.createClient(
+  "https://duljhawudstjxibhuenv.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ"
+);
+
+let html5QrCode, machine = null, clhmi_id = null;
+
+// === SEMUA ITEM SESUAI EXCEL ===
 const items = [
  {cat:"1. MEKANIKAL", list:[
   {id:"mek_a",txt:"Nozzle visual",std:"Radius tidak rusak, tidak ada lelehan material meler"},
@@ -109,122 +114,148 @@ const items = [
   {id:"air_b",txt:"Embun pipa chiller",std:"Dilindungi armaflex"}
  ]},
  {cat:"5. KEBERSIHAN AREA MESIN", list:[
-  {id:"area_a",txt:"Pemeriksaan alat kerja/ sparepart setelah perbaikan",std:"Area mesin bersih, tidak terdapat ceceran tools & sparepart"},
-  {id:"area_b",txt:"Kelengkapan selang angin spiral & air gun",std:"Terpasang rapih, lengkap dan berfungsi"}
+  {id:"area_a",txt:"Pemeriksaan alat kerja/sparepart setelah perbaikan",std:"Area bersih, tidak ada ceceran tools & sparepart"},
+  {id:"area_b",txt:"Kelengkapan selang angin spiral & air gun",std:"Terpasang rapi, lengkap dan berfungsi"}
  ]}
 ];
-/* BUILD FORM */
+
+// === BUILD CHECKLIST ===
 function buildItems(){
- const tb=document.getElementById("tbody");
- let h="";
- items.forEach(g=>{
-  h+=`<tr class="category"><td colspan="2">${g.cat}</td></tr>`;
-  g.list.forEach(i=>{
-   h+=`
-   <tr>
-    <td>${i.txt}<br><small>${i.std}</small>
-     <textarea class="note" id="note_${i.id}" placeholder="Catatan NG"></textarea>
-    </td>
-    <td>
-     <select id="st_${i.id}" onchange="chg('${i.id}',this)">
-      <option value="OK">OK</option>
-      <option value="NG">NG</option>
-     </select>
-    </td>
-   </tr>`;
+  let html = "";
+  items.forEach(g=>{
+    html += `<tr class="category"><td colspan="2">${g.cat}</td></tr>`;
+    g.list.forEach(i=>{
+      html += `
+      <tr>
+        <td>${i.txt}<br><small style="color:#555">${i.std}</small>
+          <textarea class="note" id="note_${i.id}" placeholder="Catatan jika NG" style="height:60px;font-size:14px"></textarea>
+        </td>
+        <td style="width:120px">
+          <select id="st_${i.id}" onchange="toggleNote('${i.id}',this)" style="width:100%;padding:10px">
+            <option value="OK">OK</option>
+            <option value="NG">NG</option>
+          </select>
+        </td>
+      </tr>`;
+    });
   });
- });
- tb.innerHTML=h;
+  document.getElementById("tbody").innerHTML = html;
 }
-function chg(id,el){
- document.getElementById("note_"+id).style.display=
-  el.value==="NG"?"block":"none";
+function toggleNote(id, el){
+  document.getElementById("note_"+id).style.display = el.value==="NG" ? "block" : "none";
 }
-/* SCAN */
+
+// === QR SCAN ===
 function startScan(){
- if(!nama_pelaksana.value) return alert("Isi nama pelaksana");
- login.style.display="none";
- scan.style.display="block";
- html5QrCode=new Html5Qrcode("reader");
- html5QrCode.start(
-  {facingMode:"environment"},
-  {fps:10,qrbox:250},
-  onScan
- );
+  if(!nama_pelaksana.value.trim()) return alert("Isi nama pelaksana dulu");
+  login.style.display="none";
+  scan.style.display="block";
+  html5QrCode = new Html5Qrcode("reader");
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: {width:250,height:250} },
+    async (text) => {
+      html5QrCode.stop();
+      const {data,error} = await sb.from("clhmi_machine").select("*").eq("merk_mesin",text.trim()).eq("aktif",true).single();
+      if(error || !data) return alert("QR tidak terdaftar atau mesin tidak aktif");
+      machine = data;
+      scan.style.display="none";
+      form.style.display="block";
+      m_name.innerText   = data.merk_mesin;
+      m_serial.innerText = data.serial_no || "-";
+      m_ton.innerText    = data.tonage || "-";
+      m_user.innerText   = nama_pelaksana.value;
+      buildItems();
+      initSignaturePad();
+    }
+  ).catch(err=>alert("Gagal akses kamera: "+err));
 }
-async function onScan(text){
- html5QrCode.stop();
- const qrValue = text.trim();
- const {data,error} = await sb
-  .from("clhmi_machine")
-  .select("*")
-  .eq("merk_mesin", qrValue)
-  .eq("aktif", true)
-  .single();
- if(error || !data) return alert("MESIN TIDAK TERDAFTAR");
- machine = data;
- scan.style.display="none";
- form.style.display="block";
- m_name.innerText = data.merk_mesin;
- m_serial.innerText = data.serial_no;
- m_ton.innerText = data.tonage;
- m_user.innerText = nama_pelaksana.value;
- buildItems();
- initCanvas();
+
+// === TANDA TANGAN YANG BENAR-BENAR LANCAR DI HP ===
+let canvas = document.getElementById("signature-pad");
+let ctx = canvas.getContext("2d");
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+
+function initSignaturePad(){
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+
+  const startDraw = (e) => {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    lastX = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    lastY = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  };
+  const draw = (e) => {
+    if(!isDrawing) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    [lastX, lastY] = [x, y];
+  };
+  const stopDraw = () => { isDrawing = false; };
+
+  canvas.addEventListener("mousedown", startDraw);
+  canvas.addEventListener("mousemove", draw);
+  canvas.addEventListener("mouseup", stopDraw);
+  canvas.addEventListener("mouseout", stopDraw);
+
+  canvas.addEventListener("touchstart", startDraw);
+  canvas.addEventListener("touchmove", draw);
+  canvas.addEventListener("touchend", stopDraw);
 }
-/* CANVAS */
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-let draw=false;
-function initCanvas(){
- canvas.width=canvas.offsetWidth;
- canvas.height=canvas.offsetHeight;
- ctx.lineWidth=3;
- ctx.lineCap="round";
-}
-canvas.addEventListener("mousedown",e=>{
- draw=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)
-});
-canvas.addEventListener("mousemove",e=>{
- if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}
-});
-canvas.addEventListener("mouseup",()=>draw=false);
-function clearCanvas(){
- ctx.clearRect(0,0,canvas.width,canvas.height)
-}
-/* SUBMIT */
-clForm.onsubmit = async (e)=>{
- e.preventDefault();
- const img = canvas.toDataURL();
- if(img.length < 2000) return alert("Paraf wajib");
- /* HEADER */
- const {data:hdr,error:e1} = await sb
-  .from("clhmi")
-  .insert([{
-    machine_id: machine.id,
-    pelaksana: nama_pelaksana.value,
-    paraf: img
-  }])
-  .select()
-  .single();
- if(e1) return alert(e1.message);
- clhmi_id = hdr.id;
- /* DETAIL */
- let rows=[];
- items.forEach(g=>{
-  g.list.forEach(i=>{
-   rows.push({
-    clhmi_id,
-    item_code: i.id,
-    status: document.getElementById("st_"+i.id).value,
-    note: document.getElementById("note_"+i.id).value || null
-   });
-  });
- });
- const {error:e2} = await sb.from("clhmi_results").insert(rows);
- if(e2) return alert(e2.message);
- alert("Checklist berhasil disimpan");
- location.reload();
+
+document.getElementById("clearSig").onclick = () => {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+};
+
+// === SIMPAN KE SUPABASE ===
+clForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const signature = canvas.toDataURL("image/png");
+  if(canvas.width * canvas.height < 10000 || signature.length < 3000){
+    return alert("Tanda tangan belum dibuat / terlalu kecil");
+  }
+
+  // Insert header
+  const {data: header, error: e1} = await sb
+    .from("clhmi")
+    .insert({
+      machine_id: machine.id,
+      pelaksana: nama_pelaksana.value.trim(),
+      paraf: signature
+    })
+    .select()
+    .single();
+
+  if(e1) return alert("Error header: "+e1.message);
+  clhmi_id = header.id;
+
+  // Insert detail
+  let details = [];
+  items.forEach(g=>g.list.forEach(i=>{
+    details.push({
+      clhmi_id,
+      item_code: i.id,
+      status: document.getElementById("st_"+i.id).value,
+      note: document.getElementById("note_"+i.id).value || null
+    });
+  }));
+
+  const {error: e2} = await sb.from("clhmi_results").insert(details);
+  if(e2) return alert("Error detail: "+e2.message);
+
+  alert("Checklist berhasil disimpan!");
+  location.reload();
 };
 </script>
 </body>
