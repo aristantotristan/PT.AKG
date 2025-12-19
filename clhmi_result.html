@@ -6,100 +6,105 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @page { size: A4 landscape; margin: 5mm; }
-        body { font-family: Arial, sans-serif; font-size: 8pt; margin: 0; padding: 10px; }
+        body { font-family: 'Arial Narrow', Arial, sans-serif; font-size: 8pt; margin: 0; padding: 10px; background: #f0f0f0; }
+        .sheet { background: white; padding: 10mm; margin: auto; width: 277mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        td, th { border: 1px solid black; padding: 2px; text-align: center; overflow: hidden; }
+        td, th { border: 1px solid black; padding: 2px; text-align: center; font-size: 7.5pt; }
+        
+        /* Header Style */
         .header-table td { border: 2px solid black; height: 50px; font-weight: bold; }
-        .info-table { border: none; margin: 10px 0; text-align: left; }
-        .info-table td { border: none; text-align: left; padding: 2px 0; }
-        .bg-gray { background-color: #f0f0f0; font-weight: bold; text-align: left; padding-left: 5px; }
-        .col-nama { text-align: left; width: 180px; padding-left: 4px; }
-        .col-no { width: 25px; }
-        .col-std { width: 120px; text-align: left; font-size: 7pt; }
+        .logo-img { height: 40px; object-fit: contain; }
+        
+        /* Layout Info */
+        .info-table { border: none; margin: 5px 0; }
+        .info-table td { border: none; text-align: left; padding: 1px 0; }
+        
+        /* Matrix Style */
+        .bg-gray { background-color: #e2e8f0; font-weight: bold; text-align: left; padding-left: 5px; text-transform: uppercase; }
+        .col-nama { text-align: left; width: 150px; padding-left: 3px; font-size: 7pt; }
+        .col-std { width: 110px; text-align: left; font-size: 6.5pt; color: #444; }
+        
         .st-ok { color: green; font-weight: bold; }
-        .st-ng { color: red; font-weight: bold; background: #ffcccc; }
-        .sig-box { height: 60px; vertical-align: bottom; font-size: 7pt; }
-        .no-print { background: #003366; color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
-        select, button { padding: 5px; margin-right: 10px; }
+        .st-ng { color: white; font-weight: bold; background: #dc3545; }
+        
+        .no-print { background: #003366; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } .sheet { box-shadow: none; padding: 0; margin: 0; width: 100%; } }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <b>FILTER LAPORAN:</b>
+    <b>REPORT VIEWER:</b>
     <select id="machine-select"><option value="">Pilih Mesin...</option></select>
     <select id="month-select"></select>
     <select id="year-select"></select>
-    <button onclick="loadData()">TAMPILKAN DATA</button>
-    <button onclick="window.print()" style="background: green; color: white;">CETAK PDF</button>
+    <button onclick="loadData()" style="cursor:pointer">TAMPILKAN</button>
+    <button onclick="window.print()" style="background: #28a745; color: white; cursor:pointer">PRINT PDF</button>
 </div>
 
-<table class="header-table">
-    <tr>
-        <td width="20%"><img src="logo.png" alt="LOGO" style="height:40px;"></td>
-        <td width="55%" style="font-size: 14pt;">CHECKLIST HARIAN MESIN INJECTION</td>
-        <td width="25%" style="text-align: left; font-size: 7pt; font-weight: normal;">
-            No Dokumen : AF.SP 05.13.Rev-00<br>
-            Tgl Terbit : 02 Agustus 2024<br>
-            Halaman : 1/1
-        </td>
-    </tr>
-</table>
-
-<table class="info-table">
-    <tr>
-        <td width="10%">MERK MESIN</td><td width="2%">:</td><td width="20%" id="out-merk">-</td>
-        <td width="10%">SERIAL NO</td><td width="2%">:</td><td width="20%" id="out-sn">-</td>
-        <td width="10%">BULAN / THN</td><td width="2%">:</td><td width="10%" id="out-periode">-</td>
-    </tr>
-    <tr>
-        <td>TONAGE</td><td>:</td><td id="out-ton">-</td>
-    </tr>
-</table>
-
-<table>
-    <thead>
+<div class="sheet">
+    <table class="header-table">
         <tr>
-            <th rowspan="2" class="col-no">No</th>
-            <th rowspan="2" class="col-nama">Jenis Pengecekan</th>
-            <th rowspan="2" class="col-std">Standar / Metode</th>
-            <th colspan="31">Tanggal</th>
-        </tr>
-        <tr id="date-row"></tr>
-    </thead>
-    <tbody id="main-body">
-        </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="3" style="text-align: right; font-weight: bold; height: 80px;">PARAF PELAKSANA (CEK HARIAN)</td>
-            <td colspan="31" id="sig-area-pelaksana" style="vertical-align: bottom; text-align: left; padding: 5px;"></td>
-        </tr>
-        <tr>
-            <td colspan="3" rowspan="2" style="text-align: left; vertical-align: top;">
-                <b>Catatan:</b><br>
-                √ : Baik / OK<br>
-                X : Ada Temuan / NG
-            </td>
-            <td colspan="15" class="sig-box">
-                DISETUJUI (KOORDINATOR)<br><br>
-                <div id="out-coord">-</div>
-            </td>
-            <td colspan="16" class="sig-box">
-                DIKETAHUI (SUPERINTENDENT)<br><br>
-                <div id="out-super">-</div>
+            <td width="20%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO" class="logo-img"></td>
+            <td width="55%" style="font-size: 14pt;">CHECKLIST HARIAN MESIN INJECTION</td>
+            <td width="25%" style="text-align: left; font-size: 7pt; font-weight: normal; padding-left: 10px;">
+                No Dokumen : AF.SP 05.13.Rev-00<br>
+                Tgl Terbit : 02 Agustus 2024<br>
+                Halaman : 1/1
             </td>
         </tr>
-    </tfoot>
-</table>
+    </table>
 
+    <table class="info-table">
+        <tr>
+            <td width="8%">MERK MESIN</td><td width="1%">:</td><td width="20%" id="out-merk" style="border-bottom: 1px solid #000">-</td>
+            <td width="8%">SERIAL NO</td><td width="1%">:</td><td width="20%" id="out-sn" style="border-bottom: 1px solid #000">-</td>
+            <td width="10%">BULAN / THN</td><td width="1%">:</td><td width="15%" id="out-periode" style="border-bottom: 1px solid #000">-</td>
+        </tr>
+        <tr>
+            <td>TONAGE</td><td>:</td><td id="out-ton" style="border-bottom: 1px solid #000">-</td>
+        </tr>
+    </table>
 
+    <table>
+        <thead>
+            <tr style="background: #f8fafc">
+                <th rowspan="2" width="20">No</th>
+                <th rowspan="2" class="col-nama">Jenis Pengecekan</th>
+                <th rowspan="2" class="col-std">Standard / Metode</th>
+                <th colspan="31">Tanggal</th>
+            </tr>
+            <tr id="date-row"></tr>
+        </thead>
+        <tbody id="main-body">
+            </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold; height: 40px;">PARAF PELAKSANA</td>
+                <td colspan="31" id="sig-area-pelaksana" style="text-align: left; position: relative;"></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: left; font-size: 7pt;">
+                    <b>Catatan:</b> √: OK | X: NG | -: N/A
+                </td>
+                <td colspan="15" style="height: 60px; vertical-align: top;">
+                    DISETUJUI (KOORDINATOR)<br><br>
+                    <b id="out-coord">-</b>
+                </td>
+                <td colspan="16" style="height: 60px; vertical-align: top;">
+                    DIKETAHUI (SUPERINTENDENT)<br><br>
+                    <b id="out-super">-</b>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
 <script>
     const _URL = "https://duljhawudstjxibhuenv.supabase.co";
     const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1bGpoYXd1ZHN0anhpYmh1ZW52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODI2NDksImV4cCI6MjA4MTM1ODY0OX0.R9s6oNlJjF_K89frPmWkXxcOBlO1IJL6nXwxqNV1jiQ";
     const sb = supabase.createClient(_URL, _KEY);
 
-    // Inisialisasi Filter
     async function initFilter() {
         const { data: machines } = await sb.from('clhmi_machine').select('*').order('merk_mesin');
         machines.forEach(m => {
@@ -124,107 +129,93 @@
             opt.value = y; opt.textContent = y;
             document.getElementById('year-select').appendChild(opt);
         }
+
+        // Generate tgl 1-31 di header
+        let h = "";
+        for(let i=1; i<=31; i++) h += `<th width="22">${i}</th>`;
+        document.getElementById('date-row').innerHTML = h;
     }
 
-    // Render Baris Tanggal 1-31
-    function renderDateHeader() {
-        let html = "";
-        for(let i=1; i<=31; i++) html += `<th width="20">${i}</th>`;
-        document.getElementById('date-row').innerHTML = html;
-    }
-
-    // FUNGSI UTAMA: LOAD DATA
     async function loadData() {
         const mId = document.getElementById('machine-select').value;
         const bln = document.getElementById('month-select').value;
         const thn = document.getElementById('year-select').value;
-        if(!mId) return alert("Pilih Mesin Terlebih Dahulu");
+        if(!mId) return alert("Pilih Mesin!");
 
-        // 1. Ambil Data Header (clhmi)
-        const { data: header, error: hErr } = await sb.from('clhmi')
-            .select('*')
-            .eq('machine_id', mId)
-            .eq('bulan', bln)
-            .eq('tahun', thn)
-            .single();
+        // 1. Ambil Header
+        const { data: header } = await sb.from('clhmi').select('*')
+            .eq('machine_id', mId).eq('bulan', bln).eq('tahun', thn).single();
 
-        // 2. Ambil Master Items
-        const { data: items } = await sb.from('clhmi_items').select('*').order('urutan');
-        
+        // 2. Ambil Master Items (AF.SP 05.13)
+        const { data: master } = await sb.from('clhmi_items').select('*').order('urutan');
+
         if(!header) {
-            alert("Data tidak ditemukan untuk periode ini.");
-            resetTable(items);
+            alert("Data periode ini belum ada.");
+            renderEmpty(master);
             return;
         }
 
-        // 3. Ambil Detail Hasil (clhmi_results)
-        const { data: results } = await sb.from('clhmi_results')
-            .select('*')
-            .eq('clhmi_id', header.id);
+        // 3. Ambil Hasil Pengecekan
+        const { data: results } = await sb.from('clhmi_results').select('*').eq('clhmi_id', header.id);
 
-        updateInfo(header);
-        renderMatrix(items, results);
-    }
-
-    function updateInfo(h) {
-        document.getElementById('out-merk').innerText = h.merk_mesin;
-        document.getElementById('out-sn').innerText = h.serial_no;
-        document.getElementById('out-ton').innerText = h.tonage;
-        document.getElementById('out-periode').innerText = `${document.getElementById('month-select').options[document.getElementById('month-select').selectedIndex].text} ${h.tahun}`;
-        document.getElementById('out-coord').innerText = h.approved_by || "-";
-        document.getElementById('out-super').innerText = h.status_form === 'finalized' ? "APPROVED" : "PENDING";
+        // Update Info Header
+        document.getElementById('out-merk').innerText = header.merk_mesin;
+        document.getElementById('out-sn').innerText = header.serial_no;
+        document.getElementById('out-ton').innerText = header.tonage;
+        document.getElementById('out-periode').innerText = document.getElementById('month-select').options[bln-1].text + " " + thn;
+        document.getElementById('out-coord').innerText = header.approved_by || "-";
+        document.getElementById('out-super').innerText = header.status_form === 'finalized' ? header.approved_by : "PENDING";
         
-        // Tampilkan Paraf Pelaksana (Base64 Image)
-        if(h.paraf) {
-            document.getElementById('sig-area-pelaksana').innerHTML = `<img src="${h.paraf}" style="height:50px; mix-blend-mode: multiply;">`;
-        }
-    }
-
-    function renderMatrix(items, results) {
+        // Render Matriks
         const tbody = document.getElementById('main-body');
         tbody.innerHTML = "";
         let currentCat = "";
 
-        items.forEach(item => {
-            if(item.kategori !== currentCat) {
-                tbody.innerHTML += `<tr><td colspan="34" class="bg-gray">${item.kategori}</td></tr>`;
-                currentCat = item.kategori;
+        master.forEach(m => {
+            if(m.kategori !== currentCat) {
+                tbody.innerHTML += `<tr><td colspan="34" class="bg-gray">${m.kategori}</td></tr>`;
+                currentCat = m.kategori;
             }
 
-            let rowHtml = `<tr>
-                <td>${item.item_kode}</td>
-                <td class="col-nama">${item.nama_pengecekan}</td>
-                <td class="col-std">Visual / Check</td>`;
+            let row = `<tr>
+                <td>${m.item_kode || ''}</td>
+                <td class="col-nama">${m.nama_pengecekan}</td>
+                <td class="col-std">${m.standar || 'Visual'}</td>`;
             
             for(let d=1; d<=31; d++) {
-                // Cari data berdasarkan item_id dan tanggal_cek
-                // Catatan: Karena kita sistem bulanan, kita asumsikan status adalah hasil terbaru
-                const res = results.find(r => r.item_id === item.id);
-                let val = "";
+                // LOGIKA KRUSIAL: Cari hasil yang item_id-nya sama DAN tanggal_cek-nya sesuai kolom
+                const find = results.find(r => r.item_id === m.id && parseInt(r.tanggal_cek.split('-')[2]) === d);
+                
+                let icon = "";
                 let cls = "";
-                
-                if(res) {
-                    val = (res.status === 'OK') ? "√" : (res.status === 'NG' ? "X" : "-");
-                    cls = (res.status === 'OK') ? "st-ok" : "st-ng";
+                if(find) {
+                    icon = find.status === 'OK' ? '√' : (find.status === 'NG' ? 'X' : '-');
+                    cls = find.status === 'NG' ? 'st-ng' : 'st-ok';
                 }
-                
-                rowHtml += `<td class="${cls}">${val}</td>`;
+                row += `<td class="${cls}">${icon}</td>`;
             }
-            rowHtml += `</tr>`;
-            tbody.innerHTML += rowHtml;
+            row += `</tr>`;
+            tbody.innerHTML += row;
+        });
+
+        // Paraf
+        if(header.paraf) {
+            document.getElementById('sig-area-pelaksana').innerHTML = `<img src="${header.paraf}" style="height:45px; mix-blend-mode: multiply; margin-left:20px">`;
+        }
+    }
+
+    function renderEmpty(master) {
+        const tbody = document.getElementById('main-body');
+        tbody.innerHTML = "";
+        master.forEach(m => {
+            let row = `<tr><td>${m.item_kode}</td><td class="col-nama">${m.nama_pengecekan}</td><td class="col-std">-</td>`;
+            for(let d=1; d<=31; d++) row += `<td></td>`;
+            row += `</tr>`;
+            tbody.innerHTML += row;
         });
     }
 
-    function resetTable(items) {
-        const tbody = document.getElementById('main-body');
-        tbody.innerHTML = "";
-        // Render table kosong...
-    }
-
-    window.onload = () => {
-        initFilter();
-        renderDateHeader();
-    };
+    window.onload = initFilter;
 </script>
 </body>
 </html>
